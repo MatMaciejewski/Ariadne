@@ -29,10 +29,10 @@ public class Server {
 	
 	public void stop(){
 		if(running){
-			dispatcher.disable();
 			for(int i=0;i<workers.size();++i){
 				workers.get(i).stopWorking();
 			}
+			dispatcher.disable();
 			workers = new ArrayList<Worker>();
 			running = false;
 		}
