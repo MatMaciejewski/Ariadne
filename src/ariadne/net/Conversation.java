@@ -1,19 +1,29 @@
 package ariadne.net;
 
 import java.net.Socket;
+import java.nio.channels.SocketChannel;
 
 public class Conversation {
-	private Socket socket;
-	
-	public Conversation(Socket s){
+	public interface State{
 		
 	}
+	private SocketChannel socket;
+	private State state;
 	
-	public byte[] read(){
-		throw new UnsupportedOperationException("Not yet implemented");
+	public Conversation(SocketChannel socket, State state){
+		this.socket = socket;
+		this.state = state;
 	}
 	
-	public void write(byte[] data){
-		throw new UnsupportedOperationException("Not yet implemented");
+	public SocketChannel getSocket(){
+		return socket;
+	}
+	
+	public State getState(){
+		return state;
+	}
+	
+	public void setState(State state){
+		this.state = state;
 	}
 }
