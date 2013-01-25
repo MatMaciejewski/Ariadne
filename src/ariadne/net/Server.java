@@ -1,6 +1,18 @@
 package ariadne.net;
 
-public interface Server {
-	public void start();
-	public void stop();
+public class Server {
+	private Dispatcher dispatcher;
+	
+	public Server(){
+		throw new UnsupportedOperationException("Not yet implemented");
+		//construct the dispatcher
+	}
+	
+	
+	public void start(int threadCount){
+		
+	}
+	public void stop(){
+		
+	}
 }
