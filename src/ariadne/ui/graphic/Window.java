@@ -1,4 +1,4 @@
-package ariadne.gui;
+package ariadne.ui.graphic;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -9,26 +9,28 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import java.awt.SystemColor;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 class Window{
 
 	private JFrame frame;
 	private JTextField textField;
-	private GUI.QueueDelegate delegate;
+	private GraphicUI.Delegate delegate;
 
-	public Window(GUI.QueueDelegate delegate) {
-		this.delegate = delegate;
+	public Window(GraphicUI.Delegate d) {
+		delegate = d;
 		initialize();
 	}
 	private void initialize() {
 		frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setBounds(100, 100, 640, 480);
 		
 		JPanel header = new JPanel();
@@ -38,11 +40,6 @@ class Window{
 		header.setLayout(new BorderLayout(0, 0));
 		
 		JButton btnNewButton = new JButton("Download");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				delegate.hashAdded(textField.getText());
-			}
-		});
 		btnNewButton.setMinimumSize(new Dimension(120, 48));
 		btnNewButton.setMaximumSize(new Dimension(120, 48));
 		btnNewButton.setPreferredSize(new Dimension(120, 48));
@@ -98,13 +95,23 @@ class Window{
 		
 		frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-               delegate.quit();
+               delegate.closing();
             }
-        });
+        });	
+		
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				delegate.hashAdded(textField.getText());
+			}
+		});
 	}
 	
 	public void show(){
 		frame.setVisible(true);
+	}
+	
+	public void hide(){
+		frame.setVisible(false);
 	}
 
 	public void close(){
