@@ -3,22 +3,22 @@ package ariadne.data;
 public class Chunk {
 	private Hash hash;
 	private byte[] content;
-	
-	public Chunk(byte[] source){
-		content=source;
-		hash=new Hash(source);
+
+	public Chunk(byte[] source) {
+		content = source;
+		hash = Hash.computeFromBytes(source);
 		System.out.println(hash.toString());
 	}
-	
-	public Hash getHash(){
+
+	public Hash getHash() {
 		return hash;
 	}
-	
-	public int getSize(){
+
+	public int getSize() {
 		return content.length;
 	}
 
-	public byte[] getBytes(){
+	public byte[] getBytes() {
 		return content;
 	}
 }

@@ -27,34 +27,30 @@ public class Hash {
 		if(b.length != LENGTH/2) throw new InvalidHashException();
 		hash = b.clone();
 	}
-<<<<<<< HEAD
 
 	public byte[] getBytes() {
 		return hash;
-=======
+	}
 	
 	public Hash(ByteBuffer bb, int offset){
 		byte[] hash = new byte[LENGTH/2];
 		bb.get(hash, offset, hash.length);
 	}
 	
-	public byte[] getBytes(){
-			return hash;
->>>>>>> 8ec0204eda86205fef15f1e76dd6bab3913327d0
-	}
-	
-	public static Hash computeFromString(String s) throws InvalidHashException{
+	public static Hash computeFromString(String s){
 		return Hash.computeFromBytes(s.getBytes());
 	}
 	
-	public static Hash computeFromBytes(byte[] b) throws InvalidHashException{
+	public static Hash computeFromBytes(byte[] b){
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			md.update(b, 0, b.length);
 			return new Hash( md.digest() );
 		} catch (NoSuchAlgorithmException e) {
 			Log.error("Could not generate an MD5 hash!");
-			throw new InvalidHashException();
+			throw new IllegalArgumentException();
+		} catch (InvalidHashException e) {
+			throw new IllegalArgumentException();
 		}
 	}
 
