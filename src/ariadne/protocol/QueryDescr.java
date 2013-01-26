@@ -1,8 +1,6 @@
 package ariadne.protocol;
 
 import java.nio.ByteBuffer;
-import ariadne.data.Hash;
-import ariadne.net.Port;
 
 /*
  * DESCR query
@@ -17,14 +15,6 @@ public class QueryDescr extends Query {
 	@Override
 	public byte getCode() {
 		return 1;
-	}
-
-	public Port getPort() {
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	public Hash getHash() {
-		return new Hash(getByteBuffer(), 3);
 	}
 
 	@Override

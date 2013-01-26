@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import ariadne.utils.Log;
+
 public class File {
 	private Descriptor descriptor;
 	private BitMask bitmask;
@@ -55,8 +57,7 @@ public class File {
 		try {
 			byteFile = new RandomAccessFile(in, "r");
 		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Log.error("File "+fileName+" not found.");
 		}
 		if (descriptor.getChunkSize() * id < in.length()) {
 			try {
@@ -64,9 +65,8 @@ public class File {
 				byteFile.read(bytes);
 				System.out.println(new String(bytes));
 				return new Chunk(bytes);
-
+				
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

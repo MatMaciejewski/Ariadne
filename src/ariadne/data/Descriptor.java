@@ -3,6 +3,7 @@ package ariadne.data;
 import java.util.ArrayList;
 
 import ariadne.data.Hash.InvalidHashException;
+import ariadne.utils.Log;
 
 /*TODO:
  * rewrite this class so the descriptor is represented in bytes, not strings
@@ -31,8 +32,7 @@ public class Descriptor {
 					try {
 						hash = new Hash(temp);
 					} catch (InvalidHashException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Log.error("Invalid Hash Length or Character.");
 					}
 				
 			} else if (chunkCount == -1) {
@@ -43,8 +43,7 @@ public class Descriptor {
 					try {
 						chunkCollection.add(new Hash(temp));
 					} catch (InvalidHashException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Log.error("Invalid Hash Length or Character.");
 					}
 			}
 			temp = "";

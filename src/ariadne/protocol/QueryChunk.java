@@ -1,9 +1,6 @@
 package ariadne.protocol;
 
 import java.nio.ByteBuffer;
-import ariadne.data.Hash;
-import ariadne.net.Port;
-
 /*
  * CHUNK query
  * 
@@ -19,15 +16,7 @@ public class QueryChunk extends Query {
 	public byte getCode() {
 		return 2;
 	}
-
-	public Port getPort() {
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	public Hash getHash() {
-		return new Hash(getByteBuffer(), 3);
-	}
-
+	
 	@Override
 	public boolean isComplete() throws InvalidMessageException {
 		ByteBuffer b = getByteBuffer();

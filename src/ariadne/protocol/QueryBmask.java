@@ -2,8 +2,6 @@ package ariadne.protocol;
 
 import java.nio.ByteBuffer;
 
-import ariadne.data.Hash;
-import ariadne.net.Port;
 
 /*
  * CHASE Bmask
@@ -20,24 +18,18 @@ public class QueryBmask extends Query {
 		return 3;
 	}
 
-	public Port getPort() {
-		return new Port(getByteBuffer(),1);
-	}
-
-	public Hash getHash() {
-		return new Hash(getByteBuffer(), 3);
-	}
-
 	@Override
 	public boolean isComplete() throws InvalidMessageException {
 		ByteBuffer b = getByteBuffer();
-
-		if (b.get(0) != getCode())
+		
+		if(b.get(0) != getCode()) 
 			throw new InvalidMessageException();
-		if (b.limit() > 19)
+		if(b.limit() > 19) 
 			throw new InvalidMessageException();
-
+		
 		return (b.limit() == 19);
 	}
+
+
 
 }
