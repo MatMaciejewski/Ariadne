@@ -2,6 +2,7 @@ package ariadne.net;
 
 import ariadne.data.Hash;
 import ariadne.protocol.Response;
+import ariadne.utils.TimedMultiMap;
 
 /*
  * Code chart:
