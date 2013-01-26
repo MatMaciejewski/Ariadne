@@ -41,6 +41,10 @@ public class File {
 		return bitmask;
 	}
 
+	public void removeFile(){
+		java.io.File in = new java.io.File(fileName);
+		in.delete();
+	}
 	// //////////////////////////////////////////
 
 	private Chunk getChunkFromDisk(int id) {
