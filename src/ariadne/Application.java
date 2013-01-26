@@ -23,11 +23,9 @@ public class Application{
 			@Override
 			public void trigger(Event e) {
 				HashAddedEvent h = (HashAddedEvent) e;
-				System.out.println(h.data);
-				
-				ui.showEntry(Hash.computeFromString(h.data), h.data, 50, 129, 23);
+				System.out.println("Text entered: " + h.data);
+				ui.showEntry(Hash.computeFromString(h.data), h.data, 192.67f, 0.23f, 652.44f, 56.45f, 0.12f);
 			}});
-		
 		
 		ui.open();
 		ui.eventLoop();

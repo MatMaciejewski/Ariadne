@@ -79,14 +79,17 @@ public class GraphicUI extends DelegableUI {
 	}
 
 	@Override
-	public void showEntry(Hash hash, String name, float percent, float download, float upload) {
-		final Hash h = hash;
-		final String n = name;
-		System.out.println("show");
+	public void showEntry(Hash hash, String name, float size, float percent, float downRate, float upRate, float ratio) {
+		final Hash _hash = hash;
+		final String _name = name;
+		final float _size = size;
+		final float _percent = percent;
+		final float _downRate = downRate;
+		final float _upRate = upRate;
+		final float _ratio = ratio;
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				System.out.println("event fired");
-				window.showEntry(h, n);
+				window.showEntry(_hash, _name, _size, _percent, _downRate, _upRate, _ratio);
 			}
 		});
 	}

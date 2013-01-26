@@ -7,7 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import ariadne.utils.Hexadecimal;
 import ariadne.utils.Log;
 
-public class Hash {
+public class Hash implements Comparable<Hash>{
 	public static final int LENGTH = 32;
 	private byte[] hash;
 
@@ -64,12 +64,28 @@ public class Hash {
 	public boolean equals(Object obj) {
 		if (obj instanceof Hash) {
 			Hash h = (Hash) obj;
-			for (int i = 0; i < LENGTH; ++i) {
+			for (int i = 0; i < LENGTH/2; ++i) {
 				if (hash[i] != h.hash[i])
 					return false;
 			}
 			return true;
 		}
+		
 		return false;
+	}
+
+	@Override
+	public int compareTo(Hash o) {
+		int r = 0;
+		for(int i=0;i<LENGTH/2;++i){
+			r = hash[i] - o.hash[i];
+			if(r != 0) return r;
+		}
+		return r;
+	}
+	
+	@Override
+	public int hashCode(){
+		return toString().hashCode();
 	}
 }

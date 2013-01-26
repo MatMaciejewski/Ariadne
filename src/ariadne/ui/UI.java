@@ -11,7 +11,7 @@ public interface UI {
 	public void open();
 	public void close();
 	
-	public void showEntry(Hash hash, String name, float percent, float download, float upload);
+	public void showEntry(Hash hash, String name, float size, float percent, float downRate, float upRate, float ratio);
 	public void dropEntry(Hash hash);
 	
 	public void onHashAdded(Listener l);

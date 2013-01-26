@@ -87,26 +87,28 @@ class Window {
 		contentPanel = new JPanel();
 		contentScrollPane.setViewportView(contentPanel);
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-
+		
 		initMenu();
 		initEvents();
 
 	}
 
-	public void showEntry(Hash hash, String name) {
+	public void showEntry(Hash hash, String name, float size, float percent, float downRate, float upRate, float ratio) {
 		FileEntry e = entries.get(hash);
-		System.out.println("here");
 		if (e == null) {
 			e = new FileEntry(contentPanel);
-			entries.put(hash, e);
 			contentPanel.add(e);
+			frame.repaint();
+			entries.put(hash, e);
 		}
 		e.setFileName(name);
+		e.setProgress(size, percent);
+		e.setRates(downRate, upRate);
 	}
 
 	public void dropEntry(Hash hash) {
 		FileEntry e = entries.remove(hash);
-		if(e != null){
+		if (e != null) {
 			contentPanel.remove(e);
 		}
 	}
