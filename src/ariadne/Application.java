@@ -1,39 +1,28 @@
 package ariadne;
 
-import java.util.Set;
+import java.nio.ByteBuffer;
 
-import ariadne.data.Hash;
-import ariadne.utils.TimedMultiMap;
+import ariadne.data.BitMask;
 
 public class Application{
 	
 	
 	
 	public static void main(String[] args){
-		TimedMultiMap<Hash, Double> m = new TimedMultiMap<Hash, Double>();
 		
-		Hash a = Hash.computeFromString("asd");
-		Hash b = Hash.computeFromString("qwe");
-		Hash c = Hash.computeFromString("rty");
+		BitMask b = new BitMask(18);
 		
-		System.out.println("asd: "+a);
-		System.out.println("qwe: "+b);
-		System.out.println("rty: "+c);
+		System.out.println(b.get(5));
+		b.set(5);
+		b.set(8);
+		System.out.println(b.get(5));
 		
-		m.add(a, new Double(21), 5);
-		m.add(a, new Double(16), 9);
-		m.add(c, new Double(10), 7);
 		
-		System.out.println("size: " + m.size());
+		ByteBuffer f = b.getByteBuffer();
+		f.rewind();
+		while(f.position() < f.limit()){
+			System.out.println(f.get());
+		}
 		
-		m.removeTimeouted(6);
-		
-		Set<Double> content = m.get(a, 5);
-		
-		System.out.println("content: " + content.size());
-		
-		for(Double v: content){
-			System.out.println(v);
-		}	
 	}
 }
