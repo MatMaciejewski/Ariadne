@@ -21,8 +21,9 @@ public class Hash {
 	public Hash(byte[] b) {
 		hash = b.clone();
 	}
-	public byte[] getBytes(){
-			return hash;
+
+	public byte[] getBytes() {
+		return hash;
 	}
 
 	// ///////////////////////////

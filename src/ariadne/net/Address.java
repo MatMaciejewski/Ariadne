@@ -17,4 +17,8 @@ public class Address {
 	public Port getPort() {
 		return userPort;
 	}
+	
+	public void setPort(Port newPort){
+		userPort=newPort;
+	}
 }
