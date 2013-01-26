@@ -5,18 +5,19 @@ import ariadne.data.Hash;
 import ariadne.net.Port;
 
 /*
- * DESCR query
+ * CHUNK query
  * 
  * Byte 0		- query code
  * Byte 1-2		- client port (server is gonna save it along with our IP)
  * Byte 3-18	- chased hash 
+ * 
  */
 
-public class QueryDescr extends Query {
+public class QueryChunk extends Query {
 
 	@Override
 	public byte getCode() {
-		return 1;
+		return 2;
 	}
 	
 	public Port getPort(){

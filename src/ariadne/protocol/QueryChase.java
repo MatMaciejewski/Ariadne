@@ -3,6 +3,7 @@ package ariadne.protocol;
 import java.nio.ByteBuffer;
 
 import ariadne.data.Hash;
+import ariadne.net.Port;
 
 /*
  * CHASE query
@@ -19,8 +20,7 @@ public class QueryChase extends Query {
 		return 0;
 	}
 	
-	public void getPort(){
-		//this should return a port class
+	public Port getPort(){
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 	
