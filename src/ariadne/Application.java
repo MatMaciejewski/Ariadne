@@ -3,6 +3,7 @@ package ariadne;
 import java.util.Set;
 
 import ariadne.data.Hash;
+import ariadne.net.Port;
 import ariadne.utils.TimedMultiMap;
 
 public class Application{
@@ -10,7 +11,11 @@ public class Application{
 	
 	
 	public static void main(String[] args){
-		TimedMultiMap<Hash, Double> m = new TimedMultiMap<Hash, Double>();
+		Port alpha = new Port(8080);
+		//System.out.println("8080".getBytes());
+		System.out.println(alpha.getPort());
+		
+		/*TimedMultiMap<Hash, Double> m = new TimedMultiMap<Hash, Double>();
 		
 		Hash a = Hash.computeFromString("asd");
 		Hash b = Hash.computeFromString("qwe");
@@ -34,6 +39,6 @@ public class Application{
 		
 		for(Double v: content){
 			System.out.println(v);
-		}	
+		}*/	
 	}
 }

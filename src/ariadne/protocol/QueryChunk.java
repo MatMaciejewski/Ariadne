@@ -19,24 +19,24 @@ public class QueryChunk extends Query {
 	public byte getCode() {
 		return 2;
 	}
-	
-	public Port getPort(){
+
+	public Port getPort() {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
-	
-	public Hash getHash(){
+
+	public Hash getHash() {
 		return new Hash(getByteBuffer(), 3);
 	}
 
 	@Override
 	public boolean isComplete() throws InvalidMessageException {
 		ByteBuffer b = getByteBuffer();
-		
-		if(b.get(0) != getCode()) 
+
+		if (b.get(0) != getCode())
 			throw new InvalidMessageException();
-		if(b.limit() > 19) 
+		if (b.limit() > 19)
 			throw new InvalidMessageException();
-		
+
 		return (b.limit() == 19);
 	}
 
