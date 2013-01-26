@@ -1,6 +1,7 @@
 package ariadne.net;
 
 import ariadne.data.Hash;
+import ariadne.protocol.Response;
 
 
 public interface Client {

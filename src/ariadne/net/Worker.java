@@ -18,7 +18,6 @@ public abstract class Worker implements Runnable {
 		Conversation c;
 		working = true;
 		while(working){
-			System.out.println("looping");
 			c = dispatcher.accept();
 			if(c != null){
 				if(handle(c)){

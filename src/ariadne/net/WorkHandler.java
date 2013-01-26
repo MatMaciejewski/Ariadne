@@ -19,24 +19,8 @@ public class WorkHandler extends Worker {
 		for(int i=0;i<b.position();++i){
 			System.out.print((char) b.get(i));
 		}
-		System.out.println("!!!!");
 		
 		
-		TestState t;
-		
-		if(c.getState() == null){
-			c.setState(new TestState());
-		}
-		t = (TestState) c.getState();
-		
-		t.counter++;
-		
-		if(t.counter < 5){
-			System.out.println("ok...");
-			return true;
-		}
-		
-		System.out.println("limit!");
 		return false;
 	}
 
