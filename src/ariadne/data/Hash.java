@@ -1,5 +1,7 @@
 package ariadne.data;
 
+import java.nio.ByteBuffer;
+
 import ariadne.utils.Hexadecimal;
 
 public class Hash {
@@ -21,6 +23,12 @@ public class Hash {
 	public Hash(byte[] b) {
 		hash = b.clone();
 	}
+	
+	public Hash(ByteBuffer bb, int offset){
+		byte[] hash = new byte[LENGTH/2];
+		bb.get(hash, offset, hash.length);
+	}
+	
 	public byte[] getBytes(){
 			return hash;
 	}
