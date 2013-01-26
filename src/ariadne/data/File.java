@@ -41,14 +41,14 @@ public class File {
 		return bitmask;
 	}
 
-	public void removeFile(){
+	public void removeFile() {
 		java.io.File in = new java.io.File(fileName);
 		in.delete();
 	}
+
 	// //////////////////////////////////////////
 
 	private Chunk getChunkFromDisk(int id) {
-		// FileInputStream in = null;
 		java.io.File in = new java.io.File(fileName);
 		byte[] bytes = new byte[descriptor.getChunkSize()];
 		RandomAccessFile byteFile = null;
@@ -81,7 +81,7 @@ public class File {
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
-		int startingPosition = (descriptor.getChunkSize()+1) * id;
+		int startingPosition = (descriptor.getChunkSize() + 1) * id;
 		try {
 			byteFile.seek(startingPosition);
 		} catch (IOException e) {

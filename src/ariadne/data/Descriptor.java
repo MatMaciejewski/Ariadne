@@ -1,14 +1,18 @@
 package ariadne.data;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 
 import ariadne.data.Hash.InvalidHashException;
+
+/*TODO:
+ * rewrite this class so the descriptor is represented in bytes, not strings
+ */
 
 public class Descriptor {
 	private Hash hash;
 	private int chunkCount;
 	private int chunkSize;
-	private HashSet<Hash> chunkCollection;
+	private ArrayList<Hash> chunkCollection;
 
 	public Descriptor(byte[] source) {
 		String src = new String(source);
@@ -16,7 +20,7 @@ public class Descriptor {
 		chunkCount = -1;
 		chunkSize = -1;
 		hash = null;
-		chunkCollection = new HashSet<Hash>();
+		chunkCollection = new ArrayList<Hash>();
 		int i = 0;
 		while (i < src.length()) {
 			while (src.charAt(i) != '\n') {
@@ -71,13 +75,7 @@ public class Descriptor {
 	}
 
 	public Hash getChunkHash(int id) {
-		int i=0;
-		for(Hash it : chunkCollection){
-			if(i==id){
-				return it;
-			}
-			i++;
-		}
-		return null;
+		if(id < 0 || id >= getChunkCount()) throw new IllegalArgumentException();
+		return chunkCollection.get(id);
 	}
 }
