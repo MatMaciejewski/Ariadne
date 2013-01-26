@@ -96,7 +96,7 @@ class Window {
 	public void showEntry(Hash hash, String name, float size, float percent, float downRate, float upRate, float ratio) {
 		FileEntry e = entries.get(hash);
 		if (e == null) {
-			e = new FileEntry(contentPanel);
+			e = new FileEntry();
 			contentPanel.add(e);
 			frame.repaint();
 			entries.put(hash, e);
