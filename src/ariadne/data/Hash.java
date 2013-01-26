@@ -23,22 +23,18 @@ public class Hash {
 	public Hash(byte[] b) {
 		hash = b.clone();
 	}
-<<<<<<< HEAD
 
+	
 	public byte[] getBytes() {
 		return hash;
-=======
+	}
 	
 	public Hash(ByteBuffer bb, int offset){
 		byte[] hash = new byte[LENGTH/2];
 		bb.get(hash, offset, hash.length);
 	}
 	
-	public byte[] getBytes(){
-			return hash;
->>>>>>> 8ec0204eda86205fef15f1e76dd6bab3913327d0
-	}
-
+	
 	// ///////////////////////////
 
 	public String toString() {

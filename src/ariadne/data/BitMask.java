@@ -1,21 +1,26 @@
 package ariadne.data;
 
-import java.util.Vector;
-
 public class BitMask {
-	//TODO
+	// TODO
 	private byte[] mask;
-	public BitMask(byte[] src){
-		mask=src.clone();
+
+	public BitMask(byte[] src) {
+		mask = src.clone();
 	}
-	public BitMask(){
-		
+
+	public BitMask() {
+
 	}
-	public boolean isSet(int id){
-		//if(mask&&)
+
+	public boolean isSet(int id) {
+		int target = id/8;
+		int offset = id%8;
+		// mask&target>>offset;
+		// if(mask&&)
 		return false;
 	}
-	public int getSize(){
+
+	public int getSize() {
 		return mask.length;
 	}
 }
