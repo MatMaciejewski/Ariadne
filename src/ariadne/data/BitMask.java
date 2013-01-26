@@ -12,6 +12,7 @@ public class BitMask {
 		
 	}
 	public boolean isSet(int id){
+		//if(mask&&)
 		return false;
 	}
 	public int getSize(){
