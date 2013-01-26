@@ -137,7 +137,6 @@ public class SocketChannelDispatcher implements Dispatcher {
 					switch(k.interestOps()){
 					
 					case SelectionKey.OP_READ:
-						System.out.println("read!");
 						socket = (SocketChannel) k.channel();
 						ready.add(new Conversation(socket, states.remove(k)));
 						k.cancel();
