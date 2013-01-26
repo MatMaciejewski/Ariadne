@@ -1,22 +1,6 @@
 package ariadne;
 
-<<<<<<< HEAD
-import ariadne.data.BitMask;
-import ariadne.data.Chunk;
-import ariadne.data.Descriptor;
-import ariadne.data.File;
-=======
-import ariadne.net.Server;
->>>>>>> 9473a312b21363f4d0b388f42d501580e8b0cfee
-import ariadne.ui.UI;
-import ariadne.ui.DelegableUI.HashAddedEvent;
-import ariadne.ui.UI.Event;
-import ariadne.ui.UI.Listener;
-import ariadne.ui.graphic.GraphicUI;
-<<<<<<< HEAD
-import ariadne.utils.Hexadecimal;
-=======
->>>>>>> 9473a312b21363f4d0b388f42d501580e8b0cfee
+import ariadne.data.*;
 
 public class Ariadne {
 	public static void main(String[] args) {
@@ -74,9 +58,5 @@ public class Ariadne {
 <<<<<<< HEAD
 
 		ui.close();*/
-=======
-		ui.close();
-	
->>>>>>> 9473a312b21363f4d0b388f42d501580e8b0cfee
 	}
 }
