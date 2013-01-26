@@ -7,7 +7,6 @@ public class Chunk {
 	public Chunk(byte[] source) {
 		content = source;
 		hash = Hash.computeFromBytes(source);
-		System.out.println(hash.toString());
 	}
 
 	public Hash getHash() {
