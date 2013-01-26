@@ -33,9 +33,9 @@ public class Hash implements Comparable<Hash>{
 		return hash;
 	}
 	
-	public Hash(ByteBuffer bb, int offset){
-		byte[] hash = new byte[LENGTH/2];
-		bb.get(hash, offset, hash.length);
+	public Hash(ByteBuffer b, int offset){
+		hash = new byte[LENGTH/2];
+		b.get(hash, offset, hash.length);
 	}
 	
 	public static Hash computeFromString(String s){

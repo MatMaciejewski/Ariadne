@@ -1,20 +1,20 @@
 package ariadne.utils;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TimedMultiMap<K, V> {
 	private static class Entry implements Comparable<Entry> {
-		public int timeout;
+		public long timeout;
 
 		@Override
 		public int compareTo(Entry o) {
-			return timeout - o.timeout;
+			return (int) (timeout - o.timeout);
 		}
 
 	}
@@ -22,7 +22,7 @@ public class TimedMultiMap<K, V> {
 	private class KeyEntry extends Entry {
 		public K key;
 
-		public KeyEntry(K key, int timeout) {
+		public KeyEntry(K key, long timeout) {
 			this.timeout = timeout;
 			this.key = key;
 		}
@@ -31,7 +31,7 @@ public class TimedMultiMap<K, V> {
 	private class ValueEntry extends Entry {
 		public V value;
 
-		public ValueEntry(V value, int timeout) {
+		public ValueEntry(V value, long timeout) {
 			this.timeout = timeout;
 			this.value = value;
 		}
@@ -40,18 +40,14 @@ public class TimedMultiMap<K, V> {
 	private Map<K, Queue<ValueEntry>> map;
 	private Queue<KeyEntry> timeouts;
 	private int elementCount;
-	
-	public Object[] getValues(){
-		return map.values().toArray();
-	}
-	
+
 	public TimedMultiMap() {
-		map = new HashMap<K, Queue<ValueEntry>>();
+		map = new ConcurrentHashMap<K, Queue<ValueEntry>>();
 		timeouts = new PriorityQueue<KeyEntry>();
 		elementCount = 0;
 	}
 
-	public void add(K key, V value, int timeout) {
+	public void add(K key, V value, long timeout) {
 		Queue<ValueEntry> q = map.get(key);
 		if (q == null) {
 			q = new PriorityQueue<ValueEntry>();
@@ -63,10 +59,10 @@ public class TimedMultiMap<K, V> {
 		elementCount++;
 	}
 
-	public HashSet<V> get(K key, int count) {
+	public Set<V> get(K key, int count) {
 		Queue<ValueEntry> q = map.get(key);
 		if (q == null)
-			return (HashSet)Collections.emptySet();
+			return Collections.emptySet();
 		HashSet<V> result = new HashSet<V>();
 		int i = 0;
 		for (ValueEntry v : q) {
@@ -77,12 +73,16 @@ public class TimedMultiMap<K, V> {
 
 		return result;
 	}
+	
+	public Set<V> getRandom(int count){
+		throw new IllegalArgumentException("Not yet implemented");
+	}
 
 	public int size() {
 		return elementCount;
 	}
 
-	public void removeTimeouted(int timeout) {
+	public void removeTimeouted(long timeout) {
 		KeyEntry k;
 		ValueEntry v;
 		Queue<ValueEntry> q;

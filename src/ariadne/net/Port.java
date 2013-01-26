@@ -3,33 +3,29 @@ package ariadne.net;
 import java.nio.ByteBuffer;
 
 public class Port {
-	private byte leftByte;
-	private byte rightByte;
-	public Port (byte rByte, byte lByte){
-		leftByte=lByte;
-		rightByte=rByte;
+	private byte l;
+	private byte r;
+
+	public Port(byte l, byte r) {
+		this.l = l;
+		this.r = r;
 	}
-	public Port(int port){
-		rightByte = (byte) (port & 0xFF);
-		leftByte = (byte)
-		((port >> 8) & 0xFF);
+
+	public Port(int port) {
+		r = (byte) (port & 0xFF);
+		l = (byte) ((port >> 8) & 0xFF);
 	}
-	
-	public Port(ByteBuffer bb, int offset){
-		byte[] ports = new byte[2];
-		bb.get(ports, offset, ports.length);
-		leftByte=ports[0];
-		rightByte=ports[1];
+
+	public Port(ByteBuffer b, int offset) {
+		l = b.get(offset);
+		r = b.get(offset+1);
 	}
-	public int getPort(){
-		ByteBuffer bytes = ByteBuffer.wrap(new byte[] {0, 0, leftByte, rightByte});
-	    return bytes.getInt();
-		//return (rightByte << 8) | (leftByte & 0xFF); 
+
+	public int getPort() {
+		return ByteBuffer.wrap(new byte[] { 0, 0, l, r}).getInt();
 	}
-	public byte[] getBytes(){
-		byte[] bytes = new byte[2];
-		bytes[0]=rightByte;
-		bytes[1]=leftByte;
-		return bytes;
-	}	
+
+	public byte[] getBytes() {
+		return new byte[] {l, r};
+	}
 }

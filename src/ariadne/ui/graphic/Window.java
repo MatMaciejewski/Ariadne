@@ -84,7 +84,7 @@ class Window {
 				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		frame.getContentPane().add(contentScrollPane, BorderLayout.CENTER);
 
-		contentPanel = new JPanel();
+		contentPanel = new ExpandingPanel();
 		contentScrollPane.setViewportView(contentPanel);
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 		
@@ -156,6 +156,7 @@ class Window {
 		hashAddedButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				delegate.hashAdded(hashTextField.getText());
+				hashTextField.setText("");
 			}
 		});
 	}
