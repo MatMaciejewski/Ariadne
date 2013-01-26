@@ -28,6 +28,7 @@ public class Hash {
 		hash = b.clone();
 	}
 
+	
 	public byte[] getBytes() {
 		return hash;
 	}
@@ -37,6 +38,9 @@ public class Hash {
 		bb.get(hash, offset, hash.length);
 	}
 	
+<<<<<<< HEAD
+	
+=======
 	public static Hash computeFromString(String s){
 		return Hash.computeFromBytes(s.getBytes());
 	}
@@ -54,6 +58,7 @@ public class Hash {
 		}
 	}
 
+>>>>>>> 6adfad700d177d8c14051c6131723f29b8bd12f9
 	// ///////////////////////////
 
 	public String toString() {
