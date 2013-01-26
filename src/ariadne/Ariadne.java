@@ -1,15 +1,22 @@
 package ariadne;
 
+<<<<<<< HEAD
 import ariadne.data.BitMask;
 import ariadne.data.Chunk;
 import ariadne.data.Descriptor;
 import ariadne.data.File;
+=======
+import ariadne.net.Server;
+>>>>>>> 9473a312b21363f4d0b388f42d501580e8b0cfee
 import ariadne.ui.UI;
 import ariadne.ui.DelegableUI.HashAddedEvent;
 import ariadne.ui.UI.Event;
 import ariadne.ui.UI.Listener;
 import ariadne.ui.graphic.GraphicUI;
+<<<<<<< HEAD
 import ariadne.utils.Hexadecimal;
+=======
+>>>>>>> 9473a312b21363f4d0b388f42d501580e8b0cfee
 
 public class Ariadne {
 	public static void main(String[] args) {
@@ -27,6 +34,7 @@ public class Ariadne {
 		bla+=alfa+beta+gamma;
 		byte[] source = bla.getBytes();
 		
+<<<<<<< HEAD
 		Descriptor blah = new Descriptor(source);
 		System.out.println("HASH: "+new String(blah.getBytes()));
 		System.out.println(blah.getBytes());*/
@@ -42,6 +50,20 @@ public class Ariadne {
 		});
 
 		ui.onHashAdded(new Listener() {
+=======
+		final Server s = new Server(25566);
+		s.start(4);
+		
+		final UI ui = new GraphicUI();
+		ui.open();
+		ui.onClosing(new Listener(){
+			public void trigger(Event e) {
+				ui.close();
+				s.stop();
+			}});
+		
+		ui.onHashAdded(new Listener(){
+>>>>>>> 9473a312b21363f4d0b388f42d501580e8b0cfee
 			public void trigger(Event e) {
 				HashAddedEvent ev = (HashAddedEvent) e;
 				System.out.println(ev.data);
@@ -49,7 +71,12 @@ public class Ariadne {
 		});
 
 		ui.eventLoop();
+<<<<<<< HEAD
 
 		ui.close();*/
+=======
+		ui.close();
+	
+>>>>>>> 9473a312b21363f4d0b388f42d501580e8b0cfee
 	}
 }

@@ -24,11 +24,7 @@ public class File {
 	}
 
 	public boolean setChunk(Chunk chunk, int id) {
-		System.out.println("SIZE: " + chunk.getSize() + "\nDEF SIZE: "
-				+ descriptor.getChunkSize());
 		if (chunk.getSize() == descriptor.getChunkSize()) {
-			System.out.println("HASH: " + chunk.getHash() + "\nHASH DEF: "
-					+ descriptor.getChunkHash(id));
 			if (chunk.getHash() == descriptor.getChunkHash(id)) {
 				saveChunkToDisk(chunk, id);
 				return true;
