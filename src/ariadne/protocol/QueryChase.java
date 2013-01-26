@@ -19,7 +19,8 @@ public class QueryChase extends Query {
 		return 0;
 	}
 	
-	public Port getPort(){
+	public void getPort(){
+		//this should return a port class
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 	
