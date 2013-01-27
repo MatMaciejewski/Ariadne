@@ -1,11 +1,12 @@
 package ariadne.data;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Database {
-	private static HashMap<Hash, File> files;
+	private static Map<Hash, File> files;;
 
-	private Database() {
+	public static void initialize() {
 		files = new HashMap<Hash, File>();
 	}
 
@@ -13,8 +14,8 @@ public class Database {
 		return files.get(hash);
 	}
 
-	public static void insertFile(Descriptor desc, BitMask bit, String fileName) {
-		files.put(desc.getHash(), new File(desc, bit, fileName));
+	public static void insertFile(Descriptor desc, BitMask bit, String path, String name) {
+		files.put(desc.getHash(), new File(desc, bit, path, name));
 	}
 
 	public static void removeFile(Hash hash, boolean removeFromDisk) {
