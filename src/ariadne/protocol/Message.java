@@ -26,5 +26,14 @@ public abstract class Message {
 		return buf.asReadOnlyBuffer();
 	}
 	
+	protected void setByteBuffer(ByteBuffer b){
+		if(b.isReadOnly()) throw new IllegalArgumentException();
+		buf = b;
+	}
+	
+	protected ByteBuffer accessByteBuffer(){
+		return buf;
+	}
+	
 	public abstract boolean isComplete() throws InvalidMessageException;
 }

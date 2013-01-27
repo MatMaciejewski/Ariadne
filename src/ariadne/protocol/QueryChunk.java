@@ -1,5 +1,10 @@
 package ariadne.protocol;
 
+import java.nio.ByteBuffer;
+
+import ariadne.data.Hash;
+import ariadne.net.Port;
+
 /*
  * CHASE query
  * 
@@ -23,6 +28,14 @@ public class QueryChunk extends PortHashQuery {
 	
 	@Override
 	public int expectedLength(){
-		return 23;
+		return 1 + Port.BYTESIZE + Hash.LENGTH + 4; // 23
+	}
+	
+	public static QueryChunk prepare(Port port, Hash hash, int id){
+		QueryChunk q = new QueryChunk();
+		PortHashQuery.prepare(q, port, hash);
+		ByteBuffer b = q.accessByteBuffer();
+		b.putInt(19, id);
+		return q;
 	}
 }

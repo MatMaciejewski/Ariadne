@@ -22,6 +22,14 @@ public abstract class PortHashQuery extends Query {
 	}
 	@Override
 	public int expectedLength(){
-		return 19;
+		return 1 + Port.BYTESIZE + Hash.LENGTH; // 19
+	}
+	
+	protected static void prepare(PortHashQuery p, Port port, Hash hash){
+		ByteBuffer b = ByteBuffer.allocate(p.expectedLength());
+		b.put(p.getCode());
+		b.put(port.getByteBuffer());
+		b.put(hash.getByteBuffer());
+		p.setByteBuffer(b);
 	}
 }

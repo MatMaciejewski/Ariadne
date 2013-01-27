@@ -47,6 +47,7 @@ class Window {
 
 	private void initialize() {
 		frame = new JFrame();
+		frame.setTitle("Ariadne");
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.setBounds(100, 100, 640, 480);
 

@@ -1,5 +1,7 @@
 package ariadne.protocol;
 
+import java.nio.ByteBuffer;
+
 
 /*
  * PEERS query
@@ -17,5 +19,13 @@ public class QueryPeers extends Query {
 	@Override
 	public int expectedLength() {
 		return 1;
+	}
+	
+	public static QueryPeers prepare(){
+		QueryPeers q = new QueryPeers();
+		ByteBuffer b = ByteBuffer.allocate(q.expectedLength());
+		b.put(q.getCode());
+		q.setByteBuffer(b);
+		return q;
 	}
 }

@@ -11,7 +11,7 @@ import ariadne.net.Address;
  * Bytes 1,7,13...	- peer ip+port
  */
 
-public class PeerListResponse extends Response {
+public abstract class PeerListResponse extends Response {
 	public static final int MAX_PEERS = 32;
 
 	public List<Address> getPeers() {
@@ -20,7 +20,7 @@ public class PeerListResponse extends Response {
 		List<Address> result = new LinkedList<Address>();
 
 		for (int i = 0; i < s; ++i) {
-			result.add(Address.fromByteBuffer(b, 1+i*6));
+			result.add(Address.fromByteBuffer(b, 1+i*Address.BYTESIZE));
 		}
 		return result;
 	}
@@ -36,10 +36,20 @@ public class PeerListResponse extends Response {
 			return false;
 		if (b.get(0) > MAX_PEERS)
 			throw new InvalidMessageException();
-		int s = 1 + 6 * b.get(0);
+		int s = 1 + Address.BYTESIZE * b.get(0);
 		if (b.limit() > s)
 			throw new InvalidMessageException();
 		return (b.limit() == s);
 	}
+	
+	protected static void prepare(PeerListResponse r, List<Address> peers){
+		if(peers.size() > MAX_PEERS) throw new IllegalArgumentException();
+		ByteBuffer b = ByteBuffer.allocate(1 + peers.size());
+		b.put((byte) peers.size());
+		for(Address a: peers){
+			b.put(a.getByteBuffer());
+		}
+		r.setByteBuffer(b);
+	}	
 
 }
