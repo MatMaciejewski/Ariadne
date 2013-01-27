@@ -119,7 +119,6 @@ public class Settings {
 		BufferedReader br = null;
 		try {
 			String sCurrentLine;
-			String temp = "";
 			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
 					".ariadneSettings"), "rws");
 			sCurrentLine = byteFile.readLine();
@@ -128,6 +127,8 @@ public class Settings {
 				return 0;
 			else {
 				int startingPosition = (int) byteFile.length();
+				byteFile.seek(0);
+				byteFile.write(new String(Integer.toString(quantity)).getBytes());
 				byteFile.seek(startingPosition);
 				for (int i = fileQuantity; i < quantity; i++) {
 					byteFile.write(new String(hashes[i] + " " + names[i] + " "

@@ -15,6 +15,7 @@ public class Application{
 		
 		Settings sets = new Settings();
 		sets.updateSettings(new Hash("ABABABABAABBABABABABABABABABABA5"), "Nazwa5", "Sciezka5");
+		sets.updateSettings(new Hash("ABABABABAABBABABABABABABABABABA6"), "Nazwa6", "Sciezka6");
 		Hash[] temp = sets.getAllHash();
 		for (Hash tmp : temp){
 			System.out.println(tmp);
