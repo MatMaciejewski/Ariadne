@@ -8,11 +8,15 @@ import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
+
+import ariadne.data.Hash;
+
 import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class FileEntry extends JPanel {
+	private Hash hash;
 	private static final long serialVersionUID = 1L;
 	private JProgressBar progressBar;
 	private JLabel descLabel;
@@ -21,7 +25,8 @@ public class FileEntry extends JPanel {
 	private Color defaultColor;
 	private static FileEntry selected;
 
-	public FileEntry() {
+	public FileEntry(Hash hash) {
+		this.hash = hash;
 		setBorder(new EmptyBorder(4, 4, 4, 4));
 		setLayout(new BorderLayout(0, 0));
 
@@ -119,5 +124,9 @@ public class FileEntry extends JPanel {
 	
 	public static FileEntry getSelected(){
 		return selected;
+	}
+	
+	public Hash getHash(){
+		return hash;
 	}
 }

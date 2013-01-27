@@ -24,6 +24,8 @@ import ariadne.data.Hash;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 class Window {
 
@@ -37,8 +39,6 @@ class Window {
 	private JLabel statusLabel;
 	private JScrollPane contentScrollPane;
 	private Map<Hash, FileEntry> entries;
-	
-	private JMenuBar menuBar;
 
 	public Window(GraphicUI.Delegate d) {
 		delegate = d;
@@ -98,7 +98,7 @@ class Window {
 	public void showEntry(Hash hash, String name, float size, float percent, float downRate, float upRate, float ratio) {
 		FileEntry e = entries.get(hash);
 		if (e == null) {
-			e = new FileEntry();
+			e = new FileEntry(hash);
 			contentPanel.add(e);
 			frame.repaint();
 			entries.put(hash, e);
@@ -117,42 +117,28 @@ class Window {
 
 	private void initMenu() {
 
-		menuBar = new JMenuBar();
+		JMenuBar menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
-
 		JMenu fileMenu = new JMenu("File");
 		menuBar.add(fileMenu);
-
 		JMenuItem hashGenMenuItem = new JMenuItem("Generate hash...");
 		fileMenu.add(hashGenMenuItem);
-
 		JMenuItem hashDwnMenuItem = new JMenuItem("Download hash...");
 		fileMenu.add(hashDwnMenuItem);
-
 		JMenuItem quitMenuItem = new JMenuItem("Quit");
 		fileMenu.add(quitMenuItem);
-
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
-
 		JMenuItem pauseMenuItem = new JMenuItem("Pause");
 		editMenu.add(pauseMenuItem);
-		
 		JMenuItem resumeMenuItem = new JMenuItem("Resume");
 		editMenu.add(resumeMenuItem);
-		
-		JMenuItem removeMenuItem = new JMenuItem("Remove");
+		JMenuItem removeMenuItem = new JMenuItem("Remove...");
 		editMenu.add(removeMenuItem);
-		
-		JMenuItem remDelMenuItem = new JMenuItem("Remove and delete");
+		JMenuItem remDelMenuItem = new JMenuItem("Delete...");
 		editMenu.add(remDelMenuItem);
-		
-		JMenuItem mntmCoTuMa = new JMenuItem("asdf?");
-		editMenu.add(mntmCoTuMa);
-
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);
-
 		JMenuItem updatesMenuItem = new JMenuItem("Check for updates");
 		helpMenu.add(updatesMenuItem);
 
@@ -176,6 +162,14 @@ class Window {
 			public void actionPerformed(ActionEvent arg0) {
 				delegate.hashAdded(hashTextField.getText());
 				hashTextField.setText("");
+			}
+		});
+		
+		contentPanel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				FileEntry s = FileEntry.getSelected();
+				if(s != null) s.deselect();
 			}
 		});
 	}
