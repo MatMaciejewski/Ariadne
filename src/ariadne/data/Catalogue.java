@@ -8,7 +8,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ariadne.net.Address;
-import ariadne.utils.ReadersWriterLock;
 import ariadne.utils.TimedMultiMap;
 
 public class Catalogue {

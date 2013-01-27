@@ -28,6 +28,14 @@ public class Application{
 			}});
 		
 		ui.open();
+		
+		ui.showEntry(Hash.computeFromString("1"), "file", 192.67f, 0.23f, 652.44f, 56.45f, 0.12f);
+		ui.showEntry(Hash.computeFromString("2"), "file", 192.67f, 0.23f, 652.44f, 56.45f, 0.12f);
+		ui.showEntry(Hash.computeFromString("3"), "file", 192.67f, 0.23f, 652.44f, 56.45f, 0.12f);
+		ui.showEntry(Hash.computeFromString("4"), "file", 192.67f, 0.23f, 652.44f, 56.45f, 0.12f);
+		ui.showEntry(Hash.computeFromString("5"), "file", 192.67f, 0.23f, 652.44f, 56.45f, 0.12f);
+		ui.showEntry(Hash.computeFromString("6"), "file", 192.67f, 0.23f, 652.44f, 56.45f, 0.12f);
+		
 		ui.eventLoop();
 		ui.close();
 		

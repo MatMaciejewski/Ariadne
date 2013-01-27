@@ -53,13 +53,13 @@ public class FileEntry extends JPanel {
 					selected.setBackground(selected.defaultColor);
 				}
 				selected = current;
-				setBackground(defaultColor.brighter().brighter().brighter().brighter().brighter());
+				setBackground(defaultColor.darker().darker().darker().darker().darker());
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
 				if (selected != current)
-					setBackground(defaultColor.brighter().brighter());
+					setBackground(defaultColor.darker().darker());
 			}
 
 			@Override

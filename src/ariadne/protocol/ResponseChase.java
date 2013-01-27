@@ -1,4 +1,4 @@
 package ariadne.protocol;
 
-public class ResponseChase extends Response{
+public class ResponseChase extends PeerListResponse{
 }

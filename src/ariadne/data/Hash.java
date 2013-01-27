@@ -35,7 +35,8 @@ public class Hash implements Comparable<Hash>{
 	
 	public Hash(ByteBuffer b, int offset){
 		hash = new byte[LENGTH/2];
-		b.get(hash, offset, hash.length);
+		b.position(offset);
+		b.get(hash);
 	}
 	
 	public static Hash computeFromString(String s){
@@ -54,7 +55,7 @@ public class Hash implements Comparable<Hash>{
 			throw new IllegalArgumentException();
 		}
 	}
-
+	
 	// ///////////////////////////
 
 	public String toString() {

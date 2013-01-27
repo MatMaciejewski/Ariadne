@@ -1,16 +1,22 @@
 package ariadne.data;
 
+import java.nio.ByteBuffer;
+
 public class Chunk {
-	private Hash hash;
 	private byte[] content;
 
 	public Chunk(byte[] source) {
 		content = source;
-		hash = Hash.computeFromBytes(source);
+	}
+	
+	public Chunk(ByteBuffer b, int offset, int length){
+		content = new byte[length];
+		b.position(offset);
+		b.get(content);
 	}
 
 	public Hash getHash() {
-		return hash;
+		return Hash.computeFromBytes(content);
 	}
 
 	public int getSize() {
