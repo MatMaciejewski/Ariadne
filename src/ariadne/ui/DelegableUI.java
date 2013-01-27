@@ -3,10 +3,17 @@ package ariadne.ui;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import ariadne.data.Hash;
+
 public abstract class DelegableUI implements UI {
-	public class HashAddedEvent implements Event{
+	public static class HashAddedEvent implements Event{
 		public String data;
 	}
+	public static class HashRemovedEvent implements Event{
+		public Hash hash;
+		public boolean removeFromDisk;
+	}
+	
 	private class Pair{
 		public Listener l;
 		public Event e;
@@ -22,6 +29,13 @@ public abstract class DelegableUI implements UI {
 			HashAddedEvent e = new HashAddedEvent();
 			e.data = data;
 			eventQueue.add(new Pair(hashAdded, e));
+		}
+		
+		public void hashRemoved(Hash hash, boolean removeFromDisk){
+			HashRemovedEvent e = new HashRemovedEvent();
+			e.hash = hash;
+			e.removeFromDisk = removeFromDisk;
+			eventQueue.add(new Pair(hashRemoved, e));
 		}
 		
 		public void closing(){

@@ -2,7 +2,6 @@ package ariadne.ui.graphic;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.SystemColor;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -49,17 +48,14 @@ public class FileEntry extends JPanel {
 		addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				if(selected != null){
-					selected.setBackground(selected.defaultColor);
-				}
-				selected = current;
-				setBackground(defaultColor.darker().darker().darker().darker().darker());
+				select();
+				setBackground(defaultColor.darker().darker());
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
 				if (selected != current)
-					setBackground(defaultColor.darker().darker());
+					setBackground(defaultColor.darker());
 			}
 
 			@Override
@@ -108,5 +104,20 @@ public class FileEntry extends JPanel {
 
 	public void setRates(float downRate, float upRate) {
 		ratesLabel.setText("D:" + downRate + "KiB U:" + upRate + "KiB");
+	}
+	
+	public void select(){
+		if(getSelected() != null) getSelected().deselect();
+		setBackground(defaultColor.darker().darker());
+		selected = this;
+	}
+	
+	public void deselect(){
+		setBackground(selected.defaultColor);
+		selected = null;
+	}
+	
+	public static FileEntry getSelected(){
+		return selected;
 	}
 }

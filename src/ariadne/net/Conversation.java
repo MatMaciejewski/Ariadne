@@ -1,6 +1,5 @@
 package ariadne.net;
 
-import java.net.Socket;
 import java.nio.channels.SocketChannel;
 
 public class Conversation {

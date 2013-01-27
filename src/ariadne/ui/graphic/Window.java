@@ -8,7 +8,6 @@ import java.awt.Dimension;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
-import java.awt.SystemColor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -70,7 +69,7 @@ class Window {
 		hashTextField.setColumns(10);
 
 		statusPanel = new JPanel();
-		statusPanel.setBackground(SystemColor.desktop);
+		statusPanel.setBackground(statusPanel.getBackground().darker());
 		statusPanel.setPreferredSize(new Dimension(10, 24));
 		statusPanel.setMaximumSize(new Dimension(32767, 24));
 		statusPanel.setMinimumSize(new Dimension(10, 24));
@@ -147,6 +146,9 @@ class Window {
 		
 		JMenuItem remDelMenuItem = new JMenuItem("Remove and delete");
 		editMenu.add(remDelMenuItem);
+		
+		JMenuItem mntmCoTuMa = new JMenuItem("asdf?");
+		editMenu.add(mntmCoTuMa);
 
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);

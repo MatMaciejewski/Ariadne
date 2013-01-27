@@ -116,7 +116,6 @@ public class Settings {
 	 * -1 -> error 0 -> nothing new to add 1 -> success
 	 */
 	public int updateSettingsFile() {
-		BufferedReader br = null;
 		try {
 			String sCurrentLine;
 			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(

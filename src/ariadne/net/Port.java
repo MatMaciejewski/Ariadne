@@ -4,8 +4,6 @@ import java.nio.ByteBuffer;
 
 public class Port {
 	public final static int BYTESIZE = 2;
-	private byte l;
-	private byte r;
 	private ByteBuffer data;
 
 	public Port(byte l, byte r) {
