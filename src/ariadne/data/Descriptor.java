@@ -1,80 +1,77 @@
 package ariadne.data;
 
-import java.util.ArrayList;
+import java.nio.ByteBuffer;
+import java.util.List;
 
-import ariadne.data.Hash.InvalidHashException;
-import ariadne.utils.Log;
-
-/*TODO:
- * rewrite this class so the descriptor is represented in bytes, not strings
+/*
+ * Byte 0-3		- Chunk size in bytes
+ * Byte 4-7		- Chunk count
+ * Byte 8-*		- Chunk hashes
  */
 
 public class Descriptor {
-	private Hash hash;
-	private int chunkCount;
-	private int chunkSize;
-	private ArrayList<Hash> chunkCollection;
+	private final static int SMALLEST_ALLOWED_CHUNK_SIZE = 16;
+	private ByteBuffer data;
 
-	public Descriptor(byte[] source) {
-		String src = new String(source);
-		String temp = new String("");
-		chunkCount = -1;
-		chunkSize = -1;
-		hash = null;
-		chunkCollection = new ArrayList<Hash>();
-		int i = 0;
-		while (i < src.length()) {
-			while (src.charAt(i) != '\n') {
-				temp += src.charAt(i);
-				i++;
-			}
-			if (hash == null) {
-					try {
-						hash = new Hash(temp);
-					} catch (InvalidHashException e) {
-						Log.error("Invalid Hash Length or Character.");
-					}
-				
-			} else if (chunkCount == -1) {
-				chunkCount = Integer.parseInt(temp);
-			} else if (chunkSize == -1) {
-				chunkSize = Integer.parseInt(temp);
-			} else {
-					try {
-						chunkCollection.add(new Hash(temp));
-					} catch (InvalidHashException e) {
-						Log.error("Invalid Hash Length or Character.");
-					}
-			}
-			temp = "";
-			if(i<src.length()) i++;
+	public Descriptor(int chunkSize, List<Hash> hashes) {
+		if ((chunkSize < SMALLEST_ALLOWED_CHUNK_SIZE) || (hashes == null) || (hashes.size() == 0))
+			throw new IllegalArgumentException();
+
+		data = ByteBuffer.allocate(8 + Hash.LENGTH * hashes.size());
+
+		data.rewind();
+		data.putInt(chunkSize);
+		data.putInt(hashes.size());
+		for (Hash h : hashes) {
+			data.put(h.getByteBuffer());
 		}
 	}
 
 	public Hash getHash() {
-		return hash;
-	}
-
-	public int getChunkCount() {
-		return chunkCount;
-	}
-
-	public int getChunkSize() {
-		return chunkSize;
-	}
-
-	public byte[] getBytes() {
-		String out = new String(hash.toString() + "\n"
-				+ Integer.toString(chunkCount) + "\n"
-				+ Integer.toString(chunkSize) + "\n");
-		for(Hash temp : chunkCollection){
-			out+=temp.toString()+"\n";
-		}
-		return out.getBytes();
+		return Hash.computeFromByteBuffer(data);
 	}
 
 	public Hash getChunkHash(int id) {
-		if(id < 0 || id >= getChunkCount()) throw new IllegalArgumentException();
-		return chunkCollection.get(id);
+		if (id < 0 || id >= getChunkCount())
+			throw new IllegalArgumentException();
+		return new Hash(data, 8 + Hash.LENGTH * id);
+	}
+
+	public int getChunkSize() {
+		data.position(0);
+		return data.getInt();
+	}
+
+	public int getChunkCount() {
+		data.position(4);
+		return data.getInt();
+	}
+
+	public ByteBuffer getByteBuffer() {
+		return data.asReadOnlyBuffer();
+	}
+	
+	private Descriptor(){}
+
+	public static Descriptor parse(ByteBuffer b, int offset) {
+		try {
+			b.position(offset);
+			int chunkSize = b.getInt();
+			int chunkCount = b.getInt();
+
+			if ((chunkSize < SMALLEST_ALLOWED_CHUNK_SIZE) || (chunkCount <= 0) || (b.remaining() <= Hash.LENGTH * chunkCount))
+				throw new IllegalArgumentException();
+			
+			Descriptor d = new Descriptor();
+			d.data = ByteBuffer.allocate(8 + Hash.LENGTH * chunkCount);
+			b.position(offset);
+			for(int i = d.data.capacity(); i>0; --i){
+				d.data.put(b.get());
+			}
+
+			return d;
+		} catch (IndexOutOfBoundsException e) {
+			throw new IllegalArgumentException();
+		}
 	}
 }

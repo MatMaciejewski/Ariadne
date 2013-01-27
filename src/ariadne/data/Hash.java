@@ -3,90 +3,78 @@ package ariadne.data;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 import ariadne.utils.Hexadecimal;
-import ariadne.utils.Log;
 
-public class Hash implements Comparable<Hash>{
-	public static final int LENGTH = 32;
-	private byte[] hash;
+public class Hash implements Comparable<Hash> {
+	public final static int LENGTH = 16;
+	private ByteBuffer data;
 
-	public static class InvalidHashException extends Exception {
-		private static final long serialVersionUID = 1L;
+	public Hash(String s) {
+		byte[] hash = Hexadecimal.fromString(s);
+		assert(hash.length == LENGTH);
+		data = ByteBuffer.allocate(LENGTH).put(hash);
 	}
 
-	public Hash(String s) throws InvalidHashException {
-		try {
-			hash = Hexadecimal.fromString(s);
-		} catch (IllegalArgumentException e) {
-			throw new InvalidHashException();
-		}
-	}
-
-	public Hash(byte[] b) throws InvalidHashException {
-		if(b.length != LENGTH/2) throw new InvalidHashException();
-		hash = b.clone();
-	}
-
-	
-	public byte[] getBytes() {
-		return hash;
-	}
-	
-	public Hash(ByteBuffer b, int offset){
-		hash = new byte[LENGTH/2];
+	public Hash(ByteBuffer b, int offset) {
 		b.position(offset);
-		b.get(hash);
+		data = ByteBuffer.allocate(LENGTH);
+		for(int i=0;i<LENGTH;++i) data.put(b.get());
 	}
-	
-	public static Hash computeFromString(String s){
-		return Hash.computeFromBytes(s.getBytes());
+
+	public Hash(byte[] b, int offset) {
+		data = ByteBuffer.allocate(LENGTH).put(b, offset, LENGTH);
 	}
-	
-	public static Hash computeFromBytes(byte[] b){
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.update(b, 0, b.length);
-			return new Hash( md.digest() );
-		} catch (NoSuchAlgorithmException e) {
-			Log.error("Could not generate an MD5 hash!");
-			throw new IllegalArgumentException();
-		} catch (InvalidHashException e) {
-			throw new IllegalArgumentException();
-		}
+
+	public ByteBuffer getByteBuffer() {
+		return data.asReadOnlyBuffer();
 	}
-	
-	// ///////////////////////////
 
 	public String toString() {
-		return Hexadecimal.toString(hash);
+		return Hexadecimal.toString(data.array());
 	}
 
-	public boolean equals(Object obj) {
-		if (obj instanceof Hash) {
-			Hash h = (Hash) obj;
-			for (int i = 0; i < LENGTH/2; ++i) {
-				if (hash[i] != h.hash[i])
-					return false;
-			}
-			return true;
+	public static Hash computeFromString(String s) {
+		byte[] bt = s.getBytes();
+		return computeFromBytes(bt, 0, bt.length);
+	}
+	
+	public static Hash computeFromByteBuffer(ByteBuffer b){
+		return computeFromByteBuffer(b, 0, b.capacity());
+	}
+
+	public static Hash computeFromByteBuffer(ByteBuffer b, int offset, int length) {
+		byte[] bt = new byte[length];
+		b.position(offset);
+		b.get(bt, 0, length);
+		return computeFromBytes(bt, 0, length);
+	}
+
+	public static Hash computeFromBytes(byte[] b, int offset, int length) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(b, offset, length);
+			byte[] result = md.digest();
+			assert (result.length == LENGTH);
+			return new Hash(result, 0);
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalArgumentException();
 		}
-		
-		return false;
 	}
 
 	@Override
 	public int compareTo(Hash o) {
-		int r = 0;
-		for(int i=0;i<LENGTH/2;++i){
-			r = hash[i] - o.hash[i];
+		int r;
+		data.rewind();
+		o.data.rewind();
+		for (int i = 0; i < LENGTH; ++i) {
+			r = data.get() - o.data.get();
 			if(r != 0) return r;
 		}
-		return r;
+		return 0;
 	}
-	
+
 	@Override
-	public int hashCode(){
+	public int hashCode() {
 		return toString().hashCode();
 	}
 }

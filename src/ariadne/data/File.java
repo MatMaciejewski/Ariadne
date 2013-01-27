@@ -88,7 +88,7 @@ public class File {
 			e.printStackTrace();
 		}
 		try {
-			byteFile.write(c.getBytes());
+			byteFile.write(c.getByteBuffer().array());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

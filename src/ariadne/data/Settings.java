@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-import ariadne.data.Hash.InvalidHashException;
 import ariadne.utils.Log;
 
 /*
@@ -27,11 +26,9 @@ public class Settings {
 					temp += sCurrentLine.charAt(i);
 					i++;
 				}
-				try {
-					hashes[j] = new Hash(temp);
-				} catch (InvalidHashException e) {
-					Log.error("File Hash incorrect.");
-				}
+				
+				hashes[j] = new Hash(temp);
+				
 				temp = "";
 				while (sCurrentLine != " ") {
 					temp += sCurrentLine.charAt(i);
