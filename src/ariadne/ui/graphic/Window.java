@@ -68,7 +68,7 @@ class Window {
 		hashTextField.setColumns(10);
 
 		statusPanel = new JPanel();
-		statusPanel.setBackground(SystemColor.desktop);
+		statusPanel.setBackground(statusPanel.getBackground().darker());
 		statusPanel.setPreferredSize(new Dimension(10, 24));
 		statusPanel.setMaximumSize(new Dimension(32767, 24));
 		statusPanel.setMinimumSize(new Dimension(10, 24));
@@ -134,7 +134,7 @@ class Window {
 		JMenu mnNewMenu_1 = new JMenu("Edit");
 		menuBar.add(mnNewMenu_1);
 
-		JMenuItem mntmCoTuMa = new JMenuItem("Co tu ma być?");
+		JMenuItem mntmCoTuMa = new JMenuItem("asdf?");
 		mnNewMenu_1.add(mntmCoTuMa);
 
 		JMenu mnNewMenu_2 = new JMenu("Help");

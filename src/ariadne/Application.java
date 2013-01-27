@@ -12,7 +12,7 @@ import ariadne.ui.graphic.GraphicUI;
 public class Application{
 	
 	public static void main(String[] args){
-		
+		/*
 		Settings sets = new Settings();
 		sets.updateSettings(new Hash("ABABABABAABBABABABABABABABABABA5"), "Nazwa5", "Sciezka5");
 		sets.updateSettings(new Hash("ABABABABAABBABABABABABABABABABA6"), "Nazwa6", "Sciezka6");
@@ -21,7 +21,8 @@ public class Application{
 			System.out.println(tmp);
 		}
 		sets.updateSettingsFile();
-		/*final UI ui = new GraphicUI();
+		*/
+		final UI ui = new GraphicUI();
 		
 		ui.onClosing(new Listener(){
 			@Override
@@ -47,7 +48,7 @@ public class Application{
 		ui.showEntry(Hash.computeFromString("6"), "file", 192.67f, 0.23f, 652.44f, 56.45f, 0.12f);
 		
 		ui.eventLoop();
-		ui.close();*/
+		ui.close();
 		
 
 	}
