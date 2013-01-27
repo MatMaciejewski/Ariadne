@@ -38,6 +38,8 @@ class Window {
 	private JLabel statusLabel;
 	private JScrollPane contentScrollPane;
 	private Map<Hash, FileEntry> entries;
+	
+	private JMenuBar menuBar;
 
 	public Window(GraphicUI.Delegate d) {
 		delegate = d;
@@ -116,35 +118,49 @@ class Window {
 
 	private void initMenu() {
 
-		JMenuBar menuBar = new JMenuBar();
+		menuBar = new JMenuBar();
 		frame.setJMenuBar(menuBar);
 
-		JMenu mnNewMenu = new JMenu("File");
-		menuBar.add(mnNewMenu);
+		JMenu fileMenu = new JMenu("File");
+		menuBar.add(fileMenu);
 
-		JMenuItem mntmNewMenuItem = new JMenuItem("Generate hash...");
-		mnNewMenu.add(mntmNewMenuItem);
+		JMenuItem hashGenMenuItem = new JMenuItem("Generate hash...");
+		fileMenu.add(hashGenMenuItem);
 
-		JMenuItem mntmNewMenuItem_1 = new JMenuItem("Download hash...");
-		mnNewMenu.add(mntmNewMenuItem_1);
+		JMenuItem hashDwnMenuItem = new JMenuItem("Download hash...");
+		fileMenu.add(hashDwnMenuItem);
 
-		JMenuItem mntmNewMenuItem_2 = new JMenuItem("Quit");
-		mnNewMenu.add(mntmNewMenuItem_2);
+		JMenuItem quitMenuItem = new JMenuItem("Quit");
+		fileMenu.add(quitMenuItem);
 
-		JMenu mnNewMenu_1 = new JMenu("Edit");
-		menuBar.add(mnNewMenu_1);
+		JMenu editMenu = new JMenu("Edit");
+		menuBar.add(editMenu);
 
-		JMenuItem mntmCoTuMa = new JMenuItem("Co tu ma być?");
-		mnNewMenu_1.add(mntmCoTuMa);
+		JMenuItem pauseMenuItem = new JMenuItem("Pause");
+		editMenu.add(pauseMenuItem);
+		
+		JMenuItem resumeMenuItem = new JMenuItem("Resume");
+		editMenu.add(resumeMenuItem);
+		
+		JMenuItem removeMenuItem = new JMenuItem("Remove");
+		editMenu.add(removeMenuItem);
+		
+		JMenuItem remDelMenuItem = new JMenuItem("Remove and delete");
+		editMenu.add(remDelMenuItem);
 
-		JMenu mnNewMenu_2 = new JMenu("Help");
-		menuBar.add(mnNewMenu_2);
+		JMenu helpMenu = new JMenu("Help");
+		menuBar.add(helpMenu);
 
-		JMenuItem mntmNewMenuItem_3 = new JMenuItem("Check for updates");
-		mnNewMenu_2.add(mntmNewMenuItem_3);
+		JMenuItem updatesMenuItem = new JMenuItem("Check for updates");
+		helpMenu.add(updatesMenuItem);
 
-		JMenuItem mntmNewMenuItem_4 = new JMenuItem("About HashChaser");
-		mnNewMenu_2.add(mntmNewMenuItem_4);
+		JMenuItem aboutMenuItem = new JMenuItem("About HashChaser");
+		aboutMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("info");
+			}
+		});
+		helpMenu.add(aboutMenuItem);
 	}
 
 	private void initEvents() {
