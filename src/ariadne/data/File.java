@@ -15,7 +15,6 @@ public class File {
 		this.bitmask = bitmask;
 		this.path = path;
 		this.name = name;
-		
 
 	}
 
@@ -30,11 +29,12 @@ public class File {
 	public boolean setChunk(Chunk chunk, int id) {
 		if (chunk.getSize() == descriptor.getChunkSize()) {
 			if (chunk.getHash() == descriptor.getChunkHash(id)) {
-				if(saveChunkToDisk(chunk, id)){
+				if (saveChunkToDisk(chunk, id)) {
 					bitmask.set(id);
 					return true;
-				}else return false;
-				
+				} else
+					return false;
+
 			}
 		}
 		return false;
@@ -58,21 +58,22 @@ public class File {
 	private Chunk getChunkFromDisk(int id) {
 		byte[] bytes = new byte[descriptor.getChunkSize()];
 		try {
-			java.io.File in = new java.io.File(path+"/"+name);
+			java.io.File in = new java.io.File(path + "/" + name);
 			RandomAccessFile byteFile = new RandomAccessFile(in, "r");
 			byteFile.seek((descriptor.getChunkSize() + 1) * id);
 			byteFile.read(bytes);
 			byteFile.close();
 			return new Chunk(bytes);
 		} catch (IOException e1) {
-			Log.error("File "+name+" not found.");
+			Log.error("File " + name + " not found.");
 		}
 		return null;
 	}
 
 	private boolean saveChunkToDisk(Chunk c, int id) {
 		try {
-			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(path+"/"+name), "rws");
+			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
+					path + "/" + name), "rws");
 			int startingPosition = (descriptor.getChunkSize() + 1) * id;
 			byteFile.seek(startingPosition);
 			byteFile.write(c.getByteBuffer().array());
