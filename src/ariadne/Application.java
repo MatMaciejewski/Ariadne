@@ -1,6 +1,7 @@
 package ariadne;
 
 import ariadne.data.Hash;
+import ariadne.data.Settings;
 import ariadne.ui.UI;
 import ariadne.ui.DelegableUI.HashAddedEvent;
 import ariadne.ui.UI.Event;

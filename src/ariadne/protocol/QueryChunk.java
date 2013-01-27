@@ -1,7 +1,7 @@
 package ariadne.protocol;
 
 /*
- * CHASE query
+ * CHUNK query
  * 
  * Byte 0		- query code
  * Byte 1-2		- client port (server is gonna save it along with our IP)

@@ -7,12 +7,15 @@ import java.io.IOException;
 import ariadne.utils.Log;
 
 /*
- * File Structure : Hash Name Filepath
+ * File Structure : 
+ * Files quantity (int)
+ * Hash Name Filepath xX
  */
 public class Settings {
 	private static Hash[] hashes;
 	private static String[] names;
 	private static String[] filePath;
+	private static int quantity;
 
 	public Settings() {
 		BufferedReader br = null;
@@ -21,22 +24,29 @@ public class Settings {
 			String temp = "";
 			int i = 0, j = 0;
 			br = new BufferedReader(new FileReader(".ariadneSettings"));
+			sCurrentLine = br.readLine();
+			quantity = Integer.parseInt(sCurrentLine);
+			hashes = new Hash[quantity];
+			names = new String[quantity];
+			filePath = new String[quantity];
 			while ((sCurrentLine = br.readLine()) != null) {
-				while (sCurrentLine != " ") {
+				i=0;
+				while (sCurrentLine.charAt(i) != ' ') {
 					temp += sCurrentLine.charAt(i);
 					i++;
 				}
-				
 				hashes[j] = new Hash(temp);
 				
 				temp = "";
-				while (sCurrentLine != " ") {
+				i++;
+				while (sCurrentLine.charAt(i) != ' ') {
 					temp += sCurrentLine.charAt(i);
 					i++;
 				}
 				names[j] = temp;
 				temp = "";
-				while (sCurrentLine != "\n") {
+				i++;
+				while (i<sCurrentLine.length()) {
 					temp += sCurrentLine.charAt(i);
 					i++;
 				}
@@ -64,8 +74,18 @@ public class Settings {
 	public String getNameForHash(Hash hash) {
 		int j = 0;
 		for (Hash hashTemp : hashes) {
-			if (hashTemp == hash)
-				return names[j];
+			System.out.println("J: "+j+" hash: "+hash+" Hashnao: "+hashTemp);
+			if (hash.compareTo(hashTemp)==0) return names[j];
+			j++;
+		}
+		return null;
+	}
+	
+	public String getPathForHash(Hash hash) {
+		int j = 0;
+		for (Hash hashTemp : hashes) {
+			System.out.println("J: "+j+" hash: "+hash+" Hashnao: "+hashTemp);
+			if (hash.compareTo(hashTemp)==0) return filePath[j];
 			j++;
 		}
 		return null;
