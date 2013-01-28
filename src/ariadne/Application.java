@@ -4,6 +4,7 @@ import java.util.Set;
 
 import ariadne.Supervisor.State;
 import ariadne.data.Catalogue;
+import ariadne.data.Database;
 import ariadne.data.Hash;
 import ariadne.net.Address;
 import ariadne.net.Client;
@@ -26,10 +27,11 @@ public class Application{
 		ui = new GraphicUI();
 		manager = new Manager();
 		server = new Server(innerPort);
-		client = new Client(new Address("192.168.1.113", outerPort));
+		client = new Client(new Address("127.0.0.1", outerPort));
 		
+		Database.initialize();
 		Catalogue.initialize();
-		Catalogue.addPeer(new Hash("7815696ecbf1c96e6894b779456d330e"), new Address("192.168.1.111", 25566), 100000);
+		Catalogue.addPeer(new Hash("7815696ecbf1c96e6894b779456d330e"), new Address("127.0.0.1", 25566), 100000);
 		Catalogue.update();
 		
 		prepareUI();

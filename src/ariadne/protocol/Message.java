@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 public abstract class Message {
 	private ByteBuffer buf;
+	private int buflen;
 	
 	@Deprecated
 	public void addBytes(byte[] b, int length){
@@ -15,8 +16,11 @@ public abstract class Message {
 
 	public void addByteBuffer(ByteBuffer b) {
 		if (buf == null) {
+			buflen = 0;
 			buf = ByteBuffer.allocate(64);
 		}
+		buf.position(buflen);
+		
 
 		if (b.limit() > buf.remaining()) {
 			int ncap = buf.capacity();
@@ -28,6 +32,8 @@ public abstract class Message {
 			buf = nbuf;
 		}
 		buf.put(b);
+		buf.flip();
+		buflen = b.position();
 	}
 	
 	public ByteBuffer getByteBuffer(){

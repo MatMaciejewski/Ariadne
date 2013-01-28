@@ -17,25 +17,32 @@ public class WorkHandler extends Worker {
 	@Override
 	public boolean handle(Conversation c) {
 
+		State s;
+
+		if (c.getState() == null) {
+			s = new State();
+
+			c.setState(s);
+		} else {
+			s = (State) c.getState();
+		}
+
 		try {
-			State s;
-
-			if (c.getState() == null) {
-				s = new State();
-
-				c.setState(s);
-			} else {
-				s = (State) c.getState();
-			}
 
 			ByteBuffer b = ByteBuffer.allocate(1024);
-			c.getSocket().read(b);
+			int bytes_read = c.getSocket().read(b);
+			System.out.println(bytes_read + " bytes read");
+			for(int i=0;i<bytes_read;++i){
+				System.out.print(b.get(i) + " ");
+			}
+			System.out.println(" ");
 
 			if (b.limit() == 0)
 				return false;
 			// ///
 			if (s.query == null) {
 				byte code = b.get(0);
+				System.out.println("CODE: " + code);
 				switch (code) {
 				case 0:
 					s.query = new QueryPeers();
@@ -56,24 +63,32 @@ public class WorkHandler extends Worker {
 					return false;
 				}
 			}
-			b.rewind();
+			b.flip();
 			s.query.addByteBuffer(b);
-			
-			if(s.query.isComplete()){
+
+			if (s.query.isComplete()) {
 				Response r = s.query.respond();
 				Log.notice("Valid messge received! " + r);
 				c.getSocket().write(r.getByteBuffer());
 				return false;
-			}else{
+			} else {
 				return true;
 			}
 		} catch (IOException e) {
 			Log.notice("IOException in WorkHandler");
 			return false;
 		} catch (InvalidMessageException e) {
+			
 			Log.notice("Invalid message received");
+			ByteBuffer b = s.query.getByteBuffer();
+			System.out.println("size: " + b.limit());
+			for (int i = 0; i < b.limit(); ++i) {
+				System.out.print((int) b.get(i) + " ");
+			}
+			System.out.println(" ");
+			
 			return false;
-		} catch(Exception e){
+		} catch (Exception e) {
 			Log.error("CRITICAL ERROR IN WorkHandler  -----------------------");
 			e.printStackTrace();
 			System.out.println(e.getMessage());
