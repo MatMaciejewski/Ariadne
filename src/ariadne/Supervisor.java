@@ -20,6 +20,7 @@ import ariadne.protocol.ResponseChase;
 import ariadne.protocol.ResponseChunk;
 import ariadne.protocol.ResponseDescr;
 import ariadne.protocol.ResponsePeers;
+import ariadne.utils.Log;
 
 public class Supervisor extends Thread {
 	private String name;
@@ -106,7 +107,7 @@ public class Supervisor extends Thread {
 				} else
 					iHaveStuff.add(userAddress);
 			}
-			else throw new NullPointerException();
+			else Log.notice("Server did not respond.");
 		} else if (!interested.isEmpty()
 				&& currentState == State.CHASING_CHUNKS) {
 			System.out.println("NOPE3");
@@ -123,7 +124,7 @@ public class Supervisor extends Thread {
 				else
 					toAsk.add(userAddress);
 			}
-			else throw new NullPointerException();
+			else Log.notice("Server did not respond.");
 		} else if (!toAsk.isEmpty() && currentState == State.CHASING_CHUNKS) {
 			System.out.println("NOPE4");
 			Address userAddress = toAsk.poll();
@@ -142,7 +143,7 @@ public class Supervisor extends Thread {
 					toAsk.addAll(potential);
 				}
 			}
-			else throw new NullPointerException();
+			else Log.notice("Server did not respond.");
 		} else if (!toAsk.isEmpty()
 				&& currentState == State.LOOKING_FOR_DESCRIPTOR) {
 			System.out.println("NOPE5");
@@ -162,7 +163,7 @@ public class Supervisor extends Thread {
 					interested.add(userAddress);
 				}
 			}
-			else throw new NullPointerException();
+			else Log.notice("Server did not respond.");
 		}
 		/*
 		 * else if (!toAsk.isEmpty()) { System.out.println("NOPE6"); Address
