@@ -109,6 +109,7 @@ public class Client {
 			ByteBuffer buf = q.getByteBuffer();
 			byte[] b = new byte[buf.limit()];
 			buf.get(b, 0, b.length);
+			System.out.println("---> "+b);
 			out.write(b);
 			
 			byte[] resp = new byte[1024];
