@@ -47,34 +47,29 @@ public class Client {
 		return clientAddress;
 	}
 
-	public Response sendChaseQuery(Address addr, Hash hash, int timeout) {
+	public ResponseChase sendChaseQuery(Address addr, Hash hash, int timeout) {
 		QueryChase q = QueryChase.prepare(getAddress().getPort(), hash);
-		
-		System.out.println("hash:" + q.getHash());
-		
-		return sendQuery(q, new ResponseChase(), addr, timeout);
+		return (ResponseChase) sendQuery(q, new ResponseChase(), addr, timeout);
 	}
 
-	public Response sendDescrQuery(Address addr, Hash hash, int timeout) {
+	public ResponseDescr sendDescrQuery(Address addr, Hash hash, int timeout) {
 		QueryDescr q = QueryDescr.prepare(getAddress().getPort(), hash);
-		return sendQuery(q, new ResponseDescr(), addr, timeout);
+		return (ResponseDescr) sendQuery(q, new ResponseDescr(), addr, timeout);
 	}
 
-	public Response sendChunkQuery(Address addr, Hash hash, int chunkId,
-			int expectedLength, int timeout) {
-		QueryChunk q = QueryChunk
-				.prepare(getAddress().getPort(), hash, chunkId);
-		return sendQuery(q, new ResponseChunk(expectedLength), addr, timeout);
+	public ResponseChunk sendChunkQuery(Address addr, Hash hash, int chunkId, int expectedLength, int timeout) {
+		QueryChunk q = QueryChunk.prepare(getAddress().getPort(), hash, chunkId);
+		return (ResponseChunk) sendQuery(q, new ResponseChunk(expectedLength), addr, timeout);
 	}
 
-	public Response sendBmaskQuery(Address addr, Hash hash, int timeout) {
+	public ResponseBmask sendBmaskQuery(Address addr, Hash hash, int timeout) {
 		QueryBmask q = QueryBmask.prepare(getAddress().getPort(), hash);
-		return sendQuery(q, new ResponseBmask(), addr, timeout);
+		return (ResponseBmask) sendQuery(q, new ResponseBmask(), addr, timeout);
 	}
 
-	public Response sendPeersQuery(Address addr, int timeout) {
+	public ResponsePeers sendPeersQuery(Address addr, int timeout) {
 		QueryPeers q = QueryPeers.prepare();
-		return sendQuery(q, new ResponsePeers(), addr, timeout);
+		return (ResponsePeers) sendQuery(q, new ResponsePeers(), addr, timeout);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
