@@ -11,6 +11,9 @@ public class File {
 	private String path;
 
 	public File(Descriptor descriptor, BitMask bitmask, String path, String name) {
+		if (descriptor == null || bitmask == null || path == null
+				|| name == null)
+			throw new IllegalArgumentException();
 		this.descriptor = descriptor;
 		this.bitmask = bitmask;
 		this.path = path;

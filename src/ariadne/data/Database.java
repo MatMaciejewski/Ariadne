@@ -1,13 +1,13 @@
 package ariadne.data;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Database {
 	private static Map<Hash, File> files;;
 
 	public static void initialize() {
-		files = new HashMap<Hash, File>();
+		files = new ConcurrentHashMap<Hash, File>();
 	}
 
 	public static File getFile(Hash hash) {
