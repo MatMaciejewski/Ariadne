@@ -49,6 +49,9 @@ public class Client {
 
 	public Response sendChaseQuery(Address addr, Hash hash, int timeout) {
 		QueryChase q = QueryChase.prepare(getAddress().getPort(), hash);
+		
+		System.out.println("hash:" + q.getHash());
+		
 		return sendQuery(q, new ResponseChase(), addr, timeout);
 	}
 
@@ -99,6 +102,10 @@ public class Client {
 		
 		try {
 			Socket c = new Socket();
+			
+			System.out.println("IP: " + addr.getIpAddress());
+			System.out.println("PT: " + addr.getPort().getPort());
+			
 			c.connect(new InetSocketAddress(addr.getIpAddress(), addr.getPort().getPort()), timeout);
 			
 			OutputStream out = c.getOutputStream();
@@ -106,6 +113,7 @@ public class Client {
 			
 			ByteBuffer buf = q.getByteBuffer();
 			byte[] b = new byte[buf.limit()];
+			buf.get(b, 0, b.length);
 			out.write(b);
 			
 			byte[] resp = new byte[1024];
@@ -119,6 +127,7 @@ public class Client {
 			return r;
 		} catch (IOException e) {
 			Log.warning("IOException in client sendQuery() method");
+			e.printStackTrace();
 			return null;
 		} catch (InvalidMessageException e) {
 			Log.warning("InvalidMessageException received.");

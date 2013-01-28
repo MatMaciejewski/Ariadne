@@ -32,6 +32,8 @@ public class Chunk {
 	}
 	
 	public ByteBuffer getByteBuffer(){
-		return data.asReadOnlyBuffer();
+		ByteBuffer b = data.asReadOnlyBuffer();
+		b.rewind();
+		return b;
 	}
 }

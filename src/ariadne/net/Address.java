@@ -9,6 +9,15 @@ public class Address {
 	public final static int BYTESIZE = Port.BYTESIZE + 4;
 	private Inet4Address userIp;
 	private Port userPort;
+	
+	public Address(String s, int port){
+		try {
+			userIp = (Inet4Address) InetAddress.getByName(s);
+			userPort = new Port(port);
+		} catch (UnknownHostException e) {
+			throw new IllegalArgumentException();
+		}
+	}
 
 	public Address(Inet4Address ip, Port port) {
 		userIp = ip;
@@ -21,10 +30,6 @@ public class Address {
 
 	public Port getPort() {
 		return userPort;
-	}
-
-	public void setPort(Port newPort) {
-		userPort = newPort;
 	}
 
 	public static Address fromByteBuffer(ByteBuffer b, int offset) {
@@ -50,6 +55,8 @@ public class Address {
 		ByteBuffer b = ByteBuffer.allocate(BYTESIZE);
 		b.put(userIp.getAddress());
 		b.put(userPort.getByteBuffer());
-		return b.asReadOnlyBuffer();
+		b = b.asReadOnlyBuffer();
+		b.rewind();
+		return b;
 	}
 }

@@ -14,6 +14,7 @@ public class Port {
 	public Port(int port) {
 		data = ByteBuffer.allocate(BYTESIZE);
 		data.put((byte) (port & 0xFF)).put((byte) ((port >> 8) & 0xFF));
+		
 	}
 
 	public Port(ByteBuffer b, int offset) {
@@ -23,10 +24,12 @@ public class Port {
 	}
 
 	public int getPort() {
-		return ByteBuffer.allocate(4).put((byte) 0).put((byte) 0).put(data).getInt(0);
+		return ((data.get(1) & 0xFF) << 8) + (data.get(0) & 0xFF);
 	}
 	
 	public ByteBuffer getByteBuffer(){
-		return data.asReadOnlyBuffer();
+		ByteBuffer b = data.asReadOnlyBuffer();
+		b.rewind();
+		return b;
 	}
 }

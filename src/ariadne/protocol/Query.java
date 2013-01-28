@@ -13,4 +13,6 @@ public abstract class Query extends Message {
 		if(b.limit() > expectedLength()) throw new InvalidMessageException();
 		return (b.limit() == expectedLength());
 	}
+	
+	public abstract Response respond();
 }

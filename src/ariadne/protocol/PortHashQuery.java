@@ -28,6 +28,7 @@ abstract class PortHashQuery extends Query {
 	protected static void prepare(PortHashQuery p, Port port, Hash hash){
 		ByteBuffer b = ByteBuffer.allocate(p.expectedLength());
 		b.put(p.getCode());
+		
 		b.put(port.getByteBuffer());
 		b.put(hash.getByteBuffer());
 		p.setByteBuffer(b);

@@ -2,6 +2,8 @@ package ariadne.utils;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -134,11 +136,11 @@ public class TimedMultiMap<K, V> {
 	 * @param count max number of returned elements
 	 * @return
 	 */
-	public Set<V> get(K key, int count) {
+	public List<V> get(K key, int count) {
+		List<V> result = new LinkedList<V>();
 		ValueContainer q = map.get(key);
 		if (q == null)
-			return Collections.emptySet();
-		HashSet<V> result = new HashSet<V>();
+			return result;
 		int i = 0;
 		for (ValueEntry v : q.entries) {
 			if (i++ >= count)
@@ -154,8 +156,9 @@ public class TimedMultiMap<K, V> {
 	 * @param count
 	 * @return
 	 */
-	public Set<V> getRandom(int count){
-		throw new IllegalArgumentException("Not yet implemented");
+	public List<V> getRandom(int count){
+		return new LinkedList<V>();
+		//throw new IllegalArgumentException("Not yet implemented");
 	}
 
 	/**

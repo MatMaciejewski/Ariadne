@@ -1,5 +1,7 @@
 package ariadne.protocol;
 
+import ariadne.data.Database;
+import ariadne.data.File;
 import ariadne.data.Hash;
 import ariadne.net.Port;
 
@@ -15,5 +17,19 @@ public class QueryDescr extends PortHashQuery {
 		QueryDescr q = new QueryDescr();
 		PortHashQuery.prepare(q, port, hash);
 		return q;
+	}
+
+	@Override
+	public Response respond() {
+		ResponseDescr r;
+		
+		File f = Database.getFile(getHash());
+		if(f == null){
+			r = ResponseDescr.prepare(null);
+		}else{
+			r = ResponseDescr.prepare(f.getDescriptor());
+		}
+		
+		return r;
 	}
 }

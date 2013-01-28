@@ -2,6 +2,9 @@ package ariadne.protocol;
 
 import java.nio.ByteBuffer;
 
+import ariadne.data.BitMask;
+import ariadne.data.Database;
+import ariadne.data.File;
 import ariadne.data.Hash;
 import ariadne.net.Port;
 
@@ -37,5 +40,18 @@ public class QueryChunk extends PortHashQuery {
 		ByteBuffer b = q.accessByteBuffer();
 		b.putInt(19, id);
 		return q;
+	}
+
+	@Override
+	public Response respond() {
+		ResponseChunk r;
+		
+		File f = Database.getFile(getHash());
+		if(f == null){
+			r = ResponseChunk.prepare(null);
+		}else{
+			r = ResponseChunk.prepare(f.getChunk(getChunkId()));
+		}
+		return r;
 	}
 }

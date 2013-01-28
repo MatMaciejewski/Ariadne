@@ -93,7 +93,9 @@ public class BitMask {
 	}
 
 	public ByteBuffer getByteBuffer() {
-		return mask.asReadOnlyBuffer();
+		ByteBuffer b = mask.asReadOnlyBuffer();
+		b.rewind();
+		return b;
 	}
 
 	public void saveBitMask(String filePath) {

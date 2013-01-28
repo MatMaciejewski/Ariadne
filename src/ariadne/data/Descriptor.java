@@ -82,7 +82,9 @@ public class Descriptor {
 	}
 
 	public ByteBuffer getByteBuffer() {
-		return data;
+		ByteBuffer b = data.asReadOnlyBuffer();
+		b.rewind();
+		return b;
 	}
 
 	private Descriptor() {

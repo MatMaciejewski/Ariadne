@@ -3,6 +3,7 @@ package ariadne;
 import java.util.Set;
 
 import ariadne.data.Hash;
+import ariadne.net.Address;
 import ariadne.net.Client;
 import ariadne.net.Server;
 import ariadne.ui.UI;
@@ -23,6 +24,7 @@ public class Application{
 		ui = new GraphicUI();
 		manager = new Manager();
 		server = new Server(innerPort);
+		client = new Client(new Address("192.168.1.113", outerPort));
 		prepareUI();
 		server.start(1);
 	}
@@ -47,6 +49,10 @@ public class Application{
 	
 	public static Client getClient(){
 		return client;
+	}
+	
+	public static TaskManager getManager(){
+		return manager;
 	}
 
 	private static void prepareUI(){

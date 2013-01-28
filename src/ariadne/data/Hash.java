@@ -27,7 +27,9 @@ public class Hash implements Comparable<Hash> {
 	}
 
 	public ByteBuffer getByteBuffer() {
-		return data.asReadOnlyBuffer();
+		ByteBuffer b = data.asReadOnlyBuffer();
+		b.rewind();
+		return b;
 	}
 
 	public String toString() {

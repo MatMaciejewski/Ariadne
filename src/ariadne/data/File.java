@@ -26,7 +26,9 @@ public class File {
 	}
 
 	public Chunk getChunk(int id) {
-		return getChunkFromDisk(id);
+		if(getBitMask().get(id)){
+			return getChunkFromDisk(id);	
+		}else return null;
 	}
 
 	public boolean setChunk(Chunk chunk, int id) {

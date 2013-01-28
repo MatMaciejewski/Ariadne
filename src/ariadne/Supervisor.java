@@ -129,7 +129,7 @@ public class Supervisor extends Thread {
 				toAsk.addAll(potential);
 			}
 		} else {
-			Set<Address> newPeers = Catalogue.getRandomPeers();
+			List<Address> newPeers = Catalogue.getRandomPeers();
 			toAsk.addAll(newPeers);
 			
 		}

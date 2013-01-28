@@ -30,7 +30,13 @@ public abstract class Message {
 	}
 	
 	public ByteBuffer getByteBuffer(){
-		return buf.asReadOnlyBuffer();
+		if(buf == null){
+			return ByteBuffer.allocate(1);
+		} else {
+			ByteBuffer b = buf.asReadOnlyBuffer();
+			b.rewind();
+			return b;
+		}
 	}
 	
 	protected void setByteBuffer(ByteBuffer b){

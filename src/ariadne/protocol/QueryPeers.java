@@ -2,6 +2,8 @@ package ariadne.protocol;
 
 import java.nio.ByteBuffer;
 
+import ariadne.data.Catalogue;
+
 
 /*
  * PEERS query
@@ -27,5 +29,10 @@ public class QueryPeers extends Query {
 		b.put(q.getCode());
 		q.setByteBuffer(b);
 		return q;
+	}
+
+	@Override
+	public Response respond() {
+		return ResponsePeers.prepare(Catalogue.getRandomPeers());
 	}
 }

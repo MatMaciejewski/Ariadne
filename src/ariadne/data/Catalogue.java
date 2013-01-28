@@ -1,6 +1,7 @@
 package ariadne.data;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -61,16 +62,16 @@ public class Catalogue {
 		return peers.size();
 	}
 	
-	public static Set<Address> getPeerForHash(Hash hash) {
-		Set<Address> result;
+	public static List<Address> getPeerForHash(Hash hash) {
+		List<Address> result;
 		r.lock();
 		result = peers.get(hash, PEERS_NUMBER);
 		r.unlock();
 		return result;
 	}
 
-	public static Set<Address> getRandomPeers() {
-		Set<Address> result;
+	public static List<Address> getRandomPeers() {
+		List<Address> result;
 		r.lock();
 		result = peers.getRandom(RANDOM_PEERS);
 		r.unlock();
