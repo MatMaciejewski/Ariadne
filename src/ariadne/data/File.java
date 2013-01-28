@@ -80,6 +80,7 @@ public class File {
 			int startingPosition = (descriptor.getChunkSize() + 1) * id;
 			byteFile.seek(startingPosition);
 			byteFile.write(c.getByteBuffer().array());
+			bitmask.set(id);
 			byteFile.close();
 			return true;
 		} catch (IOException e) {

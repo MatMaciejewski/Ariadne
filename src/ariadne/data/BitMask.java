@@ -20,6 +20,12 @@ public class BitMask {
 		}
 	}
 
+	
+	
+	/**
+	 * Create new bitmask, filled with 0
+	 * @param size chunkCount
+	 */
 	public BitMask(int size) {
 		if (size < 0)
 			throw new IllegalArgumentException();
@@ -32,7 +38,21 @@ public class BitMask {
 			mask.put((byte) 0);
 		}
 	}
-
+	
+	public BitMask getDiff(BitMask peer){
+		BitMask difference = new BitMask(getSize());
+		if (getSize()!=peer.getSize()) throw new IllegalArgumentException();
+		for(int i=0;i<getSize();i++)
+			if(!get(i)&&peer.get(i)) difference.set(i);
+		return difference;
+	}
+	
+	public boolean compareToNull(){
+		for(int i=0;i<size;i++)
+			if(get(i)==true) return false;
+		return true;
+	}
+	
 	public boolean get(int id) {
 		if (id < 0 || id >= getSize())
 			throw new IllegalArgumentException();
