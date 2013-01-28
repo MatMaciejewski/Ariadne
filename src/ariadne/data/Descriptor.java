@@ -20,7 +20,7 @@ import ariadne.utils.Log;
 public class Descriptor {
 	public final static int SMALLEST_ALLOWED_CHUNK_SIZE = Hash.LENGTH;
 	private ByteBuffer data;
-
+	
 	public Descriptor(int chunkSize, HashSet<Hash> hashes) {
 		if ((chunkSize < SMALLEST_ALLOWED_CHUNK_SIZE) || (hashes == null)
 				|| (hashes.size() == 0))

@@ -3,18 +3,21 @@ package ariadne;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
 
 import ariadne.data.BitMask;
+import ariadne.data.Catalogue;
 import ariadne.data.Chunk;
 import ariadne.data.Database;
 import ariadne.data.Descriptor;
-import ariadne.data.File;
 import ariadne.data.Hash;
 import ariadne.net.Address;
 import ariadne.net.Client;
-import ariadne.protocol.PeerListResponse;
 import ariadne.protocol.ResponseBmask;
+import ariadne.protocol.ResponseChase;
 import ariadne.protocol.ResponseChunk;
+import ariadne.protocol.ResponseDescr;
+import ariadne.protocol.ResponsePeers;
 
 public class Supervisor extends Thread {
 	private String name;
@@ -51,49 +54,91 @@ public class Supervisor extends Thread {
 
 	}
 
-	public void loop(){
-		//System.out.println("Downloading hash " + hash);
-		if(!iHaveStuff.isEmpty()&&currentState==State.CHASING_CHUNKS){
+	public void loop() {
+		// System.out.println("Downloading hash " + hash);
+		if (Catalogue.getPeerNumber() < 5 && iHaveStuff.isEmpty()
+				&& interested.isEmpty()) {
+
+		} else if (!iHaveStuff.isEmpty()
+				&& currentState == State.CHASING_CHUNKS) {
 			Address userAddress = iHaveStuff.poll();
 			Client user = new Client(userAddress);
-			int lostChunk=-1;
-			ResponseBmask mask = (ResponseBmask) user.sendBmaskQuery(userAddress, hash, 2000);
+			int lostChunk = -1;
+			int ChunkSize = -1;
+			ResponseBmask mask = (ResponseBmask) user.sendBmaskQuery(
+					userAddress, hash, 2000);
 			BitMask comparator = mask.getBitMask();
-			BitMask difference = Database.getFile(hash).getBitMask().getDiff(comparator);
-			if(!difference.compareToNull()){ 
-				for(int i=0;i<comparator.getSize();i++){
-				if(difference.get(i)==true){
-					lostChunk=i;
-					break;
+			BitMask difference = Database.getFile(hash).getBitMask()
+					.getDiff(comparator);
+			if (!difference.compareToNull()) {
+				for (int i = 0; i < comparator.getSize(); i++) {
+					if (difference.get(i) == true) {
+						lostChunk = i;
+						break;
+					}
 				}
-			}
-			ResponseChunk fileChunk = (ResponseChunk) user.sendChunkQuery(userAddress, hash, lostChunk, 2000);
-			Chunk imported = fileChunk.getChunk();
-			if(Database.getFile(hash)!=null) Database.getFile(hash).setChunk(imported, lostChunk);
-			iHaveStuff.add(userAddress);
-			} else iHaveStuff.add(userAddress);
-		}
-		else if(currentState==State.CHASING_CHUNKS){
+				ResponseChunk fileChunk = (ResponseChunk) user.sendChunkQuery(
+						userAddress, hash, lostChunk, Database.getFile(hash)
+								.getDescriptor().getChunkSize(), 2000);
+				Chunk imported = fileChunk.getChunk();
+				if (Database.getFile(hash) != null)
+					Database.getFile(hash).setChunk(imported, lostChunk);
+				iHaveStuff.add(userAddress);
+			} else
+				iHaveStuff.add(userAddress);
+		} else if (!interested.isEmpty()
+				&& currentState == State.CHASING_CHUNKS) {
 			Address userAddress = interested.poll();
-			Client user = new Client (userAddress);
-			ResponseBmask ret = (ResponseBmask) user.sendBmaskQuery(userAddress, hash, 2000);
+			Client user = new Client(userAddress);
+			ResponseBmask back = (ResponseBmask) user.sendBmaskQuery(
+					userAddress, hash, 2000);
+			if (back.hasBitMask())
+				iHaveStuff.add(userAddress);
+			else
+				toAsk.add(userAddress);
+		} else if (!toAsk.isEmpty() && currentState == State.CHASING_CHUNKS) {
+			Address userAddress = toAsk.poll();
+			Client user = new Client(userAddress);
+			ResponseChase back = (ResponseChase) user.sendChaseQuery(userAddress,
+					hash, 2000);
+			List<Address> potential = back.getPeers();
+			if (potential.contains(userAddress)) {
+				interested.add(userAddress);
+				potential.remove(userAddress);
+				toAsk.addAll(potential);
+			}
+		} else if(!toAsk.isEmpty()&& currentState == State.LOOKING_FOR_DESCRIPTOR){
+			Address userAddress = toAsk.poll();
+			Client user = new Client(userAddress);
+			ResponseDescr back = (ResponseDescr) user.sendChaseQuery(userAddress,
+					hash, 2000);
+			Descriptor d = back.getDescriptor();
+			if (d!=null) {
+				currentState=State.CHASING_CHUNKS;
+				
+				interested.add(userAddress);
+			}
 		}
-		else if(true){ 
-		Address askPeer = toAsk.poll();
-		Client peer = new Client(askPeer);
-		PeerListResponse back = (PeerListResponse) peer.sendChaseQuery(askPeer, hash, 2000);
-		List<Address> potential = back.getPeers();
-		if(potential.contains(askPeer)){
-			interested.add(askPeer);
-			potential.remove(askPeer);
-			toAsk.addAll(potential);
+		else if (!toAsk.isEmpty()) {
+			Address userAddress = toAsk.peek();
+			Client user = new Client(userAddress);
+			ResponsePeers back = (ResponsePeers) user.sendPeersQuery(userAddress, 2000);
+			List<Address> potential = back.getPeers();
+			if (potential.contains(userAddress)) {
+				potential.remove(userAddress);
+				toAsk.addAll(potential);
+			}
+		} else {
+			Set<Address> newPeers = Catalogue.getRandomPeers();
+			toAsk.addAll(newPeers);
+			
 		}
 		try {
 			sleep(1000);
 		} catch (InterruptedException e) {
 			System.out.println("sleep interrupted");
 		}
-		}
+
 	}
 
 	@Override
