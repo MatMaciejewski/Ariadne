@@ -24,9 +24,11 @@ public class Application{
 		manager = new Manager();
 		server = new Server(innerPort);
 		prepareUI();
+		server.start(1);
 	}
 	
 	private static void finalise(){
+		server.stop();
 		for(Hash h: manager.getTasks()){
 			manager.removeTask(h);
 		}

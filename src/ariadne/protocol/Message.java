@@ -4,6 +4,13 @@ import java.nio.ByteBuffer;
 
 public abstract class Message {
 	private ByteBuffer buf;
+	
+	@Deprecated
+	public void addBytes(byte[] b, int length){
+		ByteBuffer bb = ByteBuffer.allocate(length);
+		bb.put(b, 0, length);
+		addByteBuffer(bb);
+	}
 
 	public void addByteBuffer(ByteBuffer b) {
 		if (buf == null) {
