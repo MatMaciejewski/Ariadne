@@ -16,17 +16,19 @@ public class WorkHandler extends Worker {
 
 	@Override
 	public boolean handle(Conversation c) {
+		
+		State s;
+
+		if (c.getState() == null) {
+			s = new State();
+
+			c.setState(s);
+		} else {
+			s = (State) c.getState();
+		}
 
 		try {
-			State s;
-
-			if (c.getState() == null) {
-				s = new State();
-
-				c.setState(s);
-			} else {
-				s = (State) c.getState();
-			}
+			
 
 			ByteBuffer b = ByteBuffer.allocate(1024);
 			c.getSocket().read(b);
@@ -72,6 +74,12 @@ public class WorkHandler extends Worker {
 			return false;
 		} catch (InvalidMessageException e) {
 			Log.notice("Invalid message received");
+			ByteBuffer b = s.query.getByteBuffer();
+			System.out.println("size: " + b.limit());
+			for(int i=0;i<b.limit();++i){
+				System.out.print((int) b.get(i)+" ");
+			}
+			System.out.println(" ");
 			return false;
 		} catch(Exception e){
 			Log.error("CRITICAL ERROR IN WorkHandler  -----------------------");

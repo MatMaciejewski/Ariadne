@@ -88,6 +88,7 @@ public class Client {
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private Response sendQuery(Query q, Response r, Address addr, int timeout) {
+		System.out.println("wyslano cos na adres " + addr.getIpAddress() + ":" + addr.getPort().getPort());
 		if (timeout < 0)
 			throw new IllegalArgumentException();
 		long remaining = (timeout == 0) ? Integer.MAX_VALUE : timeout;
@@ -109,6 +110,11 @@ public class Client {
 			ByteBuffer buf = q.getByteBuffer();
 			byte[] b = new byte[buf.limit()];
 			buf.get(b, 0, b.length);
+			System.out.println("writing");
+			for(int i=0;i<b.length;++i){
+				System.out.print((int)b[i] + " ");
+			}
+			System.out.println(" ");
 			out.write(b);
 			
 			byte[] resp = new byte[1024];
