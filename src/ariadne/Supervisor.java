@@ -158,8 +158,9 @@ public class Supervisor extends Thread {
 			if (back != null) {
 				Descriptor d = back.getDescriptor();
 				if (d != null) {
+					
+					Database.insertFile(d, d.getEmptyBitmask(), path, name, true);
 					currentState = State.CHASING_CHUNKS;
-
 					interested.add(userAddress);
 				}
 			}

@@ -1,5 +1,6 @@
 package ariadne.data;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import ariadne.utils.Log;
@@ -21,14 +22,32 @@ public class File {
 
 	}
 
+	public boolean reallocate() {
+		bitmask = descriptor.getEmptyBitmask();
+		java.io.File f = new java.io.File(path + "/" + name);
+		f.delete();
+		f = new java.io.File(path + "/" + name);
+		RandomAccessFile ran;
+		try {
+			ran = new RandomAccessFile(f, "rws");
+			for (int i = 0; i < descriptor.getFileSize(); ++i) {
+				ran.writeByte(0);
+			}
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
+	}
+
 	public Descriptor getDescriptor() {
 		return descriptor;
 	}
 
 	public Chunk getChunk(int id) {
-		if(getBitMask().get(id)){
-			return getChunkFromDisk(id);	
-		}else return null;
+		if (getBitMask().get(id)) {
+			return getChunkFromDisk(id);
+		} else
+			return null;
 	}
 
 	public boolean setChunk(Chunk chunk, int id) {
@@ -90,21 +109,21 @@ public class File {
 				bytes = c.getByteBuffer().array();
 				byte[] bytesNew = new byte[(int) descriptor.getFileSize()
 						- (id - 1) * descriptor.getChunkSize()];
-				for (int i = 0; i < (int) descriptor.getFileSize()
-						- (id - 1) * descriptor.getChunkSize(); i++) {
-						bytesNew[i] = bytes[i];
-					}
-				RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
-						path + "/" + name), "rws");
+				for (int i = 0; i < (int) descriptor.getFileSize() - (id - 1)
+						* descriptor.getChunkSize(); i++) {
+					bytesNew[i] = bytes[i];
+				}
+				RandomAccessFile byteFile = new RandomAccessFile(
+						new java.io.File(path + "/" + name), "rws");
 				int startingPosition = (descriptor.getChunkSize() + 1) * id;
 				byteFile.seek(startingPosition);
 				byteFile.write(bytesNew);
 				bitmask.set(id);
 				byteFile.close();
 				return true;
-			
-				}
-			
+
+			}
+
 			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
 					path + "/" + name), "rws");
 			int startingPosition = (descriptor.getChunkSize() + 1) * id;
