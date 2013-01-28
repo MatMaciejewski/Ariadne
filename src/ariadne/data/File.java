@@ -39,6 +39,7 @@ public class File {
 					return false;
 
 			}
+			else Log.error("Chunk's hash != descriptor's hash!");
 		}
 		return false;
 	}

@@ -110,7 +110,7 @@ public class Descriptor {
 
 	public void saveDescriptor(String filePath) {
 		try {
-			java.io.File file = new java.io.File(filePath);
+			java.io.File file = new java.io.File("."+filePath+".desc");
 			file.delete();
 			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(filePath), "rws");
 			byteFile.write(data.array());
