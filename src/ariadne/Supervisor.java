@@ -10,13 +10,14 @@ import ariadne.data.Catalogue;
 import ariadne.data.Chunk;
 import ariadne.data.Database;
 import ariadne.data.Descriptor;
-import ariadne.data.File;
 import ariadne.data.Hash;
 import ariadne.net.Address;
 import ariadne.net.Client;
 import ariadne.protocol.ResponseBmask;
 import ariadne.protocol.ResponseChase;
 import ariadne.protocol.ResponseChunk;
+import ariadne.protocol.ResponseDescr;
+import ariadne.protocol.ResponsePeers;
 
 public class Supervisor extends Thread {
 	private String name;
@@ -55,7 +56,11 @@ public class Supervisor extends Thread {
 
 	public void loop() {
 		// System.out.println("Downloading hash " + hash);
-		if (!iHaveStuff.isEmpty() && currentState == State.CHASING_CHUNKS) {
+		if (Catalogue.getPeerNumber() < 5 && iHaveStuff.isEmpty()
+				&& interested.isEmpty()) {
+
+		} else if (!iHaveStuff.isEmpty()
+				&& currentState == State.CHASING_CHUNKS) {
 			Address userAddress = iHaveStuff.poll();
 			Client user = new Client(userAddress);
 			int lostChunk = -1;
@@ -73,39 +78,60 @@ public class Supervisor extends Thread {
 					}
 				}
 				ResponseChunk fileChunk = (ResponseChunk) user.sendChunkQuery(
-						userAddress, hash, lostChunk, Database.getFile(hash).getDescriptor().getChunkSize(), 2000);
+						userAddress, hash, lostChunk, Database.getFile(hash)
+								.getDescriptor().getChunkSize(), 2000);
 				Chunk imported = fileChunk.getChunk();
 				if (Database.getFile(hash) != null)
 					Database.getFile(hash).setChunk(imported, lostChunk);
 				iHaveStuff.add(userAddress);
 			} else
 				iHaveStuff.add(userAddress);
-		} else if (!interested.isEmpty()&&currentState == State.CHASING_CHUNKS) {
+		} else if (!interested.isEmpty()
+				&& currentState == State.CHASING_CHUNKS) {
 			Address userAddress = interested.poll();
 			Client user = new Client(userAddress);
-			ResponseBmask ret = (ResponseBmask) user.sendBmaskQuery(
+			ResponseBmask back = (ResponseBmask) user.sendBmaskQuery(
 					userAddress, hash, 2000);
-			if (ret.hasBitMask())
+			if (back.hasBitMask())
 				iHaveStuff.add(userAddress);
 			else
-				iHaveStuff.add(userAddress); // No duplication here, keep
-												// looking ->Guys that don't
-												// have anything added to
-												// iHaveStuff -> FAIL
-		} else if (!toAsk.isEmpty()) {
-			Address askPeer = toAsk.poll();
-			Client peer = new Client(askPeer);
-			ResponseChase back = (ResponseChase) peer.sendChaseQuery(
-					askPeer, hash, 2000);
+				toAsk.add(userAddress);
+		} else if (!toAsk.isEmpty() && currentState == State.CHASING_CHUNKS) {
+			Address userAddress = toAsk.poll();
+			Client user = new Client(userAddress);
+			ResponseChase back = (ResponseChase) user.sendChaseQuery(userAddress,
+					hash, 2000);
 			List<Address> potential = back.getPeers();
-			if (potential.contains(askPeer)) {
-				interested.add(askPeer);
-				potential.remove(askPeer);
+			if (potential.contains(userAddress)) {
+				interested.add(userAddress);
+				potential.remove(userAddress);
 				toAsk.addAll(potential);
 			}
-		} else{
+		} else if(!toAsk.isEmpty()&& currentState == State.LOOKING_FOR_DESCRIPTOR){
+			Address userAddress = toAsk.poll();
+			Client user = new Client(userAddress);
+			ResponseDescr back = (ResponseDescr) user.sendChaseQuery(userAddress,
+					hash, 2000);
+			Descriptor d = back.getDescriptor();
+			if (d!=null) {
+				currentState=State.CHASING_CHUNKS;
+				
+				interested.add(userAddress);
+			}
+		}
+		else if (!toAsk.isEmpty()) {
+			Address userAddress = toAsk.peek();
+			Client user = new Client(userAddress);
+			ResponsePeers back = (ResponsePeers) user.sendPeersQuery(userAddress, 2000);
+			List<Address> potential = back.getPeers();
+			if (potential.contains(userAddress)) {
+				potential.remove(userAddress);
+				toAsk.addAll(potential);
+			}
+		} else {
 			Set<Address> newPeers = Catalogue.getRandomPeers();
 			toAsk.addAll(newPeers);
+			
 		}
 		try {
 			sleep(1000);

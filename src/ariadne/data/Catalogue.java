@@ -57,6 +57,10 @@ public class Catalogue {
 		w = rwl.writeLock();
 	}
 
+	public static int getPeerNumber(){
+		return peers.size();
+	}
+	
 	public static Set<Address> getPeerForHash(Hash hash) {
 		Set<Address> result;
 		r.lock();
