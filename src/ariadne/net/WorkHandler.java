@@ -60,11 +60,10 @@ public class WorkHandler extends Worker {
 			s.query.addByteBuffer(b);
 			
 			if(s.query.isComplete()){
-				
 				Response r = s.query.respond();
-				throw new IllegalArgumentException("HANDLE THIS");
-				
-				//return false;
+				Log.notice("Valid messge received! " + r);
+				c.getSocket().write(r.getByteBuffer());
+				return false;
 			}else{
 				return true;
 			}
@@ -73,6 +72,11 @@ public class WorkHandler extends Worker {
 			return false;
 		} catch (InvalidMessageException e) {
 			Log.notice("Invalid message received");
+			return false;
+		} catch(Exception e){
+			Log.error("CRITICAL ERROR IN WorkHandler  -----------------------");
+			e.printStackTrace();
+			System.out.println(e.getMessage());
 			return false;
 		}
 	}

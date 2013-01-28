@@ -120,6 +120,7 @@ public class Client {
 			int len;
 			while(!r.isComplete()){
 				len = in.read(resp);
+				if(len < 1) return null;
 				r.addBytes(resp, len);
 			}
 			

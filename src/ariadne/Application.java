@@ -2,6 +2,8 @@ package ariadne;
 
 import java.util.Set;
 
+import ariadne.Supervisor.State;
+import ariadne.data.Catalogue;
 import ariadne.data.Hash;
 import ariadne.net.Address;
 import ariadne.net.Client;
@@ -25,15 +27,20 @@ public class Application{
 		manager = new Manager();
 		server = new Server(innerPort);
 		client = new Client(new Address("192.168.1.113", outerPort));
+		
+		Catalogue.initialize();
+		Catalogue.addPeer(new Hash("7815696ecbf1c96e6894b779456d330e"), new Address("192.168.1.111", 25566), 100000);
+		Catalogue.update();
+		
 		prepareUI();
 		server.start(1);
+		
+		manager.insertTask(new Hash("7815696ecbf1c96e6894b779456d330e"), "./", "cat2.jpg");
 	}
 	
 	private static void finalise(){
 		server.stop();
-		for(Hash h: manager.getTasks()){
-			manager.removeTask(h);
-		}
+		manager.closeAllTasks();
 	}
 
 	public static void run(int in, int out){
@@ -42,7 +49,15 @@ public class Application{
 		
 		initialise();
 		ui.open();
-		ui.eventLoop();
+		try {
+			ui.eventLoop();
+		} catch (Exception e) {
+			System.out.println("CRITICAL ERROR IN eventLoop -------------------------------");
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+		}
+		
+		
 		ui.close();
 		finalise();
 	}
@@ -76,7 +91,6 @@ public class Application{
 					
 					manager.insertTask(hash, "./", "cat.jpg");
 				}catch(Exception ex){
-					ex.printStackTrace();
 					System.out.println("Invalid hash");
 				}
 				

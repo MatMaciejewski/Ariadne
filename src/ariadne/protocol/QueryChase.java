@@ -28,7 +28,7 @@ public class QueryChase extends PortHashQuery {
 	public Response respond() {
 		ResponseChase r;
 		
-		List<Address> addresses = Catalogue.getPeerForHash(getHash());
+		List<Address> addresses = Catalogue.getPeerForHash(getHash(), PeerListResponse.MAX_PEERS);
 		
 		//do we chase this file?
 		if(Application.getManager().getTasks().contains(getHash())){

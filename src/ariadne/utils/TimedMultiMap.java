@@ -1,6 +1,7 @@
 package ariadne.utils;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -108,7 +109,7 @@ public class TimedMultiMap<K, V> {
 	 * Constructor. Initialises a map.
 	 */
 	public TimedMultiMap() {
-		map = new ConcurrentHashMap<K, ValueContainer>();
+		map = new HashMap<K, ValueContainer>();
 		timeouts = new PriorityQueue<KeyEntry>();
 		elementCount = 0;
 	}

@@ -22,5 +22,6 @@ public interface TaskManager {
 	
 	
 	public Set<Hash> getTasks();
+	public void closeAllTasks();
 	public TaskState getTaskState(Hash hash);
 }

@@ -17,22 +17,7 @@ public class Main {
 
 	public static void main(String[] args) {		
 		
-		//Application.run(25566, 25566);
-		
-		
-		
-	
-
-		Client c = new Client(new Address("127.0.0.1", 8080));
-		
-		Address a = new Address("192.168.1.111", 25566);
-		
-		Response r = c.sendChaseQuery(a, Hash.computeFromString("asd"), 2000);
-		
-		System.out.println("returned " + r);
-		
-		
-		
+		Application.run(25566, 25566);
 	}
 
 }

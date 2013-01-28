@@ -64,6 +64,7 @@ public class SocketChannelDispatcher implements Dispatcher {
 		try {
 			ssc.socket().bind(isa);
 		} catch (IOException e) {
+			System.out.println(e.getMessage());
 			Log.error("Could not bind the server socket to local address");
 			return false;
 		}

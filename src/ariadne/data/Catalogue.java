@@ -62,10 +62,10 @@ public class Catalogue {
 		return peers.size();
 	}
 	
-	public static List<Address> getPeerForHash(Hash hash) {
+	public static List<Address> getPeerForHash(Hash hash, int val) {
 		List<Address> result;
 		r.lock();
-		result = peers.get(hash, PEERS_NUMBER);
+		result = peers.get(hash, val);
 		r.unlock();
 		return result;
 	}
@@ -83,7 +83,7 @@ public class Catalogue {
 	}
 
 	public static void addPeer(Hash hash, Address peer, long timeout) {
-		tasks.add(new Task(hash, peer, timeout * 1000));
+		tasks.add(new Task(hash, peer, timeout));
 	}
 
 	public static void update() {
@@ -91,7 +91,7 @@ public class Catalogue {
 		long time = new Date().getTime();
 		peers.removeTimeouted(time);
 
-		for (int i = tasks.size(); i >= 0; --i) {
+		while(tasks.size() > 0) {
 			Task t = tasks.poll();
 			peers.add(t.hash, t.peer, time + t.timeout);
 		}
