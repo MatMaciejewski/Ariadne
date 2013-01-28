@@ -13,7 +13,7 @@ import ariadne.net.Port;
  * Byte 3-18	- chased hash 
  */
 
-public abstract class PortHashQuery extends Query {
+abstract class PortHashQuery extends Query {
 	public Port getPort(){
 		return new Port(getByteBuffer(), 1);
 	}

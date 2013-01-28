@@ -41,7 +41,7 @@ public class ResponseBmask extends Response {
 	}
 	
 	
-	private ResponseBmask(){}
+	public ResponseBmask(){}
 	
 	public static ResponseBmask prepare(BitMask b){
 		ResponseBmask r = new ResponseBmask();

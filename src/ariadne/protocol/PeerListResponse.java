@@ -11,7 +11,7 @@ import ariadne.net.Address;
  * Bytes 1,7,13...	- peer ip+port
  */
 
-public abstract class PeerListResponse extends Response {
+abstract class PeerListResponse extends Response {
 	public static final int MAX_PEERS = 32;
 
 	public List<Address> getPeers() {
