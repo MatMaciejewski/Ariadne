@@ -11,14 +11,15 @@ public class Hash implements Comparable<Hash> {
 
 	public Hash(String s) {
 		byte[] hash = Hexadecimal.fromString(s);
-		assert(hash.length == LENGTH);
+		assert (hash.length == LENGTH);
 		data = ByteBuffer.allocate(LENGTH).put(hash);
 	}
 
 	public Hash(ByteBuffer b, int offset) {
 		b.position(offset);
 		data = ByteBuffer.allocate(LENGTH);
-		for(int i=0;i<LENGTH;++i) data.put(b.get());
+		for (int i = 0; i < LENGTH; ++i)
+			data.put(b.get());
 	}
 
 	public Hash(byte[] b, int offset) {
@@ -37,12 +38,13 @@ public class Hash implements Comparable<Hash> {
 		byte[] bt = s.getBytes();
 		return computeFromBytes(bt, 0, bt.length);
 	}
-	
-	public static Hash computeFromByteBuffer(ByteBuffer b){
+
+	public static Hash computeFromByteBuffer(ByteBuffer b) {
 		return computeFromByteBuffer(b, 0, b.capacity());
 	}
 
-	public static Hash computeFromByteBuffer(ByteBuffer b, int offset, int length) {
+	public static Hash computeFromByteBuffer(ByteBuffer b, int offset,
+			int length) {
 		byte[] bt = new byte[length];
 		b.position(offset);
 		b.get(bt, 0, length);
@@ -63,18 +65,31 @@ public class Hash implements Comparable<Hash> {
 
 	@Override
 	public int compareTo(Hash o) {
+		// required for queues
 		int r;
 		data.rewind();
 		o.data.rewind();
 		for (int i = 0; i < LENGTH; ++i) {
 			r = data.get() - o.data.get();
-			if(r != 0) return r;
+			if (r != 0)
+				return r;
 		}
 		return 0;
 	}
 
 	@Override
+	public boolean equals(Object o) {
+		// required for hashmaps
+		if (o instanceof Hash) {
+			Hash h = (Hash) o;
+			return (compareTo(h) == 0);
+		} else
+			return false;
+	}
+
+	@Override
 	public int hashCode() {
+		// required for hashmaps
 		return toString().hashCode();
 	}
 }

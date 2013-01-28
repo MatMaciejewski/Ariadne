@@ -9,8 +9,26 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ariadne.net.Address;
 import ariadne.utils.TimedMultiMap;
+import ariadne.utils.TimedMultiMap.KeyAddedListener;
 
 public class Catalogue {
+	public static class Listener{
+		private TimedMultiMap<Hash, Address>.KeyAddedListener listener;
+		private Hash keyHash;
+		private Listener(Hash h){
+			keyHash = h;
+			listener = peers.getListener(h);
+		}
+		public Address getNext(){
+			return listener.getNext();
+		}
+		public void disable(){
+			peers.removeListener(keyHash, listener);
+		}
+		public Hash getHash(){
+			return keyHash;
+		}
+	}
 	private static class Task {
 		public Hash hash;
 		public Address peer;
@@ -53,6 +71,10 @@ public class Catalogue {
 		result = peers.getRandom(RANDOM_PEERS);
 		r.unlock();
 		return result;
+	}
+	
+	public static Listener getListener(Hash h){
+		return new Listener(h);
 	}
 
 	public static void addPeer(Hash hash, Address peer, long timeout) {
