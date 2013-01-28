@@ -47,25 +47,6 @@ public class Descriptor {
 		} catch (IOException e1) {
 			Log.error("File "+filePath+" not found.");
 		}
-		
-		/*java.io.File file = new java.io.File(filePath);
-		FileInputStream fileInputStream = null;
-		ByteBuffer bb = ByteBuffer.allocate((int) file.length());
-		try {
-			fileInputStream = new FileInputStream(file);
-		} catch (FileNotFoundException e) {
-			Log.error("Error while creating file.");
-		}
-		FileChannel fileChannel = fileInputStream.getChannel();
-		try {*/
-			// for (int i = 0; i < file.length(); i++) {
-			//fileChannel.read(bb);
-			// }
-			/*bb.flip();
-			fileChannel.close();
-		} catch (IOException e) {
-			Log.error("Error while accessing " + filePath);
-		}*/
 		ByteBuffer bb = ByteBuffer.wrap(bytes);
 		System.out.println(bb);
 		return parse(bb, 0);
@@ -132,16 +113,6 @@ public class Descriptor {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		/*try {
-		file = new java.io.File(filePath);
-		FileOutputStream fileOutputStream = new FileOutputStream(file, true);
-		FileChannel fileChannel = fileOutputStream.getChannel();
-			fileChannel.write(data);
-			fileChannel.close();
-			fileOutputStream.close();
-		} catch (IOException e) {
-			Log.error("Error while accessing " + filePath);
-		}*/
 	}
 
 }
