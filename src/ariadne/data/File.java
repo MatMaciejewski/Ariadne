@@ -38,8 +38,8 @@ public class File {
 				} else
 					return false;
 
-			}
-			else Log.error("Chunk's hash != descriptor's hash!");
+			} else
+				Log.error("Chunk's hash != descriptor's hash!");
 		}
 		return false;
 	}
@@ -67,6 +67,13 @@ public class File {
 			byteFile.seek((descriptor.getChunkSize() + 1) * id);
 			byteFile.read(bytes);
 			byteFile.close();
+			if (id == descriptor.getChunkCount()) {
+				if (bytes.length < descriptor.getChunkSize()) {
+					for (int i = bytes.length; i < descriptor.getChunkSize(); i++) {
+						bytes[i] = (byte) 0;
+					}
+				}
+			}
 			return new Chunk(bytes);
 		} catch (IOException e1) {
 			Log.error("File " + name + " not found.");
@@ -76,6 +83,26 @@ public class File {
 
 	private boolean saveChunkToDisk(Chunk c, int id) {
 		try {
+			if (id == descriptor.getChunkCount()) {
+				byte[] bytes = new byte[descriptor.getChunkSize()];
+				bytes = c.getByteBuffer().array();
+				byte[] bytesNew = new byte[(int) descriptor.getFileSize()
+						- (id - 1) * descriptor.getChunkSize()];
+				for (int i = 0; i < (int) descriptor.getFileSize()
+						- (id - 1) * descriptor.getChunkSize(); i++) {
+						bytesNew[i] = bytes[i];
+					}
+				RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
+						path + "/" + name), "rws");
+				int startingPosition = (descriptor.getChunkSize() + 1) * id;
+				byteFile.seek(startingPosition);
+				byteFile.write(bytesNew);
+				bitmask.set(id);
+				byteFile.close();
+				return true;
+			
+				}
+			
 			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
 					path + "/" + name), "rws");
 			int startingPosition = (descriptor.getChunkSize() + 1) * id;
@@ -85,7 +112,7 @@ public class File {
 			byteFile.close();
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.error("Error while accessing file.");
 		}
 		return false;
 	}
