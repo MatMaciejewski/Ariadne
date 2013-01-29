@@ -13,13 +13,15 @@ import ariadne.data.Hash;
  */
 
 public class ResponseDescr extends Response{
+	private boolean success;
 	
 	public Descriptor getDescriptor(){
-		return Descriptor.parse(getByteBuffer(), 0);
+		return (success) ? Descriptor.parse(getByteBuffer(), 0) : null;
 	}
 
 	@Override
 	public boolean isComplete() throws InvalidMessageException {
+		success = false;
 		ByteBuffer b = getByteBuffer();
 		
 		if(b.limit() < 4) return false;
@@ -37,8 +39,9 @@ public class ResponseDescr extends Response{
 				if(b.getInt(0)*b.getInt(4) > b.getLong(8))
 					throw new InvalidMessageException();
 			}
-			return (b.limit() == (s*Hash.LENGTH + 16));
+			success = (b.limit() == (s*Hash.LENGTH + 16));
 		}
+		return success;
 	}
 	
 	public static ResponseDescr prepare(Descriptor d){

@@ -8,9 +8,9 @@ public abstract class Message {
 	
 	@Deprecated
 	public void addBytes(byte[] b, int length){
-		System.out.println("len:" + length);
 		ByteBuffer bb = ByteBuffer.allocate(length);
 		bb.put(b, 0, length);
+		bb.flip();
 		addByteBuffer(bb);
 	}
 

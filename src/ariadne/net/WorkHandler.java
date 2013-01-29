@@ -31,18 +31,12 @@ public class WorkHandler extends Worker {
 
 			ByteBuffer b = ByteBuffer.allocate(1024);
 			int bytes_read = c.getSocket().read(b);
-			System.out.println(bytes_read + " bytes read");
-			for(int i=0;i<bytes_read;++i){
-				System.out.print(b.get(i) + " ");
-			}
-			System.out.println(" ");
 
 			if (b.limit() == 0)
 				return false;
 			// ///
 			if (s.query == null) {
 				byte code = b.get(0);
-				System.out.println("CODE: " + code);
 				switch (code) {
 				case 0:
 					s.query = new QueryPeers();
@@ -67,8 +61,8 @@ public class WorkHandler extends Worker {
 			s.query.addByteBuffer(b);
 
 			if (s.query.isComplete()) {
+				Log.notice("Valid message received! ");
 				Response r = s.query.respond();
-				Log.notice("Valid messge received! " + r);
 				c.getSocket().write(r.getByteBuffer());
 				return false;
 			} else {
@@ -81,12 +75,6 @@ public class WorkHandler extends Worker {
 			
 			Log.notice("Invalid message received");
 			ByteBuffer b = s.query.getByteBuffer();
-			System.out.println("size: " + b.limit());
-			for (int i = 0; i < b.limit(); ++i) {
-				System.out.print((int) b.get(i) + " ");
-			}
-			System.out.println(" ");
-			
 			return false;
 		} catch (Exception e) {
 			Log.error("CRITICAL ERROR IN WorkHandler  -----------------------");

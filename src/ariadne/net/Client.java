@@ -88,7 +88,6 @@ public class Client {
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private Response sendQuery(Query q, Response r, Address addr, int timeout) {
-		System.out.println("wyslano cos na adres " + addr.getIpAddress() + ":" + addr.getPort().getPort());
 		if (timeout < 0)
 			throw new IllegalArgumentException();
 		long remaining = (timeout == 0) ? Integer.MAX_VALUE : timeout;
@@ -99,9 +98,6 @@ public class Client {
 		try {
 			Socket c = new Socket();
 			
-			System.out.println("IP: " + addr.getIpAddress());
-			System.out.println("PT: " + addr.getPort().getPort());
-			
 			c.connect(new InetSocketAddress(addr.getIpAddress(), addr.getPort().getPort()), timeout);
 			
 			OutputStream out = c.getOutputStream();
@@ -110,12 +106,6 @@ public class Client {
 			ByteBuffer buf = q.getByteBuffer();
 			byte[] b = new byte[buf.limit()];
 			buf.get(b, 0, b.length);
-
-			System.out.println("writing");
-			for(int i=0;i<b.length;++i){
-				System.out.print((int)b[i] + " ");
-			}
-			System.out.println(" ");
 			
 			out.write(b);
 			
@@ -123,7 +113,11 @@ public class Client {
 			int len;
 			while(!r.isComplete()){
 				len = in.read(resp);
-				if(len < 1) return null;
+				
+				if(len < 1){ 
+					Log.notice("<0 length data received in client - returning null");
+					return null;
+				}
 				r.addBytes(resp, len);
 			}
 			
