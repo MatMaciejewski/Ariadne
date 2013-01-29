@@ -95,7 +95,6 @@ public class Descriptor {
 			int chunkCount = b.getInt();
 			int chunkSize = b.getInt();
 			long fileSize = b.getLong();
-			System.out.println("cs:"+chunkSize+" cc:"+chunkCount+" br:"+b.remaining()+" fs:"+fileSize);
 			if ((chunkSize < SMALLEST_ALLOWED_CHUNK_SIZE) || (chunkCount <= 0) || (b.remaining() < Hash.LENGTH * chunkCount))
 				throw new IllegalArgumentException();
 			Descriptor d = new Descriptor();

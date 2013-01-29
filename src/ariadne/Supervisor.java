@@ -104,6 +104,7 @@ public class Supervisor extends Thread {
 					if (d.getHash().equals(getHash())) {
 						System.out.println("so they are the same");
 						if (prepareNewFile(d)) {
+							interested.add(peer);
 							currentState = State.CHASING_CHUNKS;
 						} else {
 							currentState = State.ERROR;
@@ -174,20 +175,31 @@ public class Supervisor extends Thread {
 			peer = interested.poll();
 			ResponseBmask r = Application.getClient().sendBmaskQuery(peer,
 					hash, 2000);
+			
+			System.out.println("Bmask response analysis:");
 
 			if (r == null) {
+				System.out.println("no bitmask. Fail");
 				// Forget this peer
 			} else {
 				BitMask b = r.getBitMask();
+				
 				if (b == null) {
+					
+					r.print();
+					
+					System.out.println("no bitmask after all");
 					// Forget this peer
 				} else {
+					System.out.println("bitmask correct");
 					Pair p = new Pair();
 					p.bitmask = b.getDiff(file.getBitMask());
 					p.peer = peer;
 					if (p.bitmask.compareToNull()) {
+						System.out.println("diff is empty");
 						checked.add(peer);
 					} else {
+						System.out.println("dif not empty - download!");
 						seeders.add(p);
 					}
 				}

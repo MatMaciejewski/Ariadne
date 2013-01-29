@@ -54,6 +54,15 @@ public abstract class Message {
 		}
 	}
 	
+	public void print(){
+		ByteBuffer b = getByteBuffer();
+		System.out.println("MESSAGE " + this);
+		for(int i=0;i<b.limit();++i){
+			System.out.print((byte) b.get(i) + " ");
+		}
+		System.out.println("END");
+	}
+	
 	protected void setByteBuffer(ByteBuffer b){
 		if(b.isReadOnly()) throw new IllegalArgumentException();
 		buf = b;

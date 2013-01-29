@@ -32,10 +32,8 @@ public class File {
 		f = new java.io.File(path + "/" + name);
 		RandomAccessFile ran;
 		try {
-			ran = new RandomAccessFile(f, "rws");
-			for (int i = 0; i < descriptor.getFileSize(); ++i) {
-				ran.writeByte(0);
-			}
+			 RandomAccessFile ff = new RandomAccessFile(path + "/" + name, "rw");
+             ff.setLength(descriptor.getFileSize());
 		} catch (IOException e) {
 			return false;
 		}
