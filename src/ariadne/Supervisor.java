@@ -225,8 +225,10 @@ public class Supervisor extends Thread {
 				peer = listener.getNext();
 				if (peer == null)
 					break;
-				else
-					interested.add(peer);
+				else{
+					interested.add(peer);	
+					System.out.println("added " + peer.getIpAddress());
+				}
 			}
 
 			if (currentState == State.LOOKING_FOR_DESCRIPTOR) {

@@ -2,20 +2,52 @@ package ariadne.ui.graphic;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.border.EmptyBorder;
 
 import ariadne.data.Hash;
 
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class FileEntry extends JPanel {
+	class PopUpDemo extends JPopupMenu {
+		JMenuItem removeButton;
+		JMenuItem assignButton;
+
+		public PopUpDemo() {
+			removeButton = new JMenuItem("Remove...");
+			assignButton = new JMenuItem("Assign peer...");
+			assignButton.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							try {
+								AssignPeerWindow frame = new AssignPeerWindow(hash);
+								frame.setVisible(true);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
+					
+				}});
+			add(removeButton);
+			add(assignButton);
+		}
+	}
+
 	private Hash hash;
 	private static final long serialVersionUID = 1L;
 	private JProgressBar progressBar;
@@ -74,9 +106,10 @@ public class FileEntry extends JPanel {
 			}
 
 			@Override
-			public void mousePressed(MouseEvent arg0) {
-				if (arg0.getButton() == 3) {
-					System.out.println("rightclick");
+			public void mousePressed(MouseEvent e) {
+				if (e.getButton() == 3) {
+					PopUpDemo menu = new PopUpDemo();
+					menu.show(e.getComponent(), e.getX(), e.getY());
 				}
 			}
 
@@ -105,33 +138,34 @@ public class FileEntry extends JPanel {
 		name = s;
 		mainLabel.setText(s);
 	}
-	
-	public String printProperly(long bytes){
+
+	public String printProperly(long bytes) {
 		float val = bytes;
-		
+
 		String unit = "B";
-		if(val >= 1024){
+		if (val >= 1024) {
 			val /= 1024;
 			unit = "KiB";
 		}
-		
-		if(val >= 1024){
+
+		if (val >= 1024) {
 			unit = "MiB";
 			val /= 1024;
 		}
-		
-		if(val >= 1024){
+
+		if (val >= 1024) {
 			unit = "GiB";
 			val /= 1024;
 		}
-		
+
 		return val + " " + unit;
 	}
 
 	public void setProgress(long size, long posessed) {
-		descLabel.setText(printProperly(posessed) +  " of " + printProperly(size) + " downloaded");
-		
-		float percent = (size == 0) ? 0 : 100*posessed/size;
+		descLabel.setText(printProperly(posessed) + " of "
+				+ printProperly(size) + " downloaded");
+
+		float percent = (size == 0) ? 0 : 100 * posessed / size;
 		progressBar.setValue((int) (percent * 100));
 		progressBar.setString(percent * 100 + "%");
 	}
@@ -139,25 +173,26 @@ public class FileEntry extends JPanel {
 	public void setRates(float downRate, float upRate) {
 		ratesLabel.setText("D:" + downRate + "KiB U:" + upRate + "KiB");
 	}
-	
-	public void select(){
-		if(getSelected() != null) getSelected().deselect();
+
+	public void select() {
+		if (getSelected() != null)
+			getSelected().deselect();
 		setBackground(defaultColor.darker().darker());
 		selected = this;
 		w.setEntryHash(hash.toString() + "#" + name);
 	}
-	
-	public void deselect(){
+
+	public void deselect() {
 		setBackground(selected.defaultColor);
 		selected = null;
 		w.setEntryHash("");
 	}
-	
-	public static FileEntry getSelected(){
+
+	public static FileEntry getSelected() {
 		return selected;
 	}
-	
-	public Hash getHash(){
+
+	public Hash getHash() {
 		return hash;
 	}
 }

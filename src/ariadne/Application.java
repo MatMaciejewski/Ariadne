@@ -6,6 +6,7 @@ import ariadne.data.Database;
 import ariadne.data.Descriptor;
 import ariadne.data.File;
 import ariadne.data.Hash;
+import ariadne.data.Librarian;
 import ariadne.net.Address;
 import ariadne.net.Client;
 import ariadne.net.Server;
@@ -23,6 +24,7 @@ public class Application{
 	private static Client client;
 	private static UI ui;
 	private static TaskManager manager;
+	private static Librarian librarian;
 	
 	private static void initialise(){
 		ui = new GraphicUI();
@@ -32,13 +34,16 @@ public class Application{
 		
 		Database.initialize();
 		Catalogue.initialize();
-		Catalogue.update();
+		librarian  = new Librarian();
+		
+		librarian.start();
 		
 		prepareUI();
 		server.start(1);
 	}
 	
 	private static void finalise(){
+		librarian.halt();
 		server.stop();
 		manager.closeAllTasks();
 	}
