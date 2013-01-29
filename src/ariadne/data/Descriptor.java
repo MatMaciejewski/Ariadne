@@ -38,17 +38,17 @@ public class Descriptor {
 	public static Descriptor parseFile(String filePath) {
 		byte[] bytes = null;
 		try {
-			java.io.File in = new java.io.File(filePath);
+			java.io.File in = new java.io.File(filePath+".desc");
 			RandomAccessFile byteFile = new RandomAccessFile(in, "r");
 			bytes = new byte[(int)in.length()];
 			byteFile.read(bytes);
 			byteFile.close();
 		} catch (IOException e1) {
 			Log.error("File "+filePath+" not found.");
+			e1.printStackTrace();
 			throw new IllegalArgumentException();
 		}
 		ByteBuffer bb = ByteBuffer.wrap(bytes);
-		System.out.println(bb);
 		return parse(bb, 0);
 	}
 
@@ -98,9 +98,6 @@ public class Descriptor {
 			long fileSize = b.getLong();
 			if ((chunkSize < SMALLEST_ALLOWED_CHUNK_SIZE) || (chunkCount <= 0) || (b.remaining() < Hash.LENGTH * chunkCount))
 				throw new IllegalArgumentException();
-			if(chunkSize * chunkCount > fileSize) 
-				throw new IllegalArgumentException();
-
 			Descriptor d = new Descriptor();
 			d.data = ByteBuffer.allocate(4 + 4 + 8 + Hash.LENGTH * chunkCount);
 			d.data.putInt(chunkCount);

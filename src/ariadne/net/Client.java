@@ -97,8 +97,8 @@ public class Client {
 		
 		try {
 			Socket c = new Socket();
-			
-			c.connect(new InetSocketAddress(addr.getIpAddress(), addr.getPort().getPort()), timeout);
+			System.out.println("ip: "+addr.getIpAddress().getHostAddress()+ ":" + addr.getPort().getPort());
+			c.connect(new InetSocketAddress(addr.getIpAddress().getHostAddress(), addr.getPort().getPort()), timeout);
 			
 			OutputStream out = c.getOutputStream();
 			InputStream in = c.getInputStream();
