@@ -34,18 +34,18 @@ abstract class PeerListResponse extends Response {
 		ByteBuffer b = getByteBuffer();
 		if (b.limit() == 0)
 			return false;
-		if (b.get(0) > MAX_PEERS)
+		if (getPeerCount() > MAX_PEERS)
 			throw new InvalidMessageException();
-		int s = 1 + Address.BYTESIZE * b.get(0);
+		int s = 1 + Address.BYTESIZE * getPeerCount();
 		if (b.limit() > s)
 			throw new InvalidMessageException();
 		return (b.limit() == s);
 	}
 	
-	protected static void prepare(PeerListResponse r, List<Address> peers){
+	protected static void prepare(PeerListResponse r, List<Address> peers, byte firstByte){
 		if(peers.size() > MAX_PEERS) throw new IllegalArgumentException();
 		ByteBuffer b = ByteBuffer.allocate(1 + peers.size());
-		b.put((byte) peers.size());
+		b.put(firstByte);
 		for(Address a: peers){
 			b.put(a.getByteBuffer());
 		}

@@ -70,10 +70,10 @@ public class Catalogue {
 		return result;
 	}
 
-	public static List<Address> getRandomPeers() {
+	public static List<Address> getRandomPeers(int count) {
 		List<Address> result;
 		r.lock();
-		result = peers.getRandom(RANDOM_PEERS);
+		result = peers.getRandom(count);
 		r.unlock();
 		return result;
 	}

@@ -16,14 +16,16 @@ public class Database {
 		return files.get(hash);
 	}
 
-	public static void insertFile(Descriptor desc, BitMask bit, String path, String name, boolean reallocate) {
+	public static boolean insertFile(Descriptor desc, BitMask bit, String path, String name, boolean reallocate) {
 		File f = new File(desc, bit, path, name);
 		if(reallocate){
 			if(!f.reallocate()){
 				Log.error("Could not reallocate file " + name);
+				return false;
 			}
 		}
 		files.put(desc.getHash(), f);
+		return true;
 	}
 
 	public static void removeFile(Hash hash, boolean removeFromDisk) {
