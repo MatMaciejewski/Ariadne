@@ -96,11 +96,10 @@ public class Descriptor {
 			int chunkCount = b.getInt();
 			int chunkSize = b.getInt();
 			long fileSize = b.getLong();
+			System.out.println(chunkCount+" "+chunkSize+" "+fileSize);
 			if ((chunkSize < SMALLEST_ALLOWED_CHUNK_SIZE) || (chunkCount <= 0) || (b.remaining() < Hash.LENGTH * chunkCount))
 				throw new IllegalArgumentException();
-			if(chunkSize * chunkCount > fileSize) 
-				throw new IllegalArgumentException();
-
+			System.out.println("ChunkSize: "+ chunkSize+" CHUNK COUNT: "+chunkCount+" FILESIZE: "+fileSize);
 			Descriptor d = new Descriptor();
 			d.data = ByteBuffer.allocate(4 + 4 + 8 + Hash.LENGTH * chunkCount);
 			d.data.putInt(chunkCount);
