@@ -93,6 +93,8 @@ public class Client {
 		long remaining = (timeout == 0) ? Integer.MAX_VALUE : timeout;
 		long current = System.currentTimeMillis();
 		// Timeouts ignored for now
+		
+		System.out.println("Sending query to " + addr.getIpAddress()+" (query="+q+")");
 
 		
 		try {
@@ -121,6 +123,7 @@ public class Client {
 			}
 			
 			c.close();
+			Log.notice("Received CORRRRRRRRECT reply!");
 			return r;
 		} catch (IOException e) {
 			Log.warning("IOException in client sendQuery() method");

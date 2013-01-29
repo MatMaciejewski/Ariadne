@@ -25,9 +25,6 @@ public abstract class Message {
 			buf.flip();
 		}
 		
-		System.out.println("Our buffer has P="+buf.position()+" L="+buf.limit()+" C:"+buf.capacity());
-		System.out.println("We read from buffer with P="+b.position()+" L="+b.limit()+" C:"+b.capacity());
-		
 		if( buf.capacity() < b.limit() + buf.limit() ){
 			int s = buf.capacity();
 			while(s < b.limit() + buf.limit()){
@@ -35,16 +32,15 @@ public abstract class Message {
 			}
 			ByteBuffer nbuf = ByteBuffer.allocate(s);
 			nbuf.position(0);
-			nbuf.limit(0);
-			buf.flip();
+			buf.position(0);
 			nbuf.put(buf);
+			nbuf.limit(buf.limit());
 			buf = nbuf;
-			System.out.println("Reallocated! Now it is P="+buf.position()+" L="+buf.limit()+" C:"+buf.capacity());
 		}
 		
 		b.position(0);
+		buf.limit(buf.limit() + b.limit());
 		buf.put(b);
-		System.out.println("Finally our buffer has P="+buf.position()+" L="+buf.limit()+" C:"+buf.capacity());
 	}
 
 	

@@ -96,12 +96,21 @@ public class Supervisor extends Thread {
 					noteworthy.add(peer);
 				} else {
 					// WE have a descriptor. But is it THE descriptor?
+					
+					Log.notice("Checking if descriptor is correct");
+					System.out.println("received: " + d.getHash());
+					System.out.println("expected: " + getHash());
+					
 					if (d.getHash().equals(getHash())) {
+						System.out.println("so they are the same");
 						if (prepareNewFile(d)) {
 							currentState = State.CHASING_CHUNKS;
 						} else {
 							currentState = State.ERROR;
 						}
+						System.out.println("and finish");
+					}else{
+						Log.notice("Received incorrect descriptor");
 					}
 				}
 			}
@@ -232,8 +241,10 @@ public class Supervisor extends Thread {
 			}
 
 			if (currentState == State.LOOKING_FOR_DESCRIPTOR) {
+				System.out.println("Looking for descriptor");
 				lookForDescriptor();
 			} else {
+				System.out.println("Looking for chunks");
 				lookForChunks();
 			}
 

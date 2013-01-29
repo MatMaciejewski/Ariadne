@@ -22,12 +22,6 @@ public class ResponseDescr extends Response {
 	@Override
 	public boolean isComplete() throws InvalidMessageException {
 		ByteBuffer buf = getByteBuffer();
-		System.out.println("iscomplete " + this + "  P:" + buf.position() + " L:"
-				+ buf.limit() + " C:" + buf.capacity());
-		for (int i = 0; i < buf.limit(); ++i) {
-			System.out.print((byte) buf.get(i) + " ");
-		}
-		System.out.println(" ");
 
 		// ///////////////////////
 		success = false;
