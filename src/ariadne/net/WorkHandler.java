@@ -91,7 +91,9 @@ public class WorkHandler extends Worker {
 		} catch (InvalidMessageException e) {
 			
 			Log.notice("Invalid message received");
-			ByteBuffer b = s.query.getByteBuffer();
+
+			
+			
 			return false;
 		} catch (Exception e) {
 			Log.error("CRITICAL ERROR IN WorkHandler  -----------------------");

@@ -234,7 +234,7 @@ public class Supervisor extends Thread {
 			if (currentState == State.LOOKING_FOR_DESCRIPTOR) {
 				lookForDescriptor();
 			} else {
-				// lookForChunks();
+				lookForChunks();
 			}
 
 			

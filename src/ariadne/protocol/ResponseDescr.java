@@ -12,50 +12,62 @@ import ariadne.data.Hash;
  * Byte 16-*	- Chunk hashes
  */
 
-public class ResponseDescr extends Response{
+public class ResponseDescr extends Response {
 	private boolean success;
-	
-	public Descriptor getDescriptor(){
+
+	public Descriptor getDescriptor() {
 		return (success) ? Descriptor.parse(getByteBuffer(), 0) : null;
 	}
 
 	@Override
 	public boolean isComplete() throws InvalidMessageException {
+		ByteBuffer buf = getByteBuffer();
+		System.out.println("iscomplete " + this + "  P:" + buf.position() + " L:"
+				+ buf.limit() + " C:" + buf.capacity());
+		for (int i = 0; i < buf.limit(); ++i) {
+			System.out.print((byte) buf.get(i) + " ");
+		}
+		System.out.println(" ");
+
+		// ///////////////////////
 		success = false;
 		ByteBuffer b = getByteBuffer();
-		
-		if(b.limit() < 4) return false;
-		
+
+		if (b.limit() < 4)
+			return false;
+
 		int s = b.getInt(0);
-		
-		if(b.limit() == 4){
+
+		if (b.limit() == 4) {
 			return (s == 0);
-		}else{
-			if(b.limit() >= 8){
-				if(b.getInt(4) < Descriptor.SMALLEST_ALLOWED_CHUNK_SIZE)
+		} else {
+			if (b.limit() >= 8) {
+				if (b.getInt(4) < Descriptor.SMALLEST_ALLOWED_CHUNK_SIZE){
 					throw new InvalidMessageException();
+				}
 			}
-			if(b.limit() >= 16){
-				if(b.getInt(0)*b.getInt(4) > b.getLong(8))
+			if (b.limit() >= 16) {
+				if (b.getInt(0) * b.getInt(4) < b.getLong(8)){
 					throw new InvalidMessageException();
+				}
 			}
-			success = (b.limit() == (s*Hash.LENGTH + 16));
+			success = (b.limit() == (s * Hash.LENGTH + 16));
 		}
 		return success;
 	}
-	
-	public static ResponseDescr prepare(Descriptor d){
+
+	public static ResponseDescr prepare(Descriptor d) {
 		ResponseDescr r = new ResponseDescr();
 		ByteBuffer b;
-		if(d == null){
+		if (d == null) {
 			b = ByteBuffer.allocate(4);
 			b.putInt(0);
-		}else{
+		} else {
 			ByteBuffer bd = d.getByteBuffer();
 			b = ByteBuffer.allocate(bd.limit());
 			b.put(bd);
 		}
-		
+
 		r.setByteBuffer(b);
 		return r;
 	}
