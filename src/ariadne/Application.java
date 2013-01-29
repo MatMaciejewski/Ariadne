@@ -69,6 +69,10 @@ public class Application{
 	public static TaskManager getManager(){
 		return manager;
 	}
+	
+	public static UI getUI(){
+		return ui;
+	}
 
 	private static void prepareUI(){
 		
@@ -97,8 +101,7 @@ public class Application{
 			public void trigger(Event e) {
 				FileAddedEvent f = (FileAddedEvent) e;
 				File file = new File(f.path, f.name, 8192);
-				Descriptor d = file.getDescriptor();
-				manager.insertTask(file.getDescriptor().getHash(), f.path, f.name);
+				manager.insertTask(file);
 			}
 			
 		});

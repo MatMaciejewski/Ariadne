@@ -24,8 +24,10 @@ public class FileEntry extends JPanel {
 	private JLabel ratesLabel;
 	private Color defaultColor;
 	private static FileEntry selected;
+	private Window w;
 
-	public FileEntry(Hash hash) {
+	public FileEntry(Hash hash, Window w) {
+		this.w = w;
 		this.hash = hash;
 		setBorder(new EmptyBorder(4, 4, 4, 4));
 		setLayout(new BorderLayout(0, 0));
@@ -100,9 +102,33 @@ public class FileEntry extends JPanel {
 	public void setFileName(String s) {
 		mainLabel.setText(s);
 	}
+	
+	public String printProperly(long bytes){
+		float val = bytes;
+		
+		String unit = "B";
+		if(val >= 1024){
+			val /= 1024;
+			unit = "KiB";
+		}
+		
+		if(val >= 1024){
+			unit = "MiB";
+			val /= 1024;
+		}
+		
+		if(val >= 1024){
+			unit = "GiB";
+			val /= 1024;
+		}
+		
+		return val + " " + unit;
+	}
 
-	public void setProgress(float size, float percent) {
-		descLabel.setText(percent * size + "KiB of " + size + "KiB downloaded");
+	public void setProgress(long size, long posessed) {
+		descLabel.setText(printProperly(posessed) +  " of " + printProperly(size) + " downloaded");
+		
+		float percent = (size == 0) ? 0 : 100*posessed/size;
 		progressBar.setValue((int) (percent * 100));
 		progressBar.setString(percent * 100 + "%");
 	}
@@ -115,11 +141,13 @@ public class FileEntry extends JPanel {
 		if(getSelected() != null) getSelected().deselect();
 		setBackground(defaultColor.darker().darker());
 		selected = this;
+		w.setEntryHash(hash.toString());
 	}
 	
 	public void deselect(){
 		setBackground(selected.defaultColor);
 		selected = null;
+		w.setEntryHash("");
 	}
 	
 	public static FileEntry getSelected(){

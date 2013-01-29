@@ -11,19 +11,19 @@ public interface TaskManager {
 		public String path;
 		public String name;
 		public boolean knownDescriptor;
-		public int kbytesSize;
-		public int kbytesPosessed;
+		public long kbytesSize;
+		public long kbytesPosessed;
 		public int upRate;
 		public int downRate;
 	}
 	
 	
 	public void insertTask(Hash hash, String path, String name);
+	public void insertTask(File file);
 	public void removeTask(Hash hash);
 	
 	
 	public Set<Hash> getTasks();
 	public void closeAllTasks();
 	public TaskState getTaskState(Hash hash);
-	void insertTask(File file);
 }

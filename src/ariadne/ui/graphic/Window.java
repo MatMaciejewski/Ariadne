@@ -42,6 +42,7 @@ class Window {
 	private JScrollPane contentScrollPane;
 	private Map<Hash, FileEntry> entries;
 	private JFileChooser fc;
+	private JTextField generatedHashField;
 
 	public Window(GraphicUI.Delegate d) {
 		delegate = d;
@@ -81,6 +82,14 @@ class Window {
 
 		statusLabel = new JLabel("Some status data...");
 		statusPanel.add(statusLabel, BorderLayout.CENTER);
+		
+		generatedHashField = new JTextField();
+		generatedHashField.setEditable(false);
+		generatedHashField.setMinimumSize(new Dimension(200, 19));
+		generatedHashField.setMaximumSize(generatedHashField.getMinimumSize());
+		generatedHashField.setPreferredSize(generatedHashField.getMinimumSize());
+		statusPanel.add(generatedHashField, BorderLayout.EAST);
+		generatedHashField.setColumns(10);
 
 		contentScrollPane = new JScrollPane();
 		contentScrollPane
@@ -99,17 +108,21 @@ class Window {
 		initEvents();
 
 	}
+	
+	public void setEntryHash(String h){
+		generatedHashField.setText(h);
+	}
 
-	public void showEntry(Hash hash, String name, float size, float percent, float downRate, float upRate, float ratio) {
+	public void showEntry(Hash hash, String name, long size, long posessed, long downRate, long upRate, float ratio){
 		FileEntry e = entries.get(hash);
 		if (e == null) {
-			e = new FileEntry(hash);
+			e = new FileEntry(hash, this);
 			contentPanel.add(e);
 			frame.repaint();
 			entries.put(hash, e);
 		}
 		e.setFileName(name);
-		e.setProgress(size, percent);
+		e.setProgress(size, posessed);
 		e.setRates(downRate, upRate);
 	}
 

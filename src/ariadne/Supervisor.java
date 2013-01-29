@@ -235,6 +235,9 @@ public class Supervisor extends Thread {
 				// lookForChunks();
 			}
 
+			
+			Application.getUI().showEntry(getHash(), getFileName(), getSize(), getPosessed(), 0, 0, 0);
+			
 			try {
 				System.out.println("sleep");
 				sleep(1000);
@@ -249,6 +252,7 @@ public class Supervisor extends Thread {
 
 	public void halt() {
 		currentState = State.COMPLETE;
+		Application.getUI().dropEntry(getHash());
 	}
 
 	public String getFileName() {
@@ -266,15 +270,21 @@ public class Supervisor extends Thread {
 	public boolean knownDescriptor() {
 		return (Database.getFile(hash) != null);
 	}
-	public int getSize(){
+	public long getSize(){
 		if(file != null){
-			return file.getBitMask().getSize();
+			return file.getDescriptor().getFileSize();
 		}
 		return 0;
 	}
-	public int getPosessed(){
+	public long getPosessed(){
 		if(file != null){
-			return file.getBitMask().getPosessed();
+			BitMask b = file.getBitMask();
+			int s = file.getDescriptor().getChunkSize() * b.getPosessed();
+			if(b.get(b.getSize()-1)){
+				Descriptor d = file.getDescriptor();
+				s -= d.getChunkCount()*d.getChunkSize() - d.getFileSize();
+			}
+			return s;
 		}
 		return 0;
 	}

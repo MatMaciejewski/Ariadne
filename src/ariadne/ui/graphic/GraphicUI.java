@@ -64,17 +64,17 @@ public class GraphicUI extends DelegableUI {
 	}
 
 	@Override
-	public void showEntry(Hash hash, String name, float size, float percent, float downRate, float upRate, float ratio) {
+	public void showEntry(Hash hash, String name, long size, long posessed, long downRate, long upRate, float ratio) {
 		final Hash _hash = hash;
 		final String _name = name;
-		final float _size = size;
-		final float _percent = percent;
-		final float _downRate = downRate;
-		final float _upRate = upRate;
+		final long _size = size;
+		final long _posessed = posessed;
+		final long _downRate = downRate;
+		final long _upRate = upRate;
 		final float _ratio = ratio;
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				window.showEntry(_hash, _name, _size, _percent, _downRate, _upRate, _ratio);
+				window.showEntry(_hash, _name, _size, _posessed, _downRate, _upRate, _ratio);
 			}
 		});
 	}

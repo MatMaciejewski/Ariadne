@@ -24,6 +24,8 @@ public class Manager implements TaskManager {
 		t.hash = hash;
 		t.name = s.getFileName();
 		t.path = s.getFilePath();
+		t.kbytesPosessed = s.getPosessed();
+		t.kbytesSize = s.getSize();
 		t.knownDescriptor = s.knownDescriptor();
 		return t;
 	}
