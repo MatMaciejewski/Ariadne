@@ -68,13 +68,17 @@ public class Hash implements Comparable<Hash> {
 	@Override
 	public int compareTo(Hash o) {
 		// required for queues
-		int r;
+		byte r;
 		data.rewind();
 		o.data.rewind();
+		
 		for (int i = 0; i < LENGTH; ++i) {
-			r = data.get() - o.data.get();
-			if (r != 0)
-				return r;
+			byte b0 = data.get(i);
+			byte b1 = o.data.get(i);
+			r = (byte) (b0 - b1);
+			if (r != 0){
+				return r;	
+			}
 		}
 		return 0;
 	}

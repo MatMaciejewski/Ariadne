@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.LinkedList;
+import java.util.List;
 
 import ariadne.utils.Log;
 
@@ -18,7 +20,7 @@ public class Settings {
 	private static String[] filePaths;
 	private static int quantity;
 
-	public Settings() {
+	public static void initlialise() {
 		BufferedReader br = null;
 		try {
 			String sCurrentLine;
@@ -68,31 +70,38 @@ public class Settings {
 		}
 	}
 
-	public Hash[] getAllHash() {
-		return hashes;
+	public static List<Hash> getAllHash() {
+		List<Hash> list = new LinkedList<Hash>();
+		for(Hash h: hashes){
+			list.add(h);
+		}
+		return list;
 	}
+	public static String getNameForHash(Hash hash) {
 
-	public String getNameForHash(Hash hash) {
 		int j = 0;
+		
 		for (Hash hashTemp : hashes) {
-			if (hash.compareTo(hashTemp) == 0)
+			if (hash.equals(hashTemp)){
 				return names[j];
+			}
+				
 			j++;
 		}
 		return null;
 	}
 
-	public String getPathForHash(Hash hash) {
+	public static String getPathForHash(Hash hash) {
 		int j = 0;
 		for (Hash hashTemp : hashes) {
-			if (hash.compareTo(hashTemp) == 0)
+			if (hash.equals(hashTemp))
 				return filePaths[j];
 			j++;
 		}
 		return null;
 	}
 
-	public void updateSettings(Hash hash, String name, String filePath) {
+	public static void updateSettings(Hash hash, String name, String filePath) {
 		if (getNameForHash(hash) == null) {
 			Hash[] newHash = new Hash[quantity + 1];
 			String[] newNames = new String[quantity + 1];
@@ -115,7 +124,7 @@ public class Settings {
 	/*
 	 * -1 -> error 0 -> nothing new to add 1 -> success
 	 */
-	public int updateSettingsFile() {
+	public static int updateSettingsFile() {
 		try {
 			String sCurrentLine;
 			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
@@ -127,7 +136,8 @@ public class Settings {
 			else {
 				int startingPosition = (int) byteFile.length();
 				byteFile.seek(0);
-				byteFile.write(new String(Integer.toString(quantity)).getBytes());
+				byteFile.write(new String(Integer.toString(quantity))
+						.getBytes());
 				byteFile.seek(startingPosition);
 				for (int i = fileQuantity; i < quantity; i++) {
 					byteFile.write(new String(hashes[i] + " " + names[i] + " "

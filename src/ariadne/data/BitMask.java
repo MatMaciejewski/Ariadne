@@ -1,5 +1,6 @@
 package ariadne.data;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -121,21 +122,22 @@ public class BitMask {
 			e.printStackTrace();
 		}
 	}
-
-	public static BitMask loadBitMask(String filePath) {
-		byte[] bytes = null;
+	
+	public static BitMask loadBitMask(String filePath, int chunkCount){
 		try {
-			java.io.File in = new java.io.File(filePath + ".bmask");
-			RandomAccessFile byteFile = new RandomAccessFile(in, "r");
-			bytes = new byte[(int) in.length()];
+			int byteLength = BitMask.bytesRequiredForSize(chunkCount);
+			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(filePath), "r");
+			byte[] bytes = new byte[byteLength];
+			
 			byteFile.read(bytes);
 			byteFile.close();
-			ByteBuffer bb = ByteBuffer.wrap(bytes);
-			System.out.println(bb);
-			return new BitMask(bb, (int) in.length());
-		} catch (IOException e1) {
-			Log.error("File " + filePath + " not found.");
-			throw new IllegalArgumentException();
-		}
+			
+			ByteBuffer bb = ByteBuffer.allocate(byteLength);
+			bb.put(bytes);
+			
+			return new BitMask(bb, 0, chunkCount);
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) { }
+		return null;
 	}
 }

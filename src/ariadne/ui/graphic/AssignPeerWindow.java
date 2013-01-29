@@ -54,7 +54,6 @@ public class AssignPeerWindow extends JFrame {
 		portField.setColumns(10);
 		
 		ipField = new JTextField();
-		ipField.setText("192.168.1.111");
 		ipField.setColumns(10);
 		ipField.setBounds(128, 36, 216, 19);
 		panel.add(ipField);

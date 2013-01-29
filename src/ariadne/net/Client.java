@@ -122,7 +122,6 @@ public class Client {
 			}
 			
 			c.close();
-			Log.notice("Received CORRRRRRRRECT reply!");
 			return r;
 		} catch (IOException e) {
 			Log.warning("IOException in client sendQuery() method");

@@ -88,6 +88,16 @@ public class Supervisor extends Thread {
 		return success;
 
 	}
+	
+	private void slowDown(){
+		try {
+			sleep(100);
+			System.out.print(".");
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	private void lookForDescriptor() {
 		Address peer;
@@ -153,6 +163,8 @@ public class Supervisor extends Thread {
 			noteworthy.addAll(checked);
 			checked.clear();
 			noteworthy.addAll(Catalogue.getRandomPeers(32));
+		} else {
+			slowDown();
 		}
 	}
 
@@ -172,7 +184,6 @@ public class Supervisor extends Thread {
 						c = r.getChunk();
 						if(c != null){
 							if(file.setChunk(c, p.toCheck)){
-								Log.notice("Chunk " + p.toCheck + " downloaded");
 								p.toCheck++;
 								break;
 							}
@@ -251,7 +262,6 @@ public class Supervisor extends Thread {
 						returned++;
 					}
 				}
-
 				if (response.isInterested()) {
 					if (returned > 0) {
 						interested.add(peer);
@@ -262,6 +272,8 @@ public class Supervisor extends Thread {
 			noteworthy.addAll(checked);
 			checked.clear();
 			noteworthy.addAll(Catalogue.getRandomPeers(32));
+		} else {
+			slowDown();
 		}
 	}
 
@@ -278,7 +290,6 @@ public class Supervisor extends Thread {
 					break;
 				else {
 					interested.add(peer);
-					System.out.println("added " + peer.getIpAddress());
 				}
 			}
 
@@ -290,7 +301,6 @@ public class Supervisor extends Thread {
 			
 			if(file != null){
 				BitMask b = file.getBitMask();
-				System.out.println("Posessed: " + b.getPosessed() + "/" + b.getSize());
 				if(b.getPosessed() == b.getSize()){
 					currentState = State.COMPLETE;
 				}
@@ -298,14 +308,6 @@ public class Supervisor extends Thread {
 
 			Application.getUI().showEntry(getHash(), getFileName(), getSize(),
 					getPosessed(), 0, 0, 0);
-
-			try {
-				System.out.println("sleep");
-				sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 
 		finalise();

@@ -110,12 +110,10 @@ public class File {
 	}
 	
 	private boolean saveChunkToDisk(Chunk c, int id){
-		System.out.println("---------------> saving "+id);
 		
 		try {
 			int toWrite = descriptor.getChunkSize();
 			if(id + 1 == descriptor.getChunkCount()){
-				System.out.println("Entered short toWrite if");
 				toWrite -= (descriptor.getChunkCount()*descriptor.getChunkSize() - descriptor.getFileSize());
 			}
 			byte[] bytes = new byte[toWrite];
@@ -191,7 +189,6 @@ public class File {
 			b.putInt(fileLength);
 			b.putInt(chunkSize);
 			b.putLong(fil.length());
-			System.out.println("FL: "+fileLength+" FS: "+fil.length());
 			for (int i = 0; i < fileLength; i++) {
 				Hash temp = getChunkFromDisk(i, chunkSize, fileLength)
 						.getHash();
@@ -205,10 +202,6 @@ public class File {
 			bitmask = bit;
 			bit.saveBitMask(path + "/" + name + ".bmask");
 			d.saveDescriptor(path + "/" + name + ".desc");
-			System.out.println(d.getChunkCount());
-			System.out.println(bit.getSize());
-			System.out.println(path);
-			System.out.println(name);
 			Database.insertFile(d, bit, path, name, false);
 		}
 	}
@@ -219,7 +212,7 @@ public class File {
 		java.io.File testFile = new java.io.File(path + "/" + name);
 		if (testFile != null) {
 			Descriptor desc = Descriptor.parseFile(path + "/" + name);
-			BitMask bit = BitMask.loadBitMask(path + "/" + name);
+			BitMask bit = BitMask.loadBitMask(path + "/" + name, desc.getChunkCount());
 			if (desc != null && bit != null) {
 				Database.insertFile(desc, bit, path, name, false);
 			} else

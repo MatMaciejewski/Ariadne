@@ -38,13 +38,12 @@ public class Descriptor {
 	public static Descriptor parseFile(String filePath) {
 		byte[] bytes = null;
 		try {
-			java.io.File in = new java.io.File(filePath+".desc");
+			java.io.File in = new java.io.File(filePath);
 			RandomAccessFile byteFile = new RandomAccessFile(in, "r");
 			bytes = new byte[(int)in.length()];
 			byteFile.read(bytes);
 			byteFile.close();
 		} catch (IOException e1) {
-			Log.error("File "+filePath+" not found.");
 			throw new IllegalArgumentException();
 		}
 		ByteBuffer bb = ByteBuffer.wrap(bytes);
