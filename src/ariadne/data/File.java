@@ -12,7 +12,7 @@ public class File {
 	private BitMask bitmask;
 	private String name;
 	private String path;
-	
+
 	public File(Descriptor descriptor, BitMask bitmask, String path, String name) {
 		if (descriptor == null || bitmask == null || path == null
 				|| name == null)
@@ -47,7 +47,8 @@ public class File {
 
 	public Chunk getChunk(int id) {
 		if (getBitMask().get(id)) {
-			return getChunkFromDisk(id,descriptor.getChunkSize(),descriptor.getChunkCount());
+			return getChunkFromDisk(id, descriptor.getChunkSize(),
+					descriptor.getChunkCount());
 		} else
 			return null;
 	}
@@ -87,7 +88,7 @@ public class File {
 		try {
 			java.io.File in = new java.io.File(path + "/" + name);
 			RandomAccessFile byteFile = new RandomAccessFile(in, "r");
-			byteFile.seek((chunkSize + 1) * id);
+			byteFile.seek(chunkSize * id);
 			byteFile.read(bytes);
 			byteFile.close();
 			if (id == chunkCount) {
@@ -139,30 +140,52 @@ public class File {
 		}
 		return false;
 	}
-	
+
 	/////////////////CREATE A FILE//////////////////
-	public File(String path, String name, int chunkSize){
-		java.io.File fil = new java.io.File(path+"\\"+name);
-		ByteBuffer b;
-		b=ByteBuffer.allocate(4+4+8+Hash.LENGTH*BitMask.bytesRequiredForSize((int)fil.length()));
+	public File(String path, String name, int chunkSize) {
+		java.io.File fil = new java.io.File(path + "\\" + name);
 		this.path=path;
 		this.name=name;
-		int fileLength=(int)fil.length()/chunkSize;
-		if((int)fil.length()%chunkSize!=0)fileLength++;
-		System.out.println("LALALALALA: "+fil.length());
+		if(fil!=null){
+		ByteBuffer b;
+		int fileLength = (int) fil.length() / chunkSize;
+		b = ByteBuffer.allocate(4 + 4 + 8 + Hash.LENGTH
+				* BitMask.bytesRequiredForSize((int) fil.length()));
+		if ((int) fil.length() % chunkSize != 0)
+			fileLength++;
 		b.putInt(fileLength);
 		b.putInt(chunkSize);
 		b.putLong(fil.length());
-		for(int i=0;i<fileLength;i++){
-			Hash temp = getChunkFromDisk(i,chunkSize,fileLength).getHash();
+		for (int i = 0; i < fileLength; i++) {
+			Hash temp = getChunkFromDisk(i, chunkSize, fileLength).getHash();
 			b.put(temp.getByteBuffer());
 		}
-		System.out.println(fileLength);
-		System.out.println(fil.length());
-		Descriptor d = Descriptor.parse(b,0);
+		Descriptor d = Descriptor.parse(b, 0);
 		BitMask bit = d.getEmptyBitmask();
-		for(int i=0;i<bit.getSize();i++) bit.set(i);
-		bit.saveBitMask(path+"\\"+name+".bmask");
-		d.saveDescriptor(path+"\\"+name+".desc");
+		for (int i = 0; i < bit.getSize(); i++)
+			bit.set(i);
+		bit.saveBitMask(path + "\\" + name + ".bmask");
+		d.saveDescriptor(path + "\\" + name + ".desc");
+		System.out.println(d.getChunkCount());
+		System.out.println(bit.getSize());
+		System.out.println(path);
+		System.out.println(name);
+		Database.insertFile(d, bit, path, name, false);
+		}
+	}
+
+	/////////////////LOAD A FILE//////////////////
+	
+	public static void loadReadyFile(String path, String name) {
+		java.io.File testFile = new java.io.File (path+"\\"+name);
+		if(testFile!=null){
+			Descriptor desc = Descriptor.parseFile(path+"\\"+name);
+			BitMask bit = BitMask.loadBitMask(path+"\\"+name);
+			if(desc!=null&&bit!=null){
+				Database.insertFile(desc, bit, path, name, false);
+			}
+			else Log.error("File Descriptor\bitmask not found : "+path+"\\"+name); 
+		}
+		
 	}
 }

@@ -111,10 +111,10 @@ public class BitMask {
 		}
 	}
 
-	public BitMask loadBitMask(String filePath) {
+	public static BitMask loadBitMask(String filePath) {
 		byte[] bytes = null;
 		try {
-			java.io.File in = new java.io.File("." + filePath + ".bmask");
+			java.io.File in = new java.io.File(filePath + ".bmask");
 			RandomAccessFile byteFile = new RandomAccessFile(in, "r");
 			bytes = new byte[(int) in.length()];
 			byteFile.read(bytes);
