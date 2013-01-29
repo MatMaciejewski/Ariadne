@@ -28,6 +28,7 @@ import java.util.Map;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import javax.swing.SwingConstants;
 
 class Window {
 
@@ -81,14 +82,16 @@ class Window {
 		statusPanel.setLayout(new BorderLayout(0, 0));
 
 		statusLabel = new JLabel("Some status data...");
-		statusPanel.add(statusLabel, BorderLayout.CENTER);
+		statusLabel.setPreferredSize(new Dimension(200, 15));
+		statusPanel.add(statusLabel, BorderLayout.WEST);
 		
 		generatedHashField = new JTextField();
+		generatedHashField.setHorizontalAlignment(SwingConstants.RIGHT);
 		generatedHashField.setEditable(false);
-		generatedHashField.setMinimumSize(new Dimension(200, 19));
+		generatedHashField.setMinimumSize(new Dimension(300, 19));
 		generatedHashField.setMaximumSize(generatedHashField.getMinimumSize());
 		generatedHashField.setPreferredSize(generatedHashField.getMinimumSize());
-		statusPanel.add(generatedHashField, BorderLayout.EAST);
+		statusPanel.add(generatedHashField, BorderLayout.CENTER);
 		generatedHashField.setColumns(10);
 
 		contentScrollPane = new JScrollPane();

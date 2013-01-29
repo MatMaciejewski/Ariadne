@@ -25,10 +25,12 @@ public class FileEntry extends JPanel {
 	private Color defaultColor;
 	private static FileEntry selected;
 	private Window w;
+	private String name;
 
 	public FileEntry(Hash hash, Window w) {
 		this.w = w;
 		this.hash = hash;
+		this.name = "unknown";
 		setBorder(new EmptyBorder(4, 4, 4, 4));
 		setLayout(new BorderLayout(0, 0));
 
@@ -100,6 +102,7 @@ public class FileEntry extends JPanel {
 	}
 
 	public void setFileName(String s) {
+		name = s;
 		mainLabel.setText(s);
 	}
 	
@@ -141,7 +144,7 @@ public class FileEntry extends JPanel {
 		if(getSelected() != null) getSelected().deselect();
 		setBackground(defaultColor.darker().darker());
 		selected = this;
-		w.setEntryHash(hash.toString());
+		w.setEntryHash(hash.toString() + "#" + name);
 	}
 	
 	public void deselect(){

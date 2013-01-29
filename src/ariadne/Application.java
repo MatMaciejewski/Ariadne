@@ -88,9 +88,21 @@ public class Application{
 			public void trigger(Event e) {
 				HashAddedEvent h = (HashAddedEvent) e;
 				try{
-					Hash hash = new Hash(h.data);
-					System.out.println("I CO TERAZ?");
-					//manager.insertTask(hash, "./", "cat.jpg");
+					
+					//		7815696ecbf1c96e6894b779456d330e#cat.jpg	
+					
+					String[] parts = h.data.split("#");
+					for(int i=0;i<parts.length;++i){
+						System.out.println(parts[i]);
+					}
+					if(parts.length == 2){
+						Hash hash = new Hash(parts[0]);
+						String name = parts[1];
+						String path = System.getProperty("user.dir");
+						
+						manager.insertTask(hash, path, name);
+					}
+					
 				}catch(Exception ex){
 					System.out.println("Invalid hash");
 				}
