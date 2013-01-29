@@ -125,7 +125,6 @@ public class Client {
 			return r;
 		} catch (IOException e) {
 			Log.warning("IOException in client sendQuery() method");
-			e.printStackTrace();
 			return null;
 		} catch (InvalidMessageException e) {
 			Log.warning("InvalidMessageException received.");

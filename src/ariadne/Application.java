@@ -47,18 +47,18 @@ public class Application {
 		for (Hash h : files) {
 			String path = Settings.getPathForHash(h);
 			String name = Settings.getNameForHash(h);
+			
+			System.out.print("FILE " + path + "/" + name + ":");
 			try {
 				Descriptor d = Descriptor.parseFile(path + "/." + name + ".desc");
 				BitMask b = BitMask.loadBitMask(path + "/." + name + ".bmask", d.getChunkCount());
 				if(d.getChunkCount() != b.getSize()){
+					System.out.println(" found");
 					throw new Exception("BitMask does not fit to a descriptor");
 				}
-				
-				System.out.println("found");
 				manager.insertTask(new File(d, b, path, name));
 			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("not found");
+				System.out.println(" not found");
 				manager.insertTask(h, path, name);
 			}
 		}

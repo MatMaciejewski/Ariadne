@@ -283,6 +283,7 @@ public class Supervisor extends Thread {
 
 		Address peer;
 		while (currentState != State.COMPLETE && currentState != State.ERROR) {
+			
 
 			while (true) {
 				peer = listener.getNext();
