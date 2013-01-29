@@ -70,6 +70,7 @@ class Window {
 		headerPanel.add(hashAddedButton, BorderLayout.EAST);
 
 		hashTextField = new JTextField();
+		hashTextField.setText("A48F3AC52899DF99EC87C539E11FED95#ariadne04.png");
 		headerPanel.add(hashTextField, BorderLayout.CENTER);
 		hashTextField.setColumns(10);
 

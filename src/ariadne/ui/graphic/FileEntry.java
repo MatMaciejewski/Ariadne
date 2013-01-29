@@ -166,8 +166,8 @@ public class FileEntry extends JPanel {
 				+ printProperly(size) + " downloaded");
 
 		float percent = (size == 0) ? 0 : 100 * posessed / size;
-		progressBar.setValue((int) (percent * 100));
-		progressBar.setString(percent * 100 + "%");
+		progressBar.setValue((int) (percent));
+		progressBar.setString(percent + "%");
 	}
 
 	public void setRates(float downRate, float upRate) {
