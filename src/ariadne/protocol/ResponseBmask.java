@@ -24,10 +24,10 @@ public class ResponseBmask extends Response {
 	@Override
 	public boolean isComplete() throws InvalidMessageException {
 		ByteBuffer b = getByteBuffer();
-
+		
 		if (b.limit() == 1) {
 			if (b.get(0) == 0)
-				return true;
+			return true;
 		}
 
 		int s = 1 + BitMask.bytesRequiredForSize(size);
@@ -41,7 +41,7 @@ public class ResponseBmask extends Response {
 	}
 	
 	
-	public ResponseBmask(){}
+	private ResponseBmask(){}
 	
 	public static ResponseBmask prepare(BitMask b){
 		ResponseBmask r = new ResponseBmask();

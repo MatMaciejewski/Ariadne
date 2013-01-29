@@ -59,12 +59,15 @@ public class Client {
 
 	public ResponseChunk sendChunkQuery(Address addr, Hash hash, int chunkId, int expectedLength, int timeout) {
 		QueryChunk q = QueryChunk.prepare(getAddress().getPort(), hash, chunkId);
+		
+		System.out.println("Prepared chunk query with chunkId="+q.getChunkId());
+		
 		return (ResponseChunk) sendQuery(q, new ResponseChunk(expectedLength), addr, timeout);
 	}
 
-	public ResponseBmask sendBmaskQuery(Address addr, Hash hash, int timeout) {
+	public ResponseBmask sendBmaskQuery(Address addr, Hash hash, int expectedSize, int timeout) {
 		QueryBmask q = QueryBmask.prepare(getAddress().getPort(), hash);
-		return (ResponseBmask) sendQuery(q, new ResponseBmask(), addr, timeout);
+		return (ResponseBmask) sendQuery(q, new ResponseBmask(expectedSize), addr, timeout);
 	}
 
 	public ResponsePeers sendPeersQuery(Address addr, int timeout) {
@@ -112,8 +115,19 @@ public class Client {
 			
 			byte[] resp = new byte[1024];
 			int len;
+			System.out.println("checking...");
 			while(!r.isComplete()){
+				
 				len = in.read(resp);
+				
+				System.out.println("This response part has length=" + len);
+				if(true){
+					System.out.println("Response goes like this:");
+					for(int i=0;i<len;++i){
+						System.out.print(resp[i]+" ");
+					}
+					System.out.println("... and end");
+				}
 				
 				if(len < 1){ 
 					Log.notice("<0 length data received in client - returning null");

@@ -20,8 +20,7 @@ import ariadne.net.Port;
 public class QueryChunk extends PortHashQuery {
 
 	public int getChunkId(){
-		getByteBuffer().position(19);
-		return getByteBuffer().getInt();
+		return getByteBuffer().getInt(19);
 	}
 
 	@Override

@@ -67,7 +67,8 @@ public class Supervisor extends Thread {
 		interested = new LinkedList<Address>();
 		checked = new LinkedList<Address>();
 		seeders = new LinkedList<Pair>();
-		interested.addAll(Catalogue.getPeerForHash(getHash(), Integer.MAX_VALUE));
+		interested.addAll(Catalogue
+				.getPeerForHash(getHash(), Integer.MAX_VALUE));
 	}
 
 	private void finalise() {
@@ -75,7 +76,13 @@ public class Supervisor extends Thread {
 	}
 
 	private boolean prepareNewFile(Descriptor d) {
-		return Database.insertFile(d, d.getEmptyBitmask(), path, name, true);
+		boolean success = Database.insertFile(d, d.getEmptyBitmask(), path,
+				name, true);
+		if (success) {
+			file = Database.getFile(getHash());
+		}
+		return success;
+
 	}
 
 	private void lookForDescriptor() {
@@ -96,11 +103,9 @@ public class Supervisor extends Thread {
 					noteworthy.add(peer);
 				} else {
 					// WE have a descriptor. But is it THE descriptor?
-					
+
 					Log.notice("Checking if descriptor is correct");
-					System.out.println("received: " + d.getHash());
-					System.out.println("expected: " + getHash());
-					
+
 					if (d.getHash().equals(getHash())) {
 						System.out.println("so they are the same");
 						if (prepareNewFile(d)) {
@@ -110,7 +115,7 @@ public class Supervisor extends Thread {
 							currentState = State.ERROR;
 						}
 						System.out.println("and finish");
-					}else{
+					} else {
 						Log.notice("Received incorrect descriptor");
 					}
 				}
@@ -151,6 +156,9 @@ public class Supervisor extends Thread {
 		Address peer;
 		if (!seeders.isEmpty()) {
 			Pair p = seeders.poll();
+			
+			System.out.println("Asking a seeder " + p.peer.getIpAddress());
+			
 			ResponseChunk r;
 			Chunk c;
 
@@ -160,9 +168,15 @@ public class Supervisor extends Thread {
 					r = Application.getClient().sendChunkQuery(p.peer, hash, i,
 							file.getDescriptor().getChunkSize(), 2000);
 					if (r != null) {
+						System.out.println("Received a chunk");
 						c = r.getChunk();
+						
+						r.print();
+						
 						if (c != null) {
+							System.out.println("Chunk is not null");
 							if (file.setChunk(c, i)) {
+								System.out.println("Chunk correct, saved");
 								continue;
 							}
 						}
@@ -173,9 +187,8 @@ public class Supervisor extends Thread {
 			}
 		} else if (!interested.isEmpty()) {
 			peer = interested.poll();
-			ResponseBmask r = Application.getClient().sendBmaskQuery(peer,
-					hash, 2000);
-			
+			ResponseBmask r = Application.getClient().sendBmaskQuery(peer, hash, file.getBitMask().getSize(), 2000);
+
 			System.out.println("Bmask response analysis:");
 
 			if (r == null) {
@@ -183,24 +196,33 @@ public class Supervisor extends Thread {
 				// Forget this peer
 			} else {
 				BitMask b = r.getBitMask();
-				
+
 				if (b == null) {
-					
+
 					r.print();
-					
+
 					System.out.println("no bitmask after all");
 					// Forget this peer
 				} else {
 					System.out.println("bitmask correct");
 					Pair p = new Pair();
-					p.bitmask = b.getDiff(file.getBitMask());
-					p.peer = peer;
-					if (p.bitmask.compareToNull()) {
-						System.out.println("diff is empty");
-						checked.add(peer);
-					} else {
-						System.out.println("dif not empty - download!");
-						seeders.add(p);
+
+					System.out
+							.println("received bitmask size:  " + b.getSize());
+					System.out.println("our local bitmask size: "
+							+ file.getBitMask().getSize());
+
+					if (b.getSize() == file.getBitMask().getSize()) {
+						p.bitmask = file.getBitMask().getDiff(b);
+						p.peer = peer;
+						if (p.bitmask.compareToNull()) {
+							
+							System.out.println("diff is empty");
+							checked.add(peer);
+						} else {
+							System.out.println("dif not empty - download!");
+							seeders.add(p);
+						}
 					}
 				}
 			}
@@ -246,8 +268,8 @@ public class Supervisor extends Thread {
 				peer = listener.getNext();
 				if (peer == null)
 					break;
-				else{
-					interested.add(peer);	
+				else {
+					interested.add(peer);
 					System.out.println("added " + peer.getIpAddress());
 				}
 			}
@@ -260,9 +282,9 @@ public class Supervisor extends Thread {
 				lookForChunks();
 			}
 
-			
-			Application.getUI().showEntry(getHash(), getFileName(), getSize(), getPosessed(), 0, 0, 0);
-			
+			Application.getUI().showEntry(getHash(), getFileName(), getSize(),
+					getPosessed(), 0, 0, 0);
+
 			try {
 				System.out.println("sleep");
 				sleep(1000);
@@ -295,19 +317,21 @@ public class Supervisor extends Thread {
 	public boolean knownDescriptor() {
 		return (Database.getFile(hash) != null);
 	}
-	public long getSize(){
-		if(file != null){
+
+	public long getSize() {
+		if (file != null) {
 			return file.getDescriptor().getFileSize();
 		}
 		return 0;
 	}
-	public long getPosessed(){
-		if(file != null){
+
+	public long getPosessed() {
+		if (file != null) {
 			BitMask b = file.getBitMask();
 			int s = file.getDescriptor().getChunkSize() * b.getPosessed();
-			if(b.get(b.getSize()-1)){
+			if (b.get(b.getSize() - 1)) {
 				Descriptor d = file.getDescriptor();
-				s -= d.getChunkCount()*d.getChunkSize() - d.getFileSize();
+				s -= d.getChunkCount() * d.getChunkSize() - d.getFileSize();
 			}
 			return s;
 		}

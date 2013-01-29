@@ -45,13 +45,16 @@ public abstract class Message {
 
 	
 	public ByteBuffer getByteBuffer(){
+		ByteBuffer b;
 		if(buf == null){
-			return ByteBuffer.allocate(1);
+			b = ByteBuffer.allocate(1);
+			b.position(0);
+			b.limit(0);
 		} else {
-			ByteBuffer b = buf.asReadOnlyBuffer();
+			b = buf.asReadOnlyBuffer();
 			b.rewind();
-			return b;
 		}
+		return b;
 	}
 	
 	public void print(){
