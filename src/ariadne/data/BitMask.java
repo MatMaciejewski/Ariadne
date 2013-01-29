@@ -9,6 +9,7 @@ import ariadne.utils.Log;
 public class BitMask {
 	private ByteBuffer mask;
 	private int size;
+	private int posessed;
 
 	public BitMask(ByteBuffer b, int size) {
 		if (size < 0)
@@ -22,6 +23,8 @@ public class BitMask {
 		for (int i = 0; i < mask.capacity(); ++i) {
 			mask.put(b.get());
 		}
+		for (int i = 0; i < size; i++)
+			if (get(i)) posessed++;
 	}
 
 	/**
@@ -41,6 +44,7 @@ public class BitMask {
 		for (int i = 0; i < mask.capacity(); ++i) {
 			mask.put((byte) 0);
 		}
+		posessed = 0;
 	}
 
 	public BitMask getDiff(BitMask peer) {
@@ -72,13 +76,19 @@ public class BitMask {
 	}
 
 	public void set(int id) {
+		if(get(id)) return;
 		if (id < 0 || id >= getSize())
 			throw new IllegalArgumentException();
 		mask.put(id / 8, (byte) (mask.get(id / 8) | (1 << id % 8)));
+		posessed++;
 	}
 
 	public int getSize() {
 		return size;
+	}
+	
+	public int getPosessed(){
+		return posessed;
 	}
 
 	public int getByteCount() {

@@ -24,6 +24,7 @@ import ariadne.protocol.ResponsePeers;
 import ariadne.utils.Log;
 
 public class Supervisor extends Thread {
+	private File file;
 	private String name;
 	private String path;
 	private Hash hash;
@@ -31,7 +32,8 @@ public class Supervisor extends Thread {
 	public enum State {
 		LOOKING_FOR_DESCRIPTOR, CHASING_CHUNKS, COMPLETE, ERROR
 	}
-	public class Pair{
+
+	public class Pair {
 		public Address peer;
 		public BitMask bitmask;
 	}
@@ -42,43 +44,30 @@ public class Supervisor extends Thread {
 	private Queue<Address> checked; // peers having a subset of our chunks
 	private Queue<Pair> seeders; // peers having something we do not have
 	private Catalogue.Listener listener;
-	private File file;
+
+	public Supervisor(File file) {
+		this.file = file;
+		this.name = file.getFileName();
+		this.path = file.getFilePath();
+		this.hash = file.getDescriptor().getHash();
+		currentState = State.CHASING_CHUNKS;
+		listener = Catalogue.getListener(getHash());
+	}
 
 	public Supervisor(Hash hash, String path, String name) {
 		this.name = name;
 		this.path = path;
 		this.hash = hash;
 		currentState = State.LOOKING_FOR_DESCRIPTOR;
+		listener = Catalogue.getListener(getHash());
+	}
+
+	private void initialise() {
 		noteworthy = new LinkedList<Address>();
 		interested = new LinkedList<Address>();
 		checked = new LinkedList<Address>();
 		seeders = new LinkedList<Pair>();
-		listener = Catalogue.getListener(getHash());
-
-		interested.addAll(Catalogue
-				.getPeerForHash(getHash(), Integer.MAX_VALUE));
-	}
-
-	private void initialise() {
-		// Look for the descriptor in the file system
-		currentState = State.LOOKING_FOR_DESCRIPTOR;
-		try {
-			Descriptor d = Descriptor.parseFile(path + "/" + name);
-			// It looks like we have it.
-
-			if (d.getHash().equals(getHash())) {
-				// Yep, we do :)
-				if (prepareNewFile(d)) {
-					currentState = State.CHASING_CHUNKS;
-				} else {
-					// Something went terribly wrong
-					currentState = State.ERROR;
-				}
-			}
-		} catch (Exception e) {
-			// Nope, descriptor not found. Gotta ask for it
-		}
-
+		interested.addAll(Catalogue.getPeerForHash(getHash(), Integer.MAX_VALUE));
 	}
 
 	private void finalise() {
@@ -91,75 +80,79 @@ public class Supervisor extends Thread {
 
 	private void lookForDescriptor() {
 		Address peer;
-		
-		if(!interested.isEmpty()){
+
+		if (!interested.isEmpty()) {
 			peer = interested.poll();
-			
-			ResponseDescr response = Application.getClient().sendDescrQuery(peer, hash, 2000);
-			if(response == null){
-				//Returned message is incorrect - we forget about this guy
-			}else{
+
+			ResponseDescr response = Application.getClient().sendDescrQuery(
+					peer, hash, 2000);
+			if (response == null) {
+				// Returned message is incorrect - we forget about this guy
+			} else {
 				Descriptor d = response.getDescriptor();
-				if(d == null){
-					//Peer does not have this descriptor. But mabye he knows somebody who has it?
+				if (d == null) {
+					// Peer does not have this descriptor. But mabye he knows
+					// somebody who has it?
 					noteworthy.add(peer);
-				}else{
-					//WE have a descriptor. But is it THE descriptor?
-					if(d.getHash().equals(getHash())){
-						if(prepareNewFile(d)){
+				} else {
+					// WE have a descriptor. But is it THE descriptor?
+					if (d.getHash().equals(getHash())) {
+						if (prepareNewFile(d)) {
 							currentState = State.CHASING_CHUNKS;
-						}else{
+						} else {
 							currentState = State.ERROR;
 						}
 					}
 				}
 			}
-		}else if(!noteworthy.isEmpty()){
+		} else if (!noteworthy.isEmpty()) {
 			peer = noteworthy.poll();
-			
-			ResponseChase response = Application.getClient().sendChaseQuery(peer, hash, 2000);
-			if(response == null){
-				//Returned garbage - we forget about this guy
-			}else{
+
+			ResponseChase response = Application.getClient().sendChaseQuery(
+					peer, hash, 2000);
+			if (response == null) {
+				// Returned garbage - we forget about this guy
+			} else {
 				List<Address> peers = response.getPeers();
-				
+
 				int returned = 0;
-				for(Address a: peers){
-					if(a != peer && a != Application.getClient().getAddress()){
-						noteworthy.add(a);	
+				for (Address a : peers) {
+					if (a != peer && a != Application.getClient().getAddress()) {
+						noteworthy.add(a);
 						returned++;
 					}
-				}	
-				
-				if(response.isInterested()){
-					if(returned > 0){
+				}
+
+				if (response.isInterested()) {
+					if (returned > 0) {
 						checked.add(peer);
 					}
 				}
-				
+
 			}
-		} else if(!checked.isEmpty()){
+		} else if (!checked.isEmpty()) {
 			noteworthy.addAll(checked);
 			checked.clear();
-			noteworthy.addAll(Catalogue.getRandomPeers(32));	
+			noteworthy.addAll(Catalogue.getRandomPeers(32));
 		}
 	}
 
 	private void lookForChunks() {
 		Address peer;
-		if(!seeders.isEmpty()){
+		if (!seeders.isEmpty()) {
 			Pair p = seeders.poll();
 			ResponseChunk r;
 			Chunk c;
-			
-			//TODO: RANDOMIZE THIS
-			for(int i=0;i<p.bitmask.getSize();++i){
-				if(p.bitmask.get(i)){
-					r = Application.getClient().sendChunkQuery(p.peer, hash, i, file.getDescriptor().getChunkSize(), 2000);
-					if(r != null){
+
+			// TODO: RANDOMIZE THIS
+			for (int i = 0; i < p.bitmask.getSize(); ++i) {
+				if (p.bitmask.get(i)) {
+					r = Application.getClient().sendChunkQuery(p.peer, hash, i,
+							file.getDescriptor().getChunkSize(), 2000);
+					if (r != null) {
 						c = r.getChunk();
-						if(c != null){
-							if(file.setChunk(c, i)){
+						if (c != null) {
+							if (file.setChunk(c, i)) {
 								continue;
 							}
 						}
@@ -168,54 +161,56 @@ public class Supervisor extends Thread {
 				checked.add(p.peer);
 				break;
 			}
-		} else if(!interested.isEmpty()){
+		} else if (!interested.isEmpty()) {
 			peer = interested.poll();
-			ResponseBmask r = Application.getClient().sendBmaskQuery(peer, hash, 2000);
-			
-			if(r == null){
-				//Forget this peer
-			}else{
+			ResponseBmask r = Application.getClient().sendBmaskQuery(peer,
+					hash, 2000);
+
+			if (r == null) {
+				// Forget this peer
+			} else {
 				BitMask b = r.getBitMask();
-				if(b == null){
-					//Forget this peer
-				}else{
+				if (b == null) {
+					// Forget this peer
+				} else {
 					Pair p = new Pair();
 					p.bitmask = b.getDiff(file.getBitMask());
-					p.peer =  peer;
-					if(p.bitmask.compareToNull()){
+					p.peer = peer;
+					if (p.bitmask.compareToNull()) {
 						checked.add(peer);
-					}else{
+					} else {
 						seeders.add(p);
 					}
 				}
 			}
-		} else if(!noteworthy.isEmpty()){
+		} else if (!noteworthy.isEmpty()) {
 			peer = noteworthy.poll();
-			
-			ResponseChase response = Application.getClient().sendChaseQuery(peer, hash, 2000);
-			if(response == null){
-				//Returned garbage - we forget about this guy
-			}else{
+
+			ResponseChase response = Application.getClient().sendChaseQuery(
+					peer, hash, 2000);
+			if (response == null) {
+				// Returned garbage - we forget about this guy
+			} else {
 				List<Address> peers = response.getPeers();
-				
+
 				int returned = 0;
-				for(Address a: peers){
-					if(a != peer && a != Application.getClient().getAddress()){
-						noteworthy.add(a);	
+				for (Address a : peers) {
+					if (a != peer && a != Application.getClient().getAddress()) {
+						noteworthy.add(a);
 						returned++;
 					}
-				}	
-				
-				if(response.isInterested()){
-					if(returned > 0){
+				}
+
+				if (response.isInterested()) {
+					if (returned > 0) {
 						interested.add(peer);
 					}
 				}
 			}
-		} else if(!checked.isEmpty()){
+		} else if (!checked.isEmpty()) {
 			noteworthy.addAll(checked);
 			checked.clear();
-			noteworthy.addAll(Catalogue.getRandomPeers(32));	
+			noteworthy.addAll(Catalogue.getRandomPeers(32));
 		}
 	}
 
@@ -237,9 +232,9 @@ public class Supervisor extends Thread {
 			if (currentState == State.LOOKING_FOR_DESCRIPTOR) {
 				lookForDescriptor();
 			} else {
-				//lookForChunks();
+				// lookForChunks();
 			}
-			
+
 			try {
 				System.out.println("sleep");
 				sleep(1000);
@@ -270,5 +265,17 @@ public class Supervisor extends Thread {
 
 	public boolean knownDescriptor() {
 		return (Database.getFile(hash) != null);
+	}
+	public int getSize(){
+		if(file != null){
+			return file.getBitMask().getSize();
+		}
+		return 0;
+	}
+	public int getPosessed(){
+		if(file != null){
+			return file.getBitMask().getPosessed();
+		}
+		return 0;
 	}
 }

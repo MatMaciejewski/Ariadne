@@ -2,6 +2,7 @@ package ariadne;
 
 import java.util.Set;
 
+import ariadne.data.File;
 import ariadne.data.Hash;
 
 public interface TaskManager {
@@ -24,4 +25,5 @@ public interface TaskManager {
 	public Set<Hash> getTasks();
 	public void closeAllTasks();
 	public TaskState getTaskState(Hash hash);
+	void insertTask(File file);
 }

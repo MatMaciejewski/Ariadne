@@ -3,6 +3,8 @@ package ariadne;
 
 import ariadne.data.Catalogue;
 import ariadne.data.Database;
+import ariadne.data.Descriptor;
+import ariadne.data.File;
 import ariadne.data.Hash;
 import ariadne.net.Address;
 import ariadne.net.Client;
@@ -94,7 +96,9 @@ public class Application{
 			@Override
 			public void trigger(Event e) {
 				FileAddedEvent f = (FileAddedEvent) e;
-				System.out.println("File: "+f.name + " path:" + f.path);
+				File file = new File(f.path, f.name, 8192);
+				Descriptor d = file.getDescriptor();
+				manager.insertTask(file.getDescriptor().getHash(), f.path, f.name);
 			}
 			
 		});

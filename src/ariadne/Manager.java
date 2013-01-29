@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ariadne.data.File;
 import ariadne.data.Hash;
 
 public class Manager implements TaskManager {
@@ -45,6 +46,16 @@ public class Manager implements TaskManager {
 		if (threads.get(hash) == null) {
 			Supervisor s = new Supervisor(hash, path, name);
 			threads.put(hash, s);
+			s.start();
+		}
+	}
+	
+	@Override
+	public void insertTask(File file) {
+		Hash h = file.getDescriptor().getHash();
+		if (threads.get(h) == null) {
+			Supervisor s = new Supervisor(file);
+			threads.put(h, s);
 			s.start();
 		}
 	}
