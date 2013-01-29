@@ -45,7 +45,6 @@ public class Descriptor {
 			byteFile.close();
 		} catch (IOException e1) {
 			Log.error("File "+filePath+" not found.");
-			e1.printStackTrace();
 			throw new IllegalArgumentException();
 		}
 		ByteBuffer bb = ByteBuffer.wrap(bytes);

@@ -42,7 +42,6 @@ public class Supervisor extends Thread {
 	private Queue<Address> checked; // peers having a subset of our chunks
 	private Queue<Pair> seeders; // peers having something we do not have
 	private Catalogue.Listener listener;
-	private Descriptor descriptor;
 	private File file;
 
 	public Supervisor(Hash hash, String path, String name) {
@@ -156,7 +155,7 @@ public class Supervisor extends Thread {
 			//TODO: RANDOMIZE THIS
 			for(int i=0;i<p.bitmask.getSize();++i){
 				if(p.bitmask.get(i)){
-					r = Application.getClient().sendChunkQuery(p.peer, hash, i, descriptor.getChunkSize(), 2000);
+					r = Application.getClient().sendChunkQuery(p.peer, hash, i, file.getDescriptor().getChunkSize(), 2000);
 					if(r != null){
 						c = r.getChunk();
 						if(c != null){
@@ -166,13 +165,57 @@ public class Supervisor extends Thread {
 						}
 					}
 				}
-				noteworthy.add(p.peer);
+				checked.add(p.peer);
 				break;
 			}
 		} else if(!interested.isEmpty()){
 			peer = interested.poll();
+			ResponseBmask r = Application.getClient().sendBmaskQuery(peer, hash, 2000);
 			
+			if(r == null){
+				//Forget this peer
+			}else{
+				BitMask b = r.getBitMask();
+				if(b == null){
+					//Forget this peer
+				}else{
+					Pair p = new Pair();
+					p.bitmask = b.getDiff(file.getBitMask());
+					p.peer =  peer;
+					if(p.bitmask.compareToNull()){
+						checked.add(peer);
+					}else{
+						seeders.add(p);
+					}
+				}
+			}
+		} else if(!noteworthy.isEmpty()){
+			peer = noteworthy.poll();
 			
+			ResponseChase response = Application.getClient().sendChaseQuery(peer, hash, 2000);
+			if(response == null){
+				//Returned garbage - we forget about this guy
+			}else{
+				List<Address> peers = response.getPeers();
+				
+				int returned = 0;
+				for(Address a: peers){
+					if(a != peer && a != Application.getClient().getAddress()){
+						noteworthy.add(a);	
+						returned++;
+					}
+				}	
+				
+				if(response.isInterested()){
+					if(returned > 0){
+						interested.add(peer);
+					}
+				}
+			}
+		} else if(!checked.isEmpty()){
+			noteworthy.addAll(checked);
+			checked.clear();
+			noteworthy.addAll(Catalogue.getRandomPeers(32));	
 		}
 	}
 
@@ -198,6 +241,7 @@ public class Supervisor extends Thread {
 			}
 			
 			try {
+				System.out.println("sleep");
 				sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

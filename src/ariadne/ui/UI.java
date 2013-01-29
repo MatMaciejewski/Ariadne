@@ -17,6 +17,7 @@ public interface UI {
 	public void onHashAdded(Listener l);
 	public void onHashRemoved(Listener l);
 	public void onClosing(Listener l);
+	public void onFileAdded(Listener l);
 	
 	public void breakEventLoop();
 	public void eventLoop();

@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import java.awt.event.WindowAdapter;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
 class Window {
 
@@ -39,6 +41,7 @@ class Window {
 	private JLabel statusLabel;
 	private JScrollPane contentScrollPane;
 	private Map<Hash, FileEntry> entries;
+	private JFileChooser fc;
 
 	public Window(GraphicUI.Delegate d) {
 		delegate = d;
@@ -90,6 +93,8 @@ class Window {
 		contentScrollPane.setViewportView(contentPanel);
 		contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 		
+		fc = new JFileChooser();
+		
 		initMenu();
 		initEvents();
 
@@ -121,10 +126,19 @@ class Window {
 		frame.setJMenuBar(menuBar);
 		JMenu fileMenu = new JMenu("File");
 		menuBar.add(fileMenu);
-		JMenuItem hashGenMenuItem = new JMenuItem("Generate hash...");
+		final JMenuItem hashGenMenuItem = new JMenuItem("Generate hash...");
+		hashGenMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				 //Handle open button action.
+			        int returnVal = fc.showOpenDialog(hashGenMenuItem);
+
+			        if (returnVal == JFileChooser.APPROVE_OPTION) {
+			            File file = fc.getSelectedFile();
+			            delegate.fileAdded(file.getName(), file.getParent());
+			        }
+			}
+		});
 		fileMenu.add(hashGenMenuItem);
-		JMenuItem hashDwnMenuItem = new JMenuItem("Download hash...");
-		fileMenu.add(hashDwnMenuItem);
 		JMenuItem quitMenuItem = new JMenuItem("Quit");
 		fileMenu.add(quitMenuItem);
 		JMenu editMenu = new JMenu("Edit");

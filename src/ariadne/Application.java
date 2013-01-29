@@ -1,8 +1,6 @@
 package ariadne;
 
-import java.util.Set;
 
-import ariadne.Supervisor.State;
 import ariadne.data.Catalogue;
 import ariadne.data.Database;
 import ariadne.data.Hash;
@@ -10,6 +8,7 @@ import ariadne.net.Address;
 import ariadne.net.Client;
 import ariadne.net.Server;
 import ariadne.ui.UI;
+import ariadne.ui.DelegableUI.FileAddedEvent;
 import ariadne.ui.DelegableUI.HashAddedEvent;
 import ariadne.ui.UI.Event;
 import ariadne.ui.UI.Listener;
@@ -31,13 +30,10 @@ public class Application{
 		
 		Database.initialize();
 		Catalogue.initialize();
-		Catalogue.addPeer(new Hash("7815696ecbf1c96e6894b779456d330e"), new Address("127.0.0.1", 25566), 100000);
 		Catalogue.update();
 		
 		prepareUI();
 		server.start(1);
-		
-		manager.insertTask(new Hash("7815696ecbf1c96e6894b779456d330e"), "./", "cat2.jpg");
 	}
 	
 	private static void finalise(){
@@ -85,17 +81,22 @@ public class Application{
 			@Override
 			public void trigger(Event e) {
 				HashAddedEvent h = (HashAddedEvent) e;
-				
 				try{
-					//7815696ecbf1c96e6894b779456d330e
 					Hash hash = new Hash(h.data);
-					System.out.println(hash);
-					
-					manager.insertTask(hash, "./", "cat.jpg");
+					System.out.println("I CO TERAZ?");
+					//manager.insertTask(hash, "./", "cat.jpg");
 				}catch(Exception ex){
 					System.out.println("Invalid hash");
 				}
-				
 			}});
+		
+		ui.onFileAdded(new Listener(){
+			@Override
+			public void trigger(Event e) {
+				FileAddedEvent f = (FileAddedEvent) e;
+				System.out.println("File: "+f.name + " path:" + f.path);
+			}
+			
+		});
 	}
 }
