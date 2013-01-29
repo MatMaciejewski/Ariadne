@@ -113,11 +113,11 @@ public class Descriptor {
 		}
 	}
 
-	public void saveDescriptor(String filePath) {
+	public void saveDescriptor(String fileName) {
 		try {
-			java.io.File file = new java.io.File("."+filePath+".desc");
+			java.io.File file = new java.io.File(fileName);
 			file.delete();
-			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(filePath), "rws");
+			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(fileName), "rws");
 			byteFile.write(data.array());
 			byteFile.close();
 		} catch (IOException e) {

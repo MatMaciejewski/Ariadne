@@ -58,10 +58,7 @@ public class Client {
 	}
 
 	public ResponseChunk sendChunkQuery(Address addr, Hash hash, int chunkId, int expectedLength, int timeout) {
-		QueryChunk q = QueryChunk.prepare(getAddress().getPort(), hash, chunkId);
-		
-		System.out.println("Prepared chunk query with chunkId="+q.getChunkId());
-		
+		QueryChunk q = QueryChunk.prepare(getAddress().getPort(), hash, chunkId);		
 		return (ResponseChunk) sendQuery(q, new ResponseChunk(expectedLength), addr, timeout);
 	}
 
@@ -96,8 +93,6 @@ public class Client {
 		long remaining = (timeout == 0) ? Integer.MAX_VALUE : timeout;
 		long current = System.currentTimeMillis();
 		// Timeouts ignored for now
-		
-		System.out.println("Sending query to " + addr.getIpAddress()+" (query="+q+")");
 
 		
 		try {
@@ -115,19 +110,9 @@ public class Client {
 			
 			byte[] resp = new byte[1024];
 			int len;
-			System.out.println("checking...");
 			while(!r.isComplete()){
 				
 				len = in.read(resp);
-				
-				System.out.println("This response part has length=" + len);
-				if(true){
-					System.out.println("Response goes like this:");
-					for(int i=0;i<len;++i){
-						System.out.print(resp[i]+" ");
-					}
-					System.out.println("... and end");
-				}
 				
 				if(len < 1){ 
 					Log.notice("<0 length data received in client - returning null");

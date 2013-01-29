@@ -54,15 +54,16 @@ public class File {
 
 	public boolean setChunk(Chunk chunk, int id) {
 		if (chunk.getSize() == descriptor.getChunkSize()) {
-			if (chunk.getHash() == descriptor.getChunkHash(id)) {
+			if (chunk.getHash().equals(descriptor.getChunkHash(id))) {
 				if (saveChunkToDisk(chunk, id)) {
 					bitmask.set(id);
 					return true;
 				} else
 					return false;
 
-			} else
-				Log.error("Chunk's hash != descriptor's hash!");
+			} else{
+				Log.error("Chunk's hash != descriptor's hash!");	
+			}
 		}
 		return false;
 	}
@@ -107,8 +108,34 @@ public class File {
 		}
 		return null;
 	}
+	
+	private boolean saveChunkToDisk(Chunk c, int id){
+		System.out.println("---------------> saving "+id);
+		
+		try {
+			int toWrite = descriptor.getChunkSize();
+			if(id + 1 == descriptor.getChunkCount()){
+				System.out.println("Entered short toWrite if");
+				toWrite -= (descriptor.getChunkCount()*descriptor.getChunkSize() - descriptor.getFileSize());
+			}
+			byte[] bytes = new byte[toWrite];
+			ByteBuffer b = c.getByteBuffer();
+			b.get(bytes);
+			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(path + "/" + name), "rws");
+			int pos = id * descriptor.getChunkSize();
+			byteFile.seek(pos);
+			byteFile.write(bytes);
+			bitmask.set(id);
+			byteFile.close();
+			return true;
+		} catch (FileNotFoundException e) {
+			return false;
+		} catch (IOException e) {
+			return false;
+		}
+	}
 
-	private boolean saveChunkToDisk(Chunk c, int id) {
+	private boolean saveChunkToDisk2(Chunk c, int id) {
 		try {
 			if (id == descriptor.getChunkCount()) {
 				byte[] bytes = new byte[descriptor.getChunkSize()];
@@ -134,7 +161,11 @@ public class File {
 					path + "/" + name), "rws");
 			int startingPosition = (descriptor.getChunkSize() + 1) * id;
 			byteFile.seek(startingPosition);
-			byteFile.write(c.getByteBuffer().array());
+			
+			byte[] bytes = new byte[descriptor.getChunkSize()];
+			ByteBuffer b = c.getByteBuffer();
+			b.get(bytes);
+			byteFile.write(bytes);
 			bitmask.set(id);
 			byteFile.close();
 			return true;

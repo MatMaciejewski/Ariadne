@@ -11,7 +11,7 @@ public class BitMask {
 	private int size;
 	private int posessed;
 
-	public BitMask(ByteBuffer b, int size) {
+	public BitMask(ByteBuffer b, int offset, int size) {
 		if (size < 0)
 			throw new IllegalArgumentException();
 
@@ -20,6 +20,7 @@ public class BitMask {
 		mask = ByteBuffer.allocate(s);
 
 		b.rewind();
+		b.position(offset);
 		for (int i = 0; i < mask.capacity(); ++i) {
 			mask.put(b.get());
 		}
@@ -108,12 +109,12 @@ public class BitMask {
 		return b;
 	}
 
-	public void saveBitMask(String filePath) {
+	public void saveBitMask(String fileName) {
 		try {
-			java.io.File file = new java.io.File("." + filePath + ".bmask");
+			java.io.File file = new java.io.File(fileName);
 			file.delete();
 			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
-					filePath), "rws");
+					fileName), "rws");
 			byteFile.write(mask.array());
 			byteFile.close();
 		} catch (IOException e) {

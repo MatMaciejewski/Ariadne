@@ -14,7 +14,7 @@ public class ResponseBmask extends Response {
 	}
 
 	public BitMask getBitMask() {
-		return (success) ? new BitMask(getByteBuffer(), size) : null;
+		return (success) ? new BitMask(getByteBuffer(), 1, size) : null;
 	}
 
 	public boolean hasBitMask() {

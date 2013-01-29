@@ -36,6 +36,7 @@ public class Supervisor extends Thread {
 	public class Pair {
 		public Address peer;
 		public BitMask bitmask;
+		public int toCheck;
 	}
 
 	private State currentState;
@@ -72,7 +73,10 @@ public class Supervisor extends Thread {
 	}
 
 	private void finalise() {
-
+		if(file != null){
+			file.getDescriptor().saveDescriptor(path + "/." + name + ".desc");
+			file.getBitMask().saveBitMask(path + "/." + name + ".bmask");
+		}
 	}
 
 	private boolean prepareNewFile(Descriptor d) {
@@ -155,35 +159,38 @@ public class Supervisor extends Thread {
 	private void lookForChunks() {
 		Address peer;
 		if (!seeders.isEmpty()) {
-			Pair p = seeders.poll();
-			
-			System.out.println("Asking a seeder " + p.peer.getIpAddress());
-			
+			Pair p = seeders.peek();
 			ResponseChunk r;
 			Chunk c;
-
-			// TODO: RANDOMIZE THIS
-			for (int i = 0; i < p.bitmask.getSize(); ++i) {
-				if (p.bitmask.get(i)) {
-					r = Application.getClient().sendChunkQuery(p.peer, hash, i,
-							file.getDescriptor().getChunkSize(), 2000);
-					if (r != null) {
-						System.out.println("Received a chunk");
+			
+			while(p.toCheck < p.bitmask.getSize()){
+				
+				if(p.bitmask.get(p.toCheck)){
+					r = Application.getClient().sendChunkQuery(p.peer, hash, p.toCheck, file.getDescriptor().getChunkSize(), 2000);
+					
+					if(r != null){
 						c = r.getChunk();
-						
-						r.print();
-						
-						if (c != null) {
-							System.out.println("Chunk is not null");
-							if (file.setChunk(c, i)) {
-								System.out.println("Chunk correct, saved");
-								continue;
+						if(c != null){
+							if(file.setChunk(c, p.toCheck)){
+								Log.notice("Chunk " + p.toCheck + " downloaded");
+								p.toCheck++;
+								break;
 							}
 						}
 					}
+					//he returned garbage, let's assume this session is over and we put him into the 'noteworthy' queue
+					p.toCheck = p.bitmask.getSize();
+					noteworthy.add(p.peer);
+					seeders.poll();
+					break;
+				}else{
+					Log.notice("Chunk "+ p.toCheck + "not available or already posessed");
+					p.toCheck++;
 				}
-				checked.add(p.peer);
-				break;
+			}
+			if(p.toCheck >= p.bitmask.getSize()){
+				seeders.poll();
+				interested.add(p.peer);
 			}
 		} else if (!interested.isEmpty()) {
 			peer = interested.poll();
@@ -221,6 +228,7 @@ public class Supervisor extends Thread {
 							checked.add(peer);
 						} else {
 							System.out.println("dif not empty - download!");
+							p.toCheck = 0;
 							seeders.add(p);
 						}
 					}
@@ -275,11 +283,17 @@ public class Supervisor extends Thread {
 			}
 
 			if (currentState == State.LOOKING_FOR_DESCRIPTOR) {
-				System.out.println("Looking for descriptor");
 				lookForDescriptor();
 			} else {
-				System.out.println("Looking for chunks");
 				lookForChunks();
+			}
+			
+			if(file != null){
+				BitMask b = file.getBitMask();
+				System.out.println("Posessed: " + b.getPosessed() + "/" + b.getSize());
+				if(b.getPosessed() == b.getSize()){
+					currentState = State.COMPLETE;
+				}
 			}
 
 			Application.getUI().showEntry(getHash(), getFileName(), getSize(),
@@ -287,7 +301,7 @@ public class Supervisor extends Thread {
 
 			try {
 				System.out.println("sleep");
-				sleep(1000);
+				sleep(100);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
