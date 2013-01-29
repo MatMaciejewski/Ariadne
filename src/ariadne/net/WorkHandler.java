@@ -30,7 +30,7 @@ public class WorkHandler extends Worker {
 		try {
 
 			ByteBuffer b = ByteBuffer.allocate(1024);
-			int bytes_read = c.getSocket().read(b);
+			c.getSocket().read(b);
 
 			if (b.limit() == 0)
 				return false;

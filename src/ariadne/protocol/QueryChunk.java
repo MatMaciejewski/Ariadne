@@ -2,7 +2,6 @@ package ariadne.protocol;
 
 import java.nio.ByteBuffer;
 
-import ariadne.data.BitMask;
 import ariadne.data.Database;
 import ariadne.data.File;
 import ariadne.data.Hash;

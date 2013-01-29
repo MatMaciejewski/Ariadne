@@ -3,14 +3,12 @@ package ariadne.data;
 import java.util.Date;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ariadne.net.Address;
 import ariadne.utils.TimedMultiMap;
-import ariadne.utils.TimedMultiMap.KeyAddedListener;
 
 public class Catalogue {
 	public static class Listener{
@@ -44,8 +42,6 @@ public class Catalogue {
 
 	private static TimedMultiMap<Hash, Address> peers;
 	private static Queue<Task> tasks;
-	private static final int PEERS_NUMBER = 10;
-	private static final int RANDOM_PEERS = 10;
 	private static ReentrantReadWriteLock rwl;
 	private static Lock r;
 	private static Lock w;

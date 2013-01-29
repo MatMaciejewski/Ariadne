@@ -2,9 +2,7 @@ package ariadne;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Set;
 
 import ariadne.data.BitMask;
 import ariadne.data.Catalogue;
@@ -14,13 +12,10 @@ import ariadne.data.Descriptor;
 import ariadne.data.File;
 import ariadne.data.Hash;
 import ariadne.net.Address;
-import ariadne.net.Client;
-import ariadne.protocol.Response;
 import ariadne.protocol.ResponseBmask;
 import ariadne.protocol.ResponseChase;
 import ariadne.protocol.ResponseChunk;
 import ariadne.protocol.ResponseDescr;
-import ariadne.protocol.ResponsePeers;
 import ariadne.utils.Log;
 
 public class Supervisor extends Thread {
@@ -74,8 +69,8 @@ public class Supervisor extends Thread {
 
 	private void finalise() {
 		if(file != null){
-			file.getDescriptor().saveDescriptor(path + "/." + name + ".desc");
-			file.getBitMask().saveBitMask(path + "/." + name + ".bmask");
+			file.getDescriptor().saveToFile(Descriptor.getDefaultFileName(path, name));
+			file.getBitMask().saveToFile(BitMask.getDefaultFileName(path, name));
 		}
 	}
 
@@ -92,7 +87,6 @@ public class Supervisor extends Thread {
 	private void slowDown(){
 		try {
 			sleep(100);
-			System.out.print(".");
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -177,7 +171,7 @@ public class Supervisor extends Thread {
 			
 			while(p.toCheck < p.bitmask.getSize()){
 				
-				if(p.bitmask.get(p.toCheck)){
+				if(p.bitmask.isSet(p.toCheck)){
 					r = Application.getClient().sendChunkQuery(p.peer, hash, p.toCheck, file.getDescriptor().getChunkSize(), 2000);
 					
 					if(r != null){
@@ -346,7 +340,7 @@ public class Supervisor extends Thread {
 		if (file != null) {
 			BitMask b = file.getBitMask();
 			int s = file.getDescriptor().getChunkSize() * b.getPosessed();
-			if (b.get(b.getSize() - 1)) {
+			if (b.isSet(b.getSize() - 1)) {
 				Descriptor d = file.getDescriptor();
 				s -= d.getChunkCount() * d.getChunkSize() - d.getFileSize();
 			}

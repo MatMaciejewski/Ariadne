@@ -50,8 +50,8 @@ public class Application {
 			
 			System.out.print("FILE " + path + "/" + name + ":");
 			try {
-				Descriptor d = Descriptor.parseFile(path + "/." + name + ".desc");
-				BitMask b = BitMask.loadBitMask(path + "/." + name + ".bmask", d.getChunkCount());
+				Descriptor d = Descriptor.fromFile(Descriptor.getDefaultFileName(path, name));
+				BitMask b = BitMask.fromFile(BitMask.getDefaultFileName(path, name), d.getChunkCount());
 				if(d.getChunkCount() != b.getSize()){
 					System.out.println(" found");
 					throw new Exception("BitMask does not fit to a descriptor");

@@ -1,11 +1,9 @@
 package ariadne.data;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 
-import ariadne.utils.Log;
+import ariadne.utils.DiskResource;
 
 /*
  * Byte 0-3		- Chunk count
@@ -33,21 +31,6 @@ public class Descriptor {
 		for (Hash h : hashes) {
 			data.put(h.getByteBuffer());
 		}
-	}
-
-	public static Descriptor parseFile(String filePath) {
-		byte[] bytes = null;
-		try {
-			java.io.File in = new java.io.File(filePath);
-			RandomAccessFile byteFile = new RandomAccessFile(in, "r");
-			bytes = new byte[(int)in.length()];
-			byteFile.read(bytes);
-			byteFile.close();
-		} catch (IOException e1) {
-			throw new IllegalArgumentException();
-		}
-		ByteBuffer bb = ByteBuffer.wrap(bytes);
-		return parse(bb, 0);
 	}
 
 	public BitMask getEmptyBitmask(){
@@ -89,6 +72,7 @@ public class Descriptor {
 	}
 
 	public static Descriptor parse(ByteBuffer b, int offset) {
+		if(b == null) return null;
 		try {
 			b.position(offset);
 			int chunkCount = b.getInt();
@@ -112,16 +96,28 @@ public class Descriptor {
 		}
 	}
 
-	public void saveDescriptor(String fileName) {
-		try {
-			java.io.File file = new java.io.File(fileName);
-			file.delete();
-			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(fileName), "rws");
-			byteFile.write(data.array());
-			byteFile.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+	public static Descriptor fromFile(String fileName){
+		Descriptor d = null;
+		DiskResource r = DiskResource.open(fileName);
+		if(r != null){
+			ByteBuffer b = r.readAll();
+			if(b != null){
+				d = Descriptor.parse(b, 0);
+			}
+			r.close();
 		}
+		return d;
+	}
+	
+	public void saveToFile(String fileName){
+		DiskResource r = DiskResource.open(fileName);
+		ByteBuffer b = getByteBuffer();
+		r.resize(b.remaining());
+		r.write(b, 0);
+	}
+	
+	public static String getDefaultFileName(String path, String fileName){
+		return path + "/." + fileName + ".desc";
 	}
 
 }

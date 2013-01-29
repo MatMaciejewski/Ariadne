@@ -1,7 +1,5 @@
 package ariadne.protocol;
 
-
-import java.util.LinkedList;
 import java.util.List;
 
 import ariadne.Application;
@@ -26,8 +24,6 @@ public class QueryChase extends PortHashQuery {
 
 	@Override
 	public Response respond() {
-		ResponseChase r;
-		
 		List<Address> addresses = Catalogue.getPeerForHash(getHash(), PeerListResponse.MAX_PEERS);
 		
 		//do we chase this file?

@@ -14,7 +14,13 @@ public class ResponseBmask extends Response {
 	}
 
 	public BitMask getBitMask() {
-		return (success) ? new BitMask(getByteBuffer(), 1, size) : null;
+		if(success){
+			ByteBuffer b = getByteBuffer();
+			b.position(1);
+			return BitMask.parse(b, size);
+		}else{
+			return null;
+		}
 	}
 
 	public boolean hasBitMask() {

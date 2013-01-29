@@ -1,34 +1,14 @@
 package ariadne.data;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
-import ariadne.utils.Log;
+import ariadne.utils.DiskResource;
 
 public class BitMask {
 	private ByteBuffer mask;
 	private int size;
 	private int posessed;
-
-	public BitMask(ByteBuffer b, int offset, int size) {
-		if (size < 0)
-			throw new IllegalArgumentException();
-
-		this.size = size;
-		int s = bytesRequiredForSize(size);
-		mask = ByteBuffer.allocate(s);
-
-		b.rewind();
-		b.position(offset);
-		for (int i = 0; i < mask.capacity(); ++i) {
-			mask.put(b.get());
-		}
-		for (int i = 0; i < size; i++)
-			if (get(i)) posessed++;
-	}
-
+	
 	/**
 	 * Create new bitmask, filled with 0
 	 * 
@@ -48,13 +28,39 @@ public class BitMask {
 		}
 		posessed = 0;
 	}
-
+	
+	private BitMask(){}
+	
+	public static BitMask parse(ByteBuffer b, int chunkCount){
+		if((b == null) || (chunkCount < 1)) return null;
+		
+		int bytesRequired = bytesRequiredForSize(chunkCount);
+		if(b.remaining() < bytesRequired) return null;
+		
+		int pos = b.position();
+		
+		BitMask bm = new BitMask();
+		bm.size = chunkCount;
+		bm.posessed = 0;
+		bm.mask = ByteBuffer.allocate(bytesRequired);
+		
+		for(int i=0;i<bytesRequired;++i){
+			bm.mask.put( b.get() );
+		}
+		for(int i=0;i<bm.getSize();++i){
+			if(bm.isSet(i)) bm.posessed++;
+		}
+		
+		b.position(pos);
+		return bm;
+	}
+	
 	public BitMask getDiff(BitMask peer) {
 		BitMask difference = new BitMask(getSize());
 		if (getSize() != peer.getSize())
 			throw new IllegalArgumentException();
 		for (int i = 0; i < getSize(); i++)
-			if (!get(i) && peer.get(i))
+			if (!isSet(i) && peer.isSet(i))
 				difference.set(i);
 		return difference;
 	}
@@ -65,20 +71,23 @@ public class BitMask {
 	 * @return true if it's all 0
 	 */
 	public boolean compareToNull() {
+		return (getPosessed() == 0);
+		/*
 		for (int i = 0; i < size; i++)
 			if (get(i) == true)
 				return false;
 		return true;
+		*/
 	}
 
-	public boolean get(int id) {
+	public boolean isSet(int id) {
 		if (id < 0 || id >= getSize())
 			throw new IllegalArgumentException();
 		return (mask.get(id / 8) & (1 << id % 8)) > 0;
 	}
 
 	public void set(int id) {
-		if(get(id)) return;
+		if(isSet(id)) return;
 		if (id < 0 || id >= getSize())
 			throw new IllegalArgumentException();
 		mask.put(id / 8, (byte) (mask.get(id / 8) | (1 << id % 8)));
@@ -109,35 +118,16 @@ public class BitMask {
 		b.rewind();
 		return b;
 	}
-
-	public void saveBitMask(String fileName) {
-		try {
-			java.io.File file = new java.io.File(fileName);
-			file.delete();
-			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
-					fileName), "rws");
-			byteFile.write(mask.array());
-			byteFile.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	
+	public void saveToFile(String fileName){
+		DiskResource.putFileContents(getByteBuffer(), fileName);
 	}
 	
-	public static BitMask loadBitMask(String filePath, int chunkCount){
-		try {
-			int byteLength = BitMask.bytesRequiredForSize(chunkCount);
-			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(filePath), "r");
-			byte[] bytes = new byte[byteLength];
-			
-			byteFile.read(bytes);
-			byteFile.close();
-			
-			ByteBuffer bb = ByteBuffer.allocate(byteLength);
-			bb.put(bytes);
-			
-			return new BitMask(bb, 0, chunkCount);
-		} catch (FileNotFoundException e) {
-		} catch (IOException e) { }
-		return null;
+	public static BitMask fromFile(String fileName, int chunkCount){
+		return BitMask.parse(DiskResource.getFileContents(fileName), chunkCount);
+	}
+
+	public static String getDefaultFileName(String path, String fileName){
+		return path + "/." + fileName + ".bmask";
 	}
 }

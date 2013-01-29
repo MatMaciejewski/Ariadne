@@ -6,11 +6,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
-import java.util.Iterator;
-import java.util.Set;
 
 import ariadne.data.Hash;
 import ariadne.protocol.InvalidMessageException;
@@ -90,11 +85,8 @@ public class Client {
 	private Response sendQuery(Query q, Response r, Address addr, int timeout) {
 		if (timeout < 0)
 			throw new IllegalArgumentException();
-		long remaining = (timeout == 0) ? Integer.MAX_VALUE : timeout;
-		long current = System.currentTimeMillis();
 		// Timeouts ignored for now
 
-		
 		try {
 			Socket c = new Socket();
 			c.connect(new InetSocketAddress(addr.getIpAddress().getHostAddress(), addr.getPort().getPort()), timeout);

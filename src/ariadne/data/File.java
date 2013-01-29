@@ -30,10 +30,10 @@ public class File {
 		java.io.File f = new java.io.File(path + "/" + name);
 		f.delete();
 		f = new java.io.File(path + "/" + name);
-		RandomAccessFile ran;
 		try {
 			 RandomAccessFile ff = new RandomAccessFile(path + "/" + name, "rw");
              ff.setLength(descriptor.getFileSize());
+             ff.close();
 		} catch (IOException e) {
 			return false;
 		}
@@ -45,7 +45,7 @@ public class File {
 	}
 
 	public Chunk getChunk(int id) {
-		if (getBitMask().get(id)) {
+		if (getBitMask().isSet(id)) {
 			return getChunkFromDisk(id, descriptor.getChunkSize(), descriptor
 					.getChunkCount());
 		} else
@@ -133,46 +133,6 @@ public class File {
 		}
 	}
 
-	private boolean saveChunkToDisk2(Chunk c, int id) {
-		try {
-			if (id == descriptor.getChunkCount()) {
-				byte[] bytes = new byte[descriptor.getChunkSize()];
-				bytes = c.getByteBuffer().array();
-				byte[] bytesNew = new byte[(int) descriptor.getFileSize()
-						- (id - 1) * descriptor.getChunkSize()];
-				for (int i = 0; i < (int) descriptor.getFileSize() - (id - 1)
-						* descriptor.getChunkSize(); i++) {
-					bytesNew[i] = bytes[i];
-				}
-				RandomAccessFile byteFile = new RandomAccessFile(
-						new java.io.File(path + "/" + name), "rws");
-				int startingPosition = (descriptor.getChunkSize() + 1) * id;
-				byteFile.seek(startingPosition);
-				byteFile.write(bytesNew);
-				bitmask.set(id);
-				byteFile.close();
-				return true;
-
-			}
-
-			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
-					path + "/" + name), "rws");
-			int startingPosition = (descriptor.getChunkSize() + 1) * id;
-			byteFile.seek(startingPosition);
-			
-			byte[] bytes = new byte[descriptor.getChunkSize()];
-			ByteBuffer b = c.getByteBuffer();
-			b.get(bytes);
-			byteFile.write(bytes);
-			bitmask.set(id);
-			byteFile.close();
-			return true;
-		} catch (IOException e) {
-			Log.error("Error while accessing file.");
-		}
-		return false;
-	}
-
 	// ///////////////CREATE A FILE//////////////////
 	public File(String path, String name, int chunkSize) {
 		java.io.File fil = new java.io.File(path + "/" + name);
@@ -200,8 +160,8 @@ public class File {
 			for (int i = 0; i < bit.getSize(); i++)
 				bit.set(i);
 			bitmask = bit;
-			bit.saveBitMask(path + "/" + name + ".bmask");
-			d.saveDescriptor(path + "/" + name + ".desc");
+			bit.saveToFile(BitMask.getDefaultFileName(path, name));
+			d.saveToFile( Descriptor.getDefaultFileName(path, name) );
 			Database.insertFile(d, bit, path, name, false);
 		}
 	}
@@ -211,8 +171,8 @@ public class File {
 	public static void loadReadyFile(String path, String name) {
 		java.io.File testFile = new java.io.File(path + "/" + name);
 		if (testFile != null) {
-			Descriptor desc = Descriptor.parseFile(path + "/" + name);
-			BitMask bit = BitMask.loadBitMask(path + "/" + name, desc.getChunkCount());
+			Descriptor desc = Descriptor.fromFile(path + "/" + name);
+			BitMask bit = BitMask.fromFile(path + "/" + name, desc.getChunkCount());
 			if (desc != null && bit != null) {
 				Database.insertFile(desc, bit, path, name, false);
 			} else

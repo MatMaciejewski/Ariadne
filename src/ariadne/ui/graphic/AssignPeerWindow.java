@@ -1,7 +1,6 @@
 package ariadne.ui.graphic;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -19,20 +18,21 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 public class AssignPeerWindow extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField portField;
 	private JTextField ipField;
-	private Hash hash;
 
 	/**
 	 * Create the frame.
 	 */
 	public AssignPeerWindow(final Hash hash) {
-		this.hash = hash;
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 206);
 		contentPane = new JPanel();

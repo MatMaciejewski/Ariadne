@@ -72,20 +72,21 @@ public class Settings {
 
 	public static List<Hash> getAllHash() {
 		List<Hash> list = new LinkedList<Hash>();
-		for(Hash h: hashes){
+		for (Hash h : hashes) {
 			list.add(h);
 		}
 		return list;
 	}
+
 	public static String getNameForHash(Hash hash) {
 
 		int j = 0;
-		
+
 		for (Hash hashTemp : hashes) {
-			if (hash.equals(hashTemp)){
+			if (hash.equals(hashTemp)) {
 				return names[j];
 			}
-				
+
 			j++;
 		}
 		return null;
@@ -131,9 +132,10 @@ public class Settings {
 					".ariadneSettings"), "rws");
 			sCurrentLine = byteFile.readLine();
 			int fileQuantity = Integer.parseInt(sCurrentLine);
-			if (fileQuantity == quantity)
+			if (fileQuantity == quantity) {
+				byteFile.close();
 				return 0;
-			else {
+			} else {
 				int startingPosition = (int) byteFile.length();
 				byteFile.seek(0);
 				byteFile.write(new String(Integer.toString(quantity))

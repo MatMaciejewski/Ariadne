@@ -1,12 +1,13 @@
 package ariadne;
 
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import ariadne.data.File;
 import ariadne.data.Hash;
+import ariadne.utils.Log;
 
 public class Manager implements TaskManager {
 	private Map<Hash, Supervisor> threads;
@@ -36,11 +37,14 @@ public class Manager implements TaskManager {
 	}
 
 	public void closeAllTasks() {
+		try{
 		Set<Hash> keys = getTasks();
 
 		for (Hash h : keys) {
 			removeTask(h);
 		}
+		}catch(ConcurrentModificationException e){
+			Log.error("Again, problems with the hashmap in manager");		}
 	}
 
 	@Override

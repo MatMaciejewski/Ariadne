@@ -21,9 +21,6 @@ public class ResponseDescr extends Response {
 
 	@Override
 	public boolean isComplete() throws InvalidMessageException {
-		ByteBuffer buf = getByteBuffer();
-
-		// ///////////////////////
 		success = false;
 		ByteBuffer b = getByteBuffer();
 

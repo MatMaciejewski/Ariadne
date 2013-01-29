@@ -22,6 +22,7 @@ import java.awt.event.MouseListener;
 
 public class FileEntry extends JPanel {
 	class PopUpDemo extends JPopupMenu {
+		private static final long serialVersionUID = 1L;
 		JMenuItem removeButton;
 		JMenuItem assignButton;
 
