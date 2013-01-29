@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
+import ariadne.Application;
 import ariadne.utils.Log;
 
 public class File {
@@ -198,4 +199,10 @@ public class File {
 		}
 
 	}
+	
+	////////////////////LOAD FROM HASH/////////////
+	public static void loadFromHash(Hash hash, String path, String name){
+		Application.getManager().insertTask(hash, path, name);
+	}
+	
 }
