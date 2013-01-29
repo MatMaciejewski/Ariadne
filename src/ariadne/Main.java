@@ -19,7 +19,8 @@ public class Main {
 
 	public static void main(String[] args) {		
 		
-		//Application.run(25566, 25566);
+		Application.run(25566, 25566);
+		/*
 		new File("C:\\Users\\Prophet\\Pulpit\\Ariadne","testowy.txt",16);
 		Descriptor c = Descriptor.parseFile("testowy.txt.desc");
 		
@@ -28,6 +29,7 @@ public class Main {
 		System.out.println(c.getChunkCount());
 		System.out.println(c.getChunkSize());
 		System.out.println(c.getFileSize());
+		*/
 	}
 
 }

@@ -33,6 +33,6 @@ public class QueryPeers extends Query {
 
 	@Override
 	public Response respond() {
-		return ResponsePeers.prepare(Catalogue.getRandomPeers());
+		return ResponsePeers.prepare(Catalogue.getRandomPeers(PeerListResponse.MAX_PEERS));
 	}
 }

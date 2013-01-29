@@ -64,7 +64,7 @@ public class Supervisor extends Thread {
 		// Look for the descriptor in the file system
 		currentState = State.LOOKING_FOR_DESCRIPTOR;
 		try {
-			Descriptor d = Descriptor.parseFile(path + "/" + name + ".desc");
+			Descriptor d = Descriptor.parseFile(path + "/" + name);
 			// It looks like we have it.
 
 			if (d.getHash().equals(getHash())) {

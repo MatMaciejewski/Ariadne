@@ -44,7 +44,7 @@ abstract class PeerListResponse extends Response {
 	
 	protected static void prepare(PeerListResponse r, List<Address> peers, byte firstByte){
 		if(peers.size() > MAX_PEERS) throw new IllegalArgumentException();
-		ByteBuffer b = ByteBuffer.allocate(1 + peers.size());
+		ByteBuffer b = ByteBuffer.allocate(1 + peers.size() * Address.BYTESIZE);
 		b.put(firstByte);
 		for(Address a: peers){
 			b.put(a.getByteBuffer());
