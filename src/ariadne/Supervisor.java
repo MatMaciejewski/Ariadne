@@ -199,7 +199,7 @@ public class Supervisor extends Thread {
 
 					if (d.getHash().equals(getHash())) {
 						if (prepareNewFile(d)) {
-							Log.notice("Found descriptor for " + getFileName());
+							Log.notice("Peer " + peer + " returned a descriptor for " + getFileName());
 							interested.add(peer);
 							currentState = State.CHASING_CHUNKS;
 						} else {

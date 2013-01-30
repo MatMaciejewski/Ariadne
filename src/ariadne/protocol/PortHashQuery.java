@@ -3,6 +3,7 @@ package ariadne.protocol;
 import java.nio.ByteBuffer;
 
 import ariadne.data.Hash;
+import ariadne.net.Address;
 import ariadne.net.Port;
 
 /*
@@ -23,6 +24,12 @@ abstract class PortHashQuery extends Query {
 	@Override
 	public int expectedLength(){
 		return 1 + Port.BYTESIZE + Hash.LENGTH; // 19
+	}
+	
+	@Override
+	public Address getAuthor(){
+		Address a = super.getAuthor();
+		return new Address(a.getIpAddress(), getPort());
 	}
 	
 	protected static void prepare(PortHashQuery p, Port port, Hash hash){

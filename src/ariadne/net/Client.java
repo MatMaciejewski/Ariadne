@@ -125,9 +125,7 @@ public class Client {
 			r.setAuthor(a);
 			return r;
 		} catch (IOException e) {
-			Log.notice("IOException in client sendQuery() occured when trying to reach " + addr.toString());
-			System.out.println("The content is:");
-			e.printStackTrace();
+			Log.notice("Peer " + addr.toString() + " did not respond.");
 			return null;
 		} catch (InvalidMessageException e) {
 			Log.warning("InvalidMessageException received.");
