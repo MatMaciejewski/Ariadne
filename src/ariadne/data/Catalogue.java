@@ -32,14 +32,17 @@ public class Catalogue {
 		public Hash hash;
 		public Address peer;
 		public long timeout;
+		public boolean ignoreEvents;
 
-		public Task(Hash hash, Address peer, long timeout) {
+		public Task(Hash hash, Address peer, long timeout, boolean ignoreEvents) {
 			this.hash = hash;
 			this.peer = peer;
 			this.timeout = timeout;
+			this.ignoreEvents = ignoreEvents;
 		}
 	}
 
+	public static final int DEF_TIMEOUT = 600000;
 	private static TimedMultiMap<Hash, Address> peers;
 	private static Queue<Task> tasks;
 	private static ReentrantReadWriteLock rwl;
@@ -78,8 +81,8 @@ public class Catalogue {
 		return new Listener(h);
 	}
 
-	public static void addPeer(Hash hash, Address peer, long timeout) {
-		tasks.add(new Task(hash, peer, timeout));
+	public static void addPeer(Hash hash, Address peer, long timeout, boolean ignoreEvents) {
+		tasks.add(new Task(hash, peer, timeout, ignoreEvents));
 	}
 
 	public static void update() {
@@ -89,7 +92,7 @@ public class Catalogue {
 
 		while(tasks.size() > 0) {
 			Task t = tasks.poll();
-			peers.add(t.hash, t.peer, time + t.timeout);
+			peers.add(t.hash, t.peer, time + t.timeout, t.ignoreEvents);
 		}
 		w.unlock();
 	}

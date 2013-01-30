@@ -59,4 +59,8 @@ public class Address {
 		b.rewind();
 		return b;
 	}
+	
+	public String toString(){
+		return getIpAddress().toString() + ":" + getPort().getPort();
+	}
 }

@@ -1,6 +1,7 @@
 package ariadne.net;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 
 import ariadne.protocol.InvalidMessageException;
@@ -61,9 +62,15 @@ public class WorkHandler extends Worker {
 			s.query.addByteBuffer(b);
 
 			if (s.query.isComplete()) {
+				Address a;
+				try{
+					Socket sock = c.getSocket().socket();
+					a = new Address(sock.getInetAddress().getHostAddress(), sock.getPort());
+					s.query.setAuthor(a);
+				} catch(Exception e){
+					return false;
+				}
 				Log.notice("Valid message received! ");
-				
-				ByteBuffer bb = s.query.getByteBuffer();
 				Response r = s.query.respond();
 				c.getSocket().write(r.getByteBuffer());
 				return false;
@@ -74,16 +81,11 @@ public class WorkHandler extends Worker {
 			Log.notice("IOException in WorkHandler");
 			return false;
 		} catch (InvalidMessageException e) {
-			
-			Log.notice("Invalid message received");
-
-			
-			
+			Log.notice("Invalid message received");			
 			return false;
 		} catch (Exception e) {
 			Log.error("CRITICAL ERROR IN WorkHandler  -----------------------");
 			e.printStackTrace();
-			System.out.println(e.getMessage());
 			return false;
 		}
 	}

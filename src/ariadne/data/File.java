@@ -1,11 +1,6 @@
 package ariadne.data;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-
-import ariadne.Application;
 import ariadne.utils.DiskResource;
 import ariadne.utils.Log;
 
@@ -120,7 +115,6 @@ public class File {
 	}
 
 	private boolean saveChunkToDisk(Chunk c, int id){
-		//UNTESTED: check before use
 		boolean success = false;
 		int toWrite = descriptor.getChunkSize();
 		if (id + 1 == descriptor.getChunkCount()) {
@@ -139,31 +133,6 @@ public class File {
 		}
 		
 		return success;
-	}
-	
-	private boolean saveChunkToDisk2(Chunk c, int id) {
-		try {
-			int toWrite = descriptor.getChunkSize();
-			if (id + 1 == descriptor.getChunkCount()) {
-				toWrite -= (descriptor.getChunkCount()
-						* descriptor.getChunkSize() - descriptor.getFileSize());
-			}
-			byte[] bytes = new byte[toWrite];
-			ByteBuffer b = c.getByteBuffer();
-			b.get(bytes);
-			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
-					path + "/" + name), "rws");
-			int pos = id * descriptor.getChunkSize();
-			byteFile.seek(pos);
-			byteFile.write(bytes);
-			bitmask.set(id);
-			byteFile.close();
-			return true;
-		} catch (FileNotFoundException e) {
-			return false;
-		} catch (IOException e) {
-			return false;
-		}
 	}
 	
 	public static File prepareExistingOne(String path, String name, int chunkSize){

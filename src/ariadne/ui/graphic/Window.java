@@ -81,7 +81,7 @@ class Window {
 		frame.getContentPane().add(statusPanel, BorderLayout.SOUTH);
 		statusPanel.setLayout(new BorderLayout(0, 0));
 
-		statusLabel = new JLabel("Some status data...");
+		statusLabel = new JLabel("Ariadne v1.0 alpha");
 		statusLabel.setPreferredSize(new Dimension(200, 15));
 		statusPanel.add(statusLabel, BorderLayout.WEST);
 		

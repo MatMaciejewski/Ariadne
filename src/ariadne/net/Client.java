@@ -113,7 +113,16 @@ public class Client {
 				r.addBytes(resp, len);
 			}
 			
+			Address a;
+			try{
+				a = new Address(c.getInetAddress().getHostAddress(), c.getPort());
+			} catch(Exception e){
+				c.close();
+				return null;
+			}
 			c.close();
+			r.setAuthor(a);
+			System.out.println("Response from " + a.toString());
 			return r;
 		} catch (IOException e) {
 			Log.warning("IOException in client sendQuery() method");

@@ -11,32 +11,42 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * This class is a multimap where elements are removed after specified timeout. Users can also register listeners on certain keys - this way they get notified about new elements.
+ * This class is a multimap where elements are removed after specified timeout.
+ * Users can also register listeners on certain keys - this way they get
+ * notified about new elements.
+ * 
  * @author eipifi
- *
- * @param <K> key type
- * @param <V> value type
+ * 
+ * @param <K>
+ *            key type
+ * @param <V>
+ *            value type
  */
 public class TimedMultiMap<K, V> {
-	
+
 	/**
-	 * Listener class (sort of). An instance of this class can be registered as listener and asked about new values.
+	 * Listener class (sort of). An instance of this class can be registered as
+	 * listener and asked about new values.
+	 * 
 	 * @author eipifi
-	 *
+	 * 
 	 */
-	public class KeyAddedListener{
+	public class KeyAddedListener {
 		private Queue<V> values;
-		public KeyAddedListener(){
+
+		public KeyAddedListener() {
 			values = new ConcurrentLinkedQueue<V>();
 		}
-		public V getNext(){
+
+		public V getNext() {
 			return values.poll();
 		}
-		private void add(V val){
+
+		private void add(V val) {
 			values.add(val);
 		}
 	}
-	
+
 	private static class Entry implements Comparable<Entry> {
 		public long timeout;
 
@@ -64,37 +74,42 @@ public class TimedMultiMap<K, V> {
 			this.value = value;
 		}
 	}
-	
-	private class ValueContainer{
+
+	private class ValueContainer {
 		public Queue<ValueEntry> entries;
 		private Set<KeyAddedListener> listeners;
-		public ValueContainer(){
+
+		public ValueContainer() {
 			entries = new PriorityQueue<ValueEntry>();
-			listeners = new HashSet<KeyAddedListener>(); //should be concurrent
+			listeners = new HashSet<KeyAddedListener>(); // should be concurrent
 		}
-		
-		public ValueEntry peek(){
+
+		public ValueEntry peek() {
 			return entries.peek();
 		}
-		
-		public ValueEntry poll(){
+
+		public ValueEntry poll() {
 			return entries.poll();
 		}
-		
-		public void add(ValueEntry v){
+
+		public void add(ValueEntry v, boolean ignoreEvents) {
 			entries.add(v);
-			for(KeyAddedListener l: listeners){
-				l.add(v.value);
+			if (!ignoreEvents) {
+				for (KeyAddedListener l : listeners) {
+					l.add(v.value);
+				}
 			}
 		}
-		
-		public void addListener(KeyAddedListener l){
+
+		public void addListener(KeyAddedListener l) {
 			listeners.add(l);
 		}
-		public void removeListener(KeyAddedListener l){
+
+		public void removeListener(KeyAddedListener l) {
 			listeners.remove(l);
 		}
-		public int size(){
+
+		public int size() {
 			return entries.size();
 		}
 	}
@@ -114,25 +129,28 @@ public class TimedMultiMap<K, V> {
 
 	/**
 	 * Inserts a new key-value pair with a specified timeout.
+	 * 
 	 * @param key
 	 * @param value
 	 * @param timeout
 	 */
-	public void add(K key, V value, long timeout) {
+	public void add(K key, V value, long timeout, boolean ignoreEvents) {
 		ValueContainer q = map.get(key);
 		if (q == null) {
 			q = new ValueContainer();
 			map.put(key, q);
 		}
-		q.add(new ValueEntry(value, timeout));
+		q.add(new ValueEntry(value, timeout), ignoreEvents);
 		timeouts.add(new KeyEntry(key, timeout));
 		elementCount++;
 	}
 
 	/**
 	 * Returns a specified number of values connected with a given key
+	 * 
 	 * @param key
-	 * @param count max number of returned elements
+	 * @param count
+	 *            max number of returned elements
 	 * @return
 	 */
 	public List<V> get(K key, int count) {
@@ -149,19 +167,21 @@ public class TimedMultiMap<K, V> {
 
 		return result;
 	}
-	
+
 	/**
 	 * Returns random values, connected with any key.
+	 * 
 	 * @param count
 	 * @return
 	 */
-	public List<V> getRandom(int count){
+	public List<V> getRandom(int count) {
 		return new LinkedList<V>();
-		//throw new IllegalArgumentException("Not yet implemented");
+		// throw new IllegalArgumentException("Not yet implemented");
 	}
 
 	/**
 	 * Returns the global element count
+	 * 
 	 * @return
 	 */
 	public int size() {
@@ -170,7 +190,10 @@ public class TimedMultiMap<K, V> {
 
 	/**
 	 * Garbage collector function - removes all timeouted elements.
-	 * @param timeout a threshold value - all elements with timeouts less than or equal to this value are removed.
+	 * 
+	 * @param timeout
+	 *            a threshold value - all elements with timeouts less than or
+	 *            equal to this value are removed.
 	 */
 	public void removeTimeouted(long timeout) {
 		KeyEntry k;
@@ -178,7 +201,8 @@ public class TimedMultiMap<K, V> {
 		ValueContainer q;
 		while (true) {
 			k = timeouts.peek();
-			if(k == null) return;
+			if (k == null)
+				return;
 			if (k.timeout > timeout)
 				return;
 			k = timeouts.poll();
@@ -195,8 +219,8 @@ public class TimedMultiMap<K, V> {
 			}
 		}
 	}
-	
-	public KeyAddedListener getListener(K key){
+
+	public KeyAddedListener getListener(K key) {
 		ValueContainer q = map.get(key);
 		if (q == null) {
 			q = new ValueContainer();
@@ -206,14 +230,12 @@ public class TimedMultiMap<K, V> {
 		q.addListener(l);
 		return l;
 	}
-	
-	public void removeListener(K key, KeyAddedListener l){
+
+	public void removeListener(K key, KeyAddedListener l) {
 		ValueContainer q = map.get(key);
 		if (q != null) {
 			q.removeListener(l);
 		}
 	}
-	
-	
 
 }

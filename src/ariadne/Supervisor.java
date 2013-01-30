@@ -37,7 +37,7 @@ public class Supervisor extends Thread {
 	private File file;
 
 	private Queue<Address> noteworthy; // peers worth asking about other peers
-	private Queue<Address> interested; // peers that also chase this hash
+	private Queue<Address> interested; // peers that also chase this hash, we get their info from catalogue
 	private Queue<Address> checked; // peers having a subset of our chunks
 	private Queue<Pair> seeders; // peers having something we do not have
 
@@ -119,6 +119,7 @@ public class Supervisor extends Thread {
 				System.out.println("bmask not saved");
 			}
 		}
+		Database.removeFile(hash, false);
 		System.out.println("Stopping supervisor thread for hash " + hash.toString());
 	}
 
@@ -199,7 +200,6 @@ public class Supervisor extends Thread {
 					Log.notice("Checking if descriptor is correct");
 
 					if (d.getHash().equals(getHash())) {
-						System.out.println("so they are the same");
 						if (prepareNewFile(d)) {
 							interested.add(peer);
 							currentState = State.CHASING_CHUNKS;
@@ -232,15 +232,16 @@ public class Supervisor extends Thread {
 
 				if (response.isInterested()) {
 					if (returned > 0) {
-						checked.add(peer);
+						Catalogue.addPeer(hash, peer, Catalogue.DEF_TIMEOUT, true);
+						interested.add(peer);
 					}
 				}
 
 			}
 		} else if (!checked.isEmpty()) {
+			noteworthy.addAll(Catalogue.getRandomPeers(32));
 			noteworthy.addAll(checked);
 			checked.clear();
-			noteworthy.addAll(Catalogue.getRandomPeers(32));
 		} else {
 			slowDown();
 		}
@@ -347,6 +348,7 @@ public class Supervisor extends Thread {
 				}
 				if (response.isInterested()) {
 					if (returned > 0) {
+						Catalogue.addPeer(hash, peer, Catalogue.DEF_TIMEOUT, true);
 						interested.add(peer);
 					}
 				}

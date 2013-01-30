@@ -79,7 +79,7 @@ public class AssignPeerWindow extends JFrame {
 					
 					Address a = new Address((Inet4Address)addr, new Port(port));
 					
-					Catalogue.addPeer(hash, a, 300000);
+					Catalogue.addPeer(hash, a, 300000, false);
 					AssignPeerWindow.this.dispose();
 				} catch (Exception e1) {
 					statusLabel.setText("Invalid IP or port");
