@@ -1,3 +1,6 @@
+#settings file
+.ariadne_settings
+
 #java specific
 *.class
 

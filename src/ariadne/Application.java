@@ -12,6 +12,7 @@ import ariadne.net.Client;
 import ariadne.net.Server;
 import ariadne.ui.UI;
 import ariadne.ui.DelegableUI.FileAddedEvent;
+import ariadne.ui.DelegableUI.FilePropertiesEvent;
 import ariadne.ui.DelegableUI.HashAddedEvent;
 import ariadne.ui.DelegableUI.HashRemovedEvent;
 import ariadne.ui.UI.Event;
@@ -47,7 +48,7 @@ public class Application {
 		for (Hash h : files) {
 			String path = Settings.getFilePath(h);
 			String name = Settings.getFileName(h);
-			addHash(h, path, name);
+			addHash(h, name, path);
 		}
 	}
 
@@ -88,11 +89,12 @@ public class Application {
 	public static UI getUI() {
 		return ui;
 	}
-	
-	public static void addHash(Hash hash, String path, String name){
+
+	public static void addHash(Hash hash, String name, String path) {
 		manager.insertTask(hash, path, name);
 	}
-	public static void addSeedHash(String path, String name, int chunkSize){
+
+	public static void addSeedHash(String path, String name, int chunkSize) {
 		manager.insertSeedTask(path, name, chunkSize);
 	}
 
@@ -110,20 +112,22 @@ public class Application {
 			public void trigger(Event e) {
 				HashAddedEvent h = (HashAddedEvent) e;
 				try {
+					char c = h.data.charAt(0);
+					if (c == '@') {
+						//add an address
+						System.out.println("Add peer: " + h.data);
+					} else {
+						String[] parts = h.data.split("#");
+						for (int i = 0; i < parts.length; ++i) {
+							System.out.println(parts[i]);
+						}
+						if (parts.length == 2) {
+							Hash hash = new Hash(parts[0]);
+							String name = parts[1];
+							String path = System.getProperty("user.dir");
 
-					// 7815696ecbf1c96e6894b779456d330e#cat.jpg
-
-					String[] parts = h.data.split("#");
-					for (int i = 0; i < parts.length; ++i) {
-						System.out.println(parts[i]);
-					}
-					if (parts.length == 2) {
-						Hash hash = new Hash(parts[0]);
-						String name = parts[1];
-						String path = System.getProperty("user.dir");
-
-						
-						addHash(hash, name, path);
+							addHash(hash, name, path);
+						}
 					}
 
 				} catch (Exception ex) {
@@ -140,16 +144,31 @@ public class Application {
 			}
 
 		});
-		
+
 		ui.onHashRemoved(new Listener() {
 			@Override
 			public void trigger(Event e) {
 				HashRemovedEvent h = (HashRemovedEvent) e;
-				//h.removeFromDisk
+				// h.removeFromDisk
 				manager.removeTask(h.hash);
 				Settings.remove(h.hash);
 			}
 
+		});
+
+		ui.onFileProperties(new Listener() {
+			@Override
+			public void trigger(Event e) {
+				FilePropertiesEvent h = (FilePropertiesEvent) e;
+				TaskManager.TaskState t = manager.getTaskState(h.hash);
+				if (t != null) {
+
+					ui.displayInfo(t.path, t.name, h.hash.toString(),
+							t.fileSize, t.chunkSize, t.chunkCount);
+				} else {
+					System.out.println("asd");
+				}
+			}
 		});
 	}
 }

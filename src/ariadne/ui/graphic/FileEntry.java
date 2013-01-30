@@ -25,6 +25,7 @@ public class FileEntry extends JPanel {
 		private static final long serialVersionUID = 1L;
 		JMenuItem removeButton;
 		JMenuItem assignButton;
+		JMenuItem aboutButton;
 
 		public PopUpDemo() {
 			removeButton = new JMenuItem("Remove...");
@@ -49,6 +50,13 @@ public class FileEntry extends JPanel {
 					});
 					
 				}});
+			aboutButton = new JMenuItem("About this file ");
+			aboutButton.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					w.aboutToDisplay(hash);
+				}});
+			add(aboutButton);
 			add(removeButton);
 			add(assignButton);
 		}
@@ -145,7 +153,7 @@ public class FileEntry extends JPanel {
 		mainLabel.setText(s);
 	}
 
-	public String printProperly(long bytes) {
+	public static String printProperly(long bytes) {
 		float val = bytes;
 
 		String unit = "B";

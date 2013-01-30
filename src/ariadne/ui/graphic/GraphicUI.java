@@ -78,4 +78,20 @@ public class GraphicUI extends DelegableUI {
 			}
 		});
 	}
+
+	@Override
+	public void displayInfo(String path, String name, String hash, long size, int chunkSize, int chunkCount) {
+		final String _path = path;
+		final String _name = name;
+		final String _hash = hash;
+		final long _size = size;
+		final int _chunkSize = chunkSize;
+		final int _chunkCount = chunkCount;
+		
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				new AboutWindow(_path, _name, _hash, _size, _chunkSize, _chunkCount).setVisible(true);
+			}
+		});
+	}
 }

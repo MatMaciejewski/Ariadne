@@ -10,10 +10,10 @@ public interface TaskManager {
 		public String path;
 		public String name;
 		public boolean knownDescriptor;
-		public long kbytesSize;
-		public long kbytesPosessed;
-		public int upRate;
-		public int downRate;
+		public long fileSize;
+		public long chunksPosessed;
+		public int chunkCount;
+		public int chunkSize;
 	}
 	
 	

@@ -22,13 +22,15 @@ public class Manager implements TaskManager {
 		TaskState t = new TaskState();
 		Supervisor s = threads.get(hash);
 		if (s == null)
-			throw new IllegalArgumentException();
+			return null;
 		t.hash = hash;
 		t.name = s.getFileName();
 		t.path = s.getFilePath();
-		t.kbytesPosessed = s.getPosessed();
-		t.kbytesSize = s.getSize();
+		t.chunksPosessed = s.getPosessed();
+		t.fileSize = s.getSize();
 		t.knownDescriptor = s.knownDescriptor();
+		t.chunkCount = s.getChunkCount();
+		t.chunkSize = s.getChunkSize();
 		return t;
 	}
 

@@ -133,12 +133,17 @@ class Window {
 		FileEntry e = entries.remove(hash);
 		if (e != null) {
 			contentPanel.remove(e);
+			generatedHashField.setText("");
 			frame.repaint();
 		}
 	}
 	
 	public void hashRemoved(Hash hash, boolean alsoDelete){
 		delegate.hashRemoved(hash, alsoDelete);
+	}
+	
+	public void aboutToDisplay(Hash h){
+		delegate.fileProperties(h);
 	}
 
 	private void initMenu() {

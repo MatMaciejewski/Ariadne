@@ -17,6 +17,9 @@ public abstract class DelegableUI implements UI {
 		public String path;
 		public String name;
 	}
+	public static class FilePropertiesEvent implements Event{
+		public Hash hash;
+	}
 	
 	private class Pair{
 		public Listener l;
@@ -49,6 +52,12 @@ public abstract class DelegableUI implements UI {
 			eventQueue.add(new Pair(fileAdded, e));
 		}
 		
+		public void fileProperties(Hash hash){
+			FilePropertiesEvent e = new FilePropertiesEvent();
+			e.hash = hash;
+			eventQueue.add(new Pair(fileProperties, e));
+		}
+		
 		public void closing(){
 			eventQueue.add(new Pair(closing, null));
 		}
@@ -62,6 +71,7 @@ public abstract class DelegableUI implements UI {
 	private Listener closing;
 	private Listener hashRemoved;
 	private Listener fileAdded;
+	private Listener fileProperties;
 	
 	
 	
@@ -89,6 +99,11 @@ public abstract class DelegableUI implements UI {
 	@Override
 	public void onHashRemoved(Listener l) {
 		hashRemoved = l;
+	}
+	
+	@Override
+	public void onFileProperties(Listener l){
+		fileProperties = l;
 	}
 	
 	@Override

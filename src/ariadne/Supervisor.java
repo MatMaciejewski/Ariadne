@@ -407,6 +407,22 @@ public class Supervisor extends Thread {
 		currentState = State.HALT;
 		Application.getUI().dropEntry(getHash());
 	}
+	
+	public int getChunkSize(){
+		if(file != null){
+			return file.getDescriptor().getChunkSize();
+		}else{
+			return -1;
+		}
+	}
+	
+	public int getChunkCount(){
+		if(file != null){
+			return file.getDescriptor().getChunkCount();
+		}else{
+			return -1;
+		}
+	}
 
 	public String getFileName() {
 		return name;
