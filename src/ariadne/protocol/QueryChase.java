@@ -24,11 +24,11 @@ public class QueryChase extends PortHashQuery {
 
 	@Override
 	public Response respond() {
-		if(getAuthor() != null){
-			Catalogue.addPeer(getHash(), getAuthor(), Catalogue.DEF_TIMEOUT, false);
-		}
 		List<Address> addresses = Catalogue.getPeerForHash(getHash(), PeerListResponse.MAX_PEERS);
-		
+		if(getAuthor() != null){
+			Address a = new Address(getAuthor().getIpAddress(), this.getPort());
+			Catalogue.addPeer(getHash(), a, Catalogue.DEF_TIMEOUT, false);
+		}
 		//do we chase this file?
 		boolean interested = false;
 		if(Application.getManager().getTasks().contains(getHash())){

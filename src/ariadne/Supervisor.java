@@ -197,34 +197,34 @@ public class Supervisor extends Thread {
 				} else {
 					// WE have a descriptor. But is it THE descriptor?
 
-					Log.notice("Checking if descriptor is correct");
-
 					if (d.getHash().equals(getHash())) {
 						if (prepareNewFile(d)) {
+							Log.notice("Found descriptor for " + getFileName());
 							interested.add(peer);
 							currentState = State.CHASING_CHUNKS;
 						} else {
 							currentState = State.ERROR;
 						}
-						System.out.println("and finish");
 					} else {
 						Log.notice("Received incorrect descriptor");
 					}
 				}
 			}
 		} else if (!noteworthy.isEmpty()) {
+			
 			peer = noteworthy.poll();
-
 			ResponseChase response = Application.getClient().sendChaseQuery(
 					peer, hash, 2000);
 			if (response == null) {
 				// Returned garbage - we forget about this guy
 			} else {
 				List<Address> peers = response.getPeers();
-
+				System.out.println("returned peer list: " + peers.size());
 				int returned = 0;
 				for (Address a : peers) {
+					System.out.println("PEER ---> " + a);
 					if (a != peer && a != Application.getClient().getAddress()) {
+						System.out.println("added to noteworthy!");
 						noteworthy.add(a);
 						returned++;
 					}
@@ -253,7 +253,6 @@ public class Supervisor extends Thread {
 			Pair p = seeders.peek();
 			ResponseChunk r;
 			Chunk c;
-
 			while (p.toCheck < p.bitmask.getSize()) {
 
 				if (p.bitmask.isSet(p.toCheck)) {
@@ -265,6 +264,7 @@ public class Supervisor extends Thread {
 						c = r.getChunk();
 						if (c != null) {
 							if (file.setChunk(c, p.toCheck)) {
+								Log.notice("Downloaded chunk " + p.toCheck + " of file " + getFileName());
 								p.toCheck++;
 								break;
 							}
@@ -277,8 +277,6 @@ public class Supervisor extends Thread {
 					seeders.poll();
 					break;
 				} else {
-					Log.notice("Chunk " + p.toCheck
-							+ "not available or already posessed");
 					p.toCheck++;
 				}
 			}
@@ -291,38 +289,22 @@ public class Supervisor extends Thread {
 			ResponseBmask r = Application.getClient().sendBmaskQuery(peer,
 					hash, file.getBitMask().getSize(), 2000);
 
-			System.out.println("Bmask response analysis:");
-
 			if (r == null) {
-				System.out.println("no bitmask. Fail");
 				// Forget this peer
 			} else {
 				BitMask b = r.getBitMask();
-
 				if (b == null) {
-
 					r.print();
-
-					System.out.println("no bitmask after all");
 					// Forget this peer
 				} else {
-					System.out.println("bitmask correct");
 					Pair p = new Pair();
-
-					System.out
-							.println("received bitmask size:  " + b.getSize());
-					System.out.println("our local bitmask size: "
-							+ file.getBitMask().getSize());
-
 					if (b.getSize() == file.getBitMask().getSize()) {
 						p.bitmask = file.getBitMask().getDiff(b);
 						p.peer = peer;
 						if (p.bitmask.compareToNull()) {
-
-							System.out.println("diff is empty");
 							checked.add(peer);
 						} else {
-							System.out.println("dif not empty - download!");
+							Log.notice("Peer " + p.peer + " has " + p.bitmask.getPosessed() + " new chunks.");
 							p.toCheck = 0;
 							seeders.add(p);
 						}
@@ -331,14 +313,13 @@ public class Supervisor extends Thread {
 			}
 		} else if (!noteworthy.isEmpty()) {
 			peer = noteworthy.poll();
-
 			ResponseChase response = Application.getClient().sendChaseQuery(
 					peer, hash, 2000);
 			if (response == null) {
 				// Returned garbage - we forget about this guy
 			} else {
+				
 				List<Address> peers = response.getPeers();
-
 				int returned = 0;
 				for (Address a : peers) {
 					if (a != peer && a != Application.getClient().getAddress()) {
@@ -389,7 +370,8 @@ public class Supervisor extends Thread {
 				if (peer == null)
 					break;
 				else {
-					interested.add(peer);
+					System.out.println("Listener returned a potential peer: " + peer);
+					noteworthy.add(peer);
 				}
 			}
 			if (currentState == State.LOOKING_FOR_DESCRIPTOR) {

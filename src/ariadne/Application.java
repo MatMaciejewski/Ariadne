@@ -115,7 +115,8 @@ public class Application {
 					char c = h.data.charAt(0);
 					if (c == '@') {
 						//add an address
-						System.out.println("Add peer: " + h.data);
+						String sub = h.data.substring(1);
+						System.out.println("add peer: " + sub);
 					} else {
 						String[] parts = h.data.split("#");
 						for (int i = 0; i < parts.length; ++i) {

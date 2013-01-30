@@ -123,7 +123,6 @@ public class Client {
 			}
 			c.close();
 			r.setAuthor(a);
-			System.out.println("Response from " + a.toString());
 			return r;
 		} catch (IOException e) {
 			Log.notice("IOException in client sendQuery() occured when trying to reach " + addr.toString());
