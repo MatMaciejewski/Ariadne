@@ -2,7 +2,6 @@ package ariadne;
 
 import java.util.Set;
 
-import ariadne.data.File;
 import ariadne.data.Hash;
 
 public interface TaskManager {

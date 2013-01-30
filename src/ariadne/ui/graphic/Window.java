@@ -133,7 +133,12 @@ class Window {
 		FileEntry e = entries.remove(hash);
 		if (e != null) {
 			contentPanel.remove(e);
+			frame.repaint();
 		}
+	}
+	
+	public void hashRemoved(Hash hash, boolean alsoDelete){
+		delegate.hashRemoved(hash, alsoDelete);
 	}
 
 	private void initMenu() {
@@ -156,6 +161,11 @@ class Window {
 		});
 		fileMenu.add(hashGenMenuItem);
 		JMenuItem quitMenuItem = new JMenuItem("Quit");
+		quitMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				delegate.closing();
+			}
+		});
 		fileMenu.add(quitMenuItem);
 		JMenu editMenu = new JMenu("Edit");
 		menuBar.add(editMenu);
@@ -164,8 +174,22 @@ class Window {
 		JMenuItem resumeMenuItem = new JMenuItem("Resume");
 		editMenu.add(resumeMenuItem);
 		JMenuItem removeMenuItem = new JMenuItem("Remove...");
+		removeMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				 if(FileEntry.getSelected() != null){
+					 hashRemoved(FileEntry.getSelected().getHash(), false);
+				 }
+			}
+		});
 		editMenu.add(removeMenuItem);
 		JMenuItem remDelMenuItem = new JMenuItem("Delete...");
+		remDelMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				 if(FileEntry.getSelected() != null){
+					 hashRemoved(FileEntry.getSelected().getHash(), true);
+				 }
+			}
+		});
 		editMenu.add(remDelMenuItem);
 		JMenu helpMenu = new JMenu("Help");
 		menuBar.add(helpMenu);

@@ -123,8 +123,8 @@ public class BitMask {
 		return b;
 	}
 	
-	public void saveToFile(String fileName){
-		DiskResource.putFileContents(getByteBuffer(), fileName);
+	public boolean saveToFile(String fileName){
+		return DiskResource.putFileContents(getByteBuffer(), fileName);
 	}
 	
 	public static BitMask fromFile(String fileName, int chunkCount){

@@ -2,11 +2,8 @@ package ariadne;
 
 import java.util.List;
 
-import ariadne.data.BitMask;
 import ariadne.data.Catalogue;
 import ariadne.data.Database;
-import ariadne.data.Descriptor;
-import ariadne.data.File;
 import ariadne.data.Hash;
 import ariadne.data.Librarian;
 import ariadne.data.Settings;
@@ -16,6 +13,7 @@ import ariadne.net.Server;
 import ariadne.ui.UI;
 import ariadne.ui.DelegableUI.FileAddedEvent;
 import ariadne.ui.DelegableUI.HashAddedEvent;
+import ariadne.ui.DelegableUI.HashRemovedEvent;
 import ariadne.ui.UI.Event;
 import ariadne.ui.UI.Listener;
 import ariadne.ui.graphic.GraphicUI;
@@ -139,6 +137,17 @@ public class Application {
 			public void trigger(Event e) {
 				FileAddedEvent f = (FileAddedEvent) e;
 				addSeedHash(f.path, f.name, CHUNKSIZE);
+			}
+
+		});
+		
+		ui.onHashRemoved(new Listener() {
+			@Override
+			public void trigger(Event e) {
+				HashRemovedEvent h = (HashRemovedEvent) e;
+				//h.removeFromDisk
+				manager.removeTask(h.hash);
+				Settings.remove(h.hash);
 			}
 
 		});

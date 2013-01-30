@@ -65,8 +65,9 @@ public class Manager implements TaskManager {
 	@Override
 	public void removeTask(Hash hash) {
 		Supervisor s = threads.remove(hash);
-		if (s == null)
+		if (s == null){
 			throw new IllegalArgumentException();
+		} else
 		s.halt();
 	}
 

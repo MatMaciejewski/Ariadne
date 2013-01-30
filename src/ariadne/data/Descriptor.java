@@ -109,11 +109,8 @@ public class Descriptor {
 		return d;
 	}
 	
-	public void saveToFile(String fileName){
-		DiskResource r = DiskResource.open(fileName, true);
-		ByteBuffer b = getByteBuffer();
-		r.resize(b.remaining());
-		r.write(b, 0);
+	public boolean saveToFile(String fileName){
+		return DiskResource.putFileContents(getByteBuffer(), fileName);
 	}
 	
 	public static String getDefaultFileName(String path, String fileName){

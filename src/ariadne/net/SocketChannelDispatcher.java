@@ -78,7 +78,7 @@ public class SocketChannelDispatcher implements Dispatcher {
 		} catch (ClosedChannelException e) {
 			Log.error("Could not register server socket in a selector");
 		}
-
+		Log.notice("Server started on port " + port);
 		return true;
 	}
 

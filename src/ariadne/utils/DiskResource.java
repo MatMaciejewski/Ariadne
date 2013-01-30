@@ -154,7 +154,6 @@ public class DiskResource {
 
 	public static boolean putFileContents(ByteBuffer b, String fileName) {
 		DiskResource r = DiskResource.open(fileName, true);
-
 		if (r != null) {
 			if (!r.resize(b.remaining()))
 				return false;

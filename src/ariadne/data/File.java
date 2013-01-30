@@ -110,29 +110,38 @@ public class File {
 	// //////////////////////////////////////////
 
 	private Chunk getChunkFromDisk(int id, int chunkSize, int chunkCount) {
-		byte[] bytes = new byte[chunkSize];
-		try {
-			java.io.File in = new java.io.File(path + "/" + name);
-			RandomAccessFile byteFile = new RandomAccessFile(in, "r");
-			byteFile.seek(chunkSize * id);
-			byteFile.read(bytes);
-			byteFile.close();
-			if (id == chunkCount) {
-				if (bytes.length < chunkSize) {
-					for (int i = bytes.length; i < chunkSize; i++) {
-						bytes[i] = (byte) 0;
-					}
-				}
-			}
-			return new Chunk(bytes);
-		} catch (IOException e1) {
-			Log.error("File " + name + " not found.");
+		DiskResource r = DiskResource.open(getDefaultFileName(), false);
+		if(r != null){
+			ByteBuffer b = r.read(chunkSize*id, chunkSize);
+			r.close();
+			return new Chunk(b);
 		}
 		return null;
 	}
 
-	private boolean saveChunkToDisk(Chunk c, int id) {
-
+	private boolean saveChunkToDisk(Chunk c, int id){
+		//UNTESTED: check before use
+		boolean success = false;
+		int toWrite = descriptor.getChunkSize();
+		if (id + 1 == descriptor.getChunkCount()) {
+			toWrite -= (descriptor.getChunkCount()
+					* descriptor.getChunkSize() - descriptor.getFileSize());
+		}
+		DiskResource r = DiskResource.open(getDefaultFileName(), false);
+		if(r != null){
+			ByteBuffer b = c.getByteBuffer();
+			b.position(0);
+			b.limit(toWrite);
+			if(r.write(b, id * descriptor.getChunkSize())){
+				success = true;
+			}
+			r.close();
+		}
+		
+		return success;
+	}
+	
+	private boolean saveChunkToDisk2(Chunk c, int id) {
 		try {
 			int toWrite = descriptor.getChunkSize();
 			if (id + 1 == descriptor.getChunkCount()) {
@@ -158,10 +167,15 @@ public class File {
 	}
 	
 	public static File prepareExistingOne(String path, String name, int chunkSize){
-		
+		//										   ||
+		//										   ||
+		//										   ||
+		//TODO: use this instead of the class here \/
 		return null;
 	}
 
+	
+	//This class returns outofmemoryerror for too large files
 	public File(String path, String name, int chunkSize) {
 		java.io.File fil = new java.io.File(path + "/" + name);
 		this.path = path;

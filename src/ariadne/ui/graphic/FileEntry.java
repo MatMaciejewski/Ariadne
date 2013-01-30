@@ -28,6 +28,11 @@ public class FileEntry extends JPanel {
 
 		public PopUpDemo() {
 			removeButton = new JMenuItem("Remove...");
+			removeButton.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					w.hashRemoved(hash, false);
+				}});
 			assignButton = new JMenuItem("Assign peer...");
 			assignButton.addActionListener(new ActionListener(){
 				@Override

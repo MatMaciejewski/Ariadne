@@ -112,11 +112,14 @@ public class Supervisor extends Thread {
 
 	private void finalise() {
 		if (file != null) {
-			file.getDescriptor().saveToFile(
-					Descriptor.getDefaultFileName(path, name));
-			file.getBitMask()
-					.saveToFile(BitMask.getDefaultFileName(path, name));
+			if(!file.getDescriptor().saveToFile(Descriptor.getDefaultFileName(path, name))){
+				System.out.println("Descriptor not saved");
+			}
+			if(!file.getBitMask().saveToFile(BitMask.getDefaultFileName(path, name))){
+				System.out.println("bmask not saved");
+			}
 		}
+		System.out.println("Stopping supervisor thread for hash " + hash.toString());
 	}
 
 	/**
@@ -360,7 +363,7 @@ public class Supervisor extends Thread {
 	public void seedHash(){
 		try {
 			System.out.println("seeding");
-			sleep(5000);
+			sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

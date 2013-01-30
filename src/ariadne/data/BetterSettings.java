@@ -12,10 +12,6 @@ import ariadne.utils.DiskResource;
 import ariadne.utils.Log;
 
 public class BetterSettings {
-	private static class Pair {
-		public String name;
-		public String path;
-	}
 
 	public static final String SETTINGS_FILENAME = "./.ariadne_settings";
 	public static final String SETTINGS_COMMENTS = "The Ariadne settings file";
@@ -62,11 +58,10 @@ public class BetterSettings {
 	}
 
 	public static void save() {
-		try {
+		try {			
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			data.store(out, SETTINGS_COMMENTS);
-			if (!DiskResource.putFileContents(out.toByteArray(), 0, out.size(),
-					SETTINGS_FILENAME)) {
+			if (!DiskResource.putFileContents(out.toByteArray(), 0, out.size(), SETTINGS_FILENAME)) {
 				throw new IOException();
 			}
 		} catch (IOException e) {
@@ -79,7 +74,9 @@ public class BetterSettings {
 		for (Object k : data.keySet()) {
 			try {
 				Hash h = new Hash((String) k);
-				l.add(h);
+				if(h != null){
+					l.add(h);
+				}
 			} catch (Exception e) {
 				data.remove(k);
 			}
