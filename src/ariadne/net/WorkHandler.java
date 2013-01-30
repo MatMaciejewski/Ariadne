@@ -64,22 +64,7 @@ public class WorkHandler extends Worker {
 				Log.notice("Valid message received! ");
 				
 				ByteBuffer bb = s.query.getByteBuffer();
-				
-				System.out.println("QUERY:");
-				for(int i=0;i<bb.limit();++i){
-					System.out.print((byte) bb.get(i) + " ");
-				}
-				System.out.println(" ");
-				
 				Response r = s.query.respond();
-				
-				System.out.println("RESPONSE:");
-				bb = r.getByteBuffer();
-				for(int i=0;i<bb.limit();++i){
-					System.out.print((byte) bb.get(i) + " ");
-				}
-				System.out.println(" ");
-				
 				c.getSocket().write(r.getByteBuffer());
 				return false;
 			} else {
