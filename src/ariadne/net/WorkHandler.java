@@ -17,7 +17,6 @@ public class WorkHandler extends Worker {
 
 	@Override
 	public boolean handle(Conversation c) {
-
 		State s;
 
 		if (c.getState() == null) {

@@ -1,9 +1,7 @@
 package ariadne.net;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
@@ -38,7 +36,6 @@ public class SocketChannelDispatcher implements Dispatcher {
 
 	@Override
 	public boolean enable() {
-		InetAddress lh;
 		ready = new LinkedList<Conversation>();
 		awaiting = new ConcurrentLinkedQueue<Conversation>();
 		states = new HashMap<SelectionKey, Conversation.State>();
@@ -55,14 +52,7 @@ public class SocketChannelDispatcher implements Dispatcher {
 			return false;
 		}
 		try {
-			lh = InetAddress.getLocalHost();
-		} catch (UnknownHostException e) {
-			Log.error("Could not retreive the local machine address");
-			return false;
-		}
-		InetSocketAddress isa = new InetSocketAddress(lh, port);
-		try {
-			ssc.socket().bind(isa);
+			ssc.socket().bind(new InetSocketAddress(port));
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 			Log.error("Could not bind the server socket to local address");
