@@ -31,13 +31,9 @@ public class WorkHandler extends Worker {
 
 			ByteBuffer b = ByteBuffer.allocate(1024);
 			c.getSocket().read(b);
-			
-			System.out.println("here1");
 
 			if (b.limit() == 0)
 				return false;
-			// ///
-			System.out.println("here1.5");
 			if (s.query == null) {
 				byte code = b.get(0);
 				switch (code) {
@@ -61,12 +57,9 @@ public class WorkHandler extends Worker {
 				}
 				
 			}
-			System.out.println("here2");
 			b.flip();
 			s.query.addByteBuffer(b);
-			System.out.println("here3");
 			if (s.query.isComplete()) {
-				System.out.println("here4");
 				Address a;
 				try{
 					Socket sock = c.getSocket().socket();
@@ -80,7 +73,6 @@ public class WorkHandler extends Worker {
 				c.getSocket().write(r.getByteBuffer());
 				return false;
 			} else {
-				System.out.println("here5");
 				return true;
 			}
 		} catch (IOException e) {
