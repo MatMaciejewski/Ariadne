@@ -86,9 +86,9 @@ public class Client {
 		if (timeout < 0)
 			throw new IllegalArgumentException();
 		// Timeouts ignored for now
-
+		Socket c;
 		try {
-			Socket c = new Socket();
+			c = new Socket();
 			c.connect(new InetSocketAddress(addr.getIpAddress().getHostAddress(), addr.getPort().getPort()), timeout);
 			
 			OutputStream out = c.getOutputStream();
@@ -108,6 +108,7 @@ public class Client {
 				
 				if(len < 1){ 
 					Log.notice("<0 length data received in client - returning null");
+					c.close();
 					return null;
 				}
 				r.addBytes(resp, len);
@@ -125,7 +126,9 @@ public class Client {
 			System.out.println("Response from " + a.toString());
 			return r;
 		} catch (IOException e) {
-			Log.warning("IOException in client sendQuery() method");
+			Log.notice("IOException in client sendQuery() occured when trying to reach " + addr.toString());
+			System.out.println("The content is:");
+			e.printStackTrace();
 			return null;
 		} catch (InvalidMessageException e) {
 			Log.warning("InvalidMessageException received.");
