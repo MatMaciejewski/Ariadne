@@ -1,64 +1,57 @@
 package ariadne.data;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import ariadne.net.Address;
+import ariadne.utils.ActuallyNotTimedMultiMap;
 import ariadne.utils.TimedMultiMap;
 
 public class Catalogue {
 	public static class Listener{
-		private TimedMultiMap<Hash, Address>.KeyAddedListener listener;
+		private Queue<Address> q;
 		private Hash keyHash;
 		private Listener(Hash h){
 			keyHash = h;
-			listener = peers.getListener(h);
+			q = new ConcurrentLinkedQueue<Address>();
 		}
 		public Address getNext(){
-			return listener.getNext();
+			return q.poll();
 		}
 		public void disable(){
-			peers.removeListener(keyHash, listener);
+			listeners.remove(getHash());
 		}
 		public Hash getHash(){
 			return keyHash;
 		}
-	}
-	private static class Task {
-		public Hash hash;
-		public Address peer;
-		public long timeout;
-		public boolean ignoreEvents;
-
-		public Task(Hash hash, Address peer, long timeout, boolean ignoreEvents) {
-			this.hash = hash;
-			this.peer = peer;
-			this.timeout = timeout;
-			this.ignoreEvents = ignoreEvents;
+		private void add(Address a){
+			q.add(a);
 		}
 	}
-
 	public static final int DEF_TIMEOUT = 600000;
 	private static TimedMultiMap<Hash, Address> peers;
-	private static Queue<Task> tasks;
+	private static Map<Hash, Listener> listeners;
 	private static ReentrantReadWriteLock rwl;
 	private static Lock r;
 	private static Lock w;
 
 	public static void initialize() {
-		peers = new TimedMultiMap<Hash, Address>();
-		tasks = new ConcurrentLinkedQueue<Task>();
+		peers = new ActuallyNotTimedMultiMap<Hash, Address>();
+		listeners = new HashMap<Hash, Listener>();
 		rwl = new ReentrantReadWriteLock();
 		r = rwl.readLock();
 		w = rwl.writeLock();
 	}
 
 	public static int getPeerNumber(){
-		return peers.size();
+		int n = peers.size();
+		return n;
 	}
 	
 	public static List<Address> getPeerForHash(Hash hash, int val) {
@@ -77,23 +70,29 @@ public class Catalogue {
 		return result;
 	}
 	
-	public static Listener getListener(Hash h){
-		return new Listener(h);
+	public static Catalogue.Listener getListener(Hash h){
+		r.lock();
+		Listener listener = new Listener(h);
+		listeners.put(h, listener);
+		r.unlock();
+		return listener;
 	}
 
 	public static void addPeer(Hash hash, Address peer, long timeout, boolean ignoreEvents) {
-		tasks.add(new Task(hash, peer, timeout, ignoreEvents));
+		w.lock();
+		System.out.println("adding "+peer);
+		Listener l = listeners.get(hash);
+		peers.add(hash, peer, timeout);
+		w.unlock();
+		if(l != null){
+			l.add(peer);
+		}
 	}
 
 	public static void update() {
 		w.lock();
 		long time = new Date().getTime();
 		peers.removeTimeouted(time);
-
-		while(tasks.size() > 0) {
-			Task t = tasks.poll();
-			peers.add(t.hash, t.peer, time + t.timeout, t.ignoreEvents);
-		}
 		w.unlock();
 	}
 }

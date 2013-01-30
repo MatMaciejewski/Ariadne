@@ -242,10 +242,10 @@ public class Supervisor extends Thread {
 
 			}
 		} else if (!checked.isEmpty()) {
-			noteworthy.addAll(Catalogue.getRandomPeers(32));
 			noteworthy.addAll(checked);
 			checked.clear();
 		} else {
+			noteworthy.addAll(Catalogue.getRandomPeers(32));
 			slowDown();
 		}
 	}
@@ -340,18 +340,47 @@ public class Supervisor extends Thread {
 		} else if (!checked.isEmpty()) {
 			noteworthy.addAll(checked);
 			checked.clear();
-			noteworthy.addAll(Catalogue.getRandomPeers(32));
 		} else {
+			noteworthy.addAll(Catalogue.getRandomPeers(32));
 			slowDown();
 		}
 	}
 
 	public void seedHash() {
+		System.out.println("seeding");
+		Address peer;
+		if (!noteworthy.isEmpty()) {
+			peer = noteworthy.poll();
+			ResponseChase response = Application.getClient().sendChaseQuery( peer, hash, 2000);
+			if (response == null) {
+				// Returned garbage - we forget about this guy
+			} else {
+				List<Address> peers = response.getPeers();
+				System.out.println("returned peer list: " + peers.size());
+				int returned = 0;
+				for (Address a : peers) {
+					if (a != peer && a != Application.getClient().getAddress()) {
+						noteworthy.add(a);
+						returned++;
+					}
+				}
+
+				if (response.isInterested()) {
+					Catalogue.addPeer(hash, peer, Catalogue.DEF_TIMEOUT, true);
+					interested.add(peer);
+				}
+
+			}
+		} else if (!checked.isEmpty()) {
+			noteworthy.addAll(checked);
+			checked.clear();
+		} else {
+			noteworthy.addAll(Catalogue.getRandomPeers(32));
+			slowDown();
+		}
 		try {
-			System.out.println("seeding");
-			sleep(1000);
+			sleep(5000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

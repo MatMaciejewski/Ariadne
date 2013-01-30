@@ -68,7 +68,7 @@ public class WorkHandler extends Worker {
 				} catch(Exception e){
 					return false;
 				}
-				Log.notice("Received message " + s.query.getCode() + " from " + a);
+				Log.notice("Received message " + s.query.getCode() + " from " + s.query.getAuthor());
 				Response r = s.query.respond();
 				c.getSocket().write(r.getByteBuffer());
 				return false;

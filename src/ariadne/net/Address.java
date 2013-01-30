@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 
 import ariadne.utils.Log;
 
-public class Address {
+public class Address implements Comparable<Address>{
 	public final static int BYTESIZE = Port.BYTESIZE + 4;
 	private Inet4Address userIp;
 	private Port userPort;
@@ -65,5 +65,22 @@ public class Address {
 	
 	public String toString(){
 		return getIpAddress().toString() + ":" + getPort().getPort();
+	}
+
+	@Override
+	public int compareTo(Address arg0) {
+		return toString().compareTo(arg0.toString());
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		if(o instanceof Address){
+			Address a = (Address) o;
+			return a.toString().equals(this.toString());
+		}else return false;
+	}
+	
+	public int hashCode(){
+		return toString().hashCode();
 	}
 }
