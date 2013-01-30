@@ -6,11 +6,6 @@ public class Port {
 	public final static int BYTESIZE = 2;
 	private ByteBuffer data;
 
-	public Port(byte l, byte r) {
-		data = ByteBuffer.allocate(BYTESIZE);
-		data.put(l).put(r);
-	}
-
 	public Port(int port) {
 		data = ByteBuffer.allocate(BYTESIZE);
 		data.put((byte) (port & 0xFF)).put((byte) ((port >> 8) & 0xFF));

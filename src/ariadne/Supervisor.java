@@ -37,7 +37,8 @@ public class Supervisor extends Thread {
 	private File file;
 
 	private Queue<Address> noteworthy; // peers worth asking about other peers
-	private Queue<Address> interested; // peers that also chase this hash, we get their info from catalogue
+	private Queue<Address> interested; // peers that also chase this hash, we
+										// get their info from catalogue
 	private Queue<Address> checked; // peers having a subset of our chunks
 	private Queue<Pair> seeders; // peers having something we do not have
 
@@ -112,15 +113,18 @@ public class Supervisor extends Thread {
 
 	private void finalise() {
 		if (file != null) {
-			if(!file.getDescriptor().saveToFile(Descriptor.getDefaultFileName(path, name))){
+			if (!file.getDescriptor().saveToFile(
+					Descriptor.getDefaultFileName(path, name))) {
 				System.out.println("Descriptor not saved");
 			}
-			if(!file.getBitMask().saveToFile(BitMask.getDefaultFileName(path, name))){
+			if (!file.getBitMask().saveToFile(
+					BitMask.getDefaultFileName(path, name))) {
 				System.out.println("bmask not saved");
 			}
 		}
 		Database.removeFile(hash, false);
-		System.out.println("Stopping supervisor thread for hash " + hash.toString());
+		System.out.println("Stopping supervisor thread for hash "
+				+ hash.toString());
 	}
 
 	/**
@@ -199,7 +203,9 @@ public class Supervisor extends Thread {
 
 					if (d.getHash().equals(getHash())) {
 						if (prepareNewFile(d)) {
-							Log.notice("Peer " + peer + " returned a descriptor for " + getFileName());
+							Log.notice("Peer " + peer
+									+ " returned a descriptor for "
+									+ getFileName());
 							interested.add(peer);
 							currentState = State.CHASING_CHUNKS;
 						} else {
@@ -211,7 +217,7 @@ public class Supervisor extends Thread {
 				}
 			}
 		} else if (!noteworthy.isEmpty()) {
-			
+
 			peer = noteworthy.poll();
 			ResponseChase response = Application.getClient().sendChaseQuery(
 					peer, hash, 2000);
@@ -222,7 +228,6 @@ public class Supervisor extends Thread {
 				System.out.println("returned peer list: " + peers.size());
 				int returned = 0;
 				for (Address a : peers) {
-					System.out.println("PEER ---> " + a);
 					if (a != peer && a != Application.getClient().getAddress()) {
 						System.out.println("added to noteworthy!");
 						noteworthy.add(a);
@@ -231,10 +236,8 @@ public class Supervisor extends Thread {
 				}
 
 				if (response.isInterested()) {
-					if (returned > 0) {
-						Catalogue.addPeer(hash, peer, Catalogue.DEF_TIMEOUT, true);
-						interested.add(peer);
-					}
+					Catalogue.addPeer(hash, peer, Catalogue.DEF_TIMEOUT, true);
+					interested.add(peer);
 				}
 
 			}
@@ -264,7 +267,8 @@ public class Supervisor extends Thread {
 						c = r.getChunk();
 						if (c != null) {
 							if (file.setChunk(c, p.toCheck)) {
-								Log.notice("Downloaded chunk " + p.toCheck + " of file " + getFileName());
+								Log.notice("Downloaded chunk " + p.toCheck
+										+ " of file " + getFileName());
 								p.toCheck++;
 								break;
 							}
@@ -304,7 +308,8 @@ public class Supervisor extends Thread {
 						if (p.bitmask.compareToNull()) {
 							checked.add(peer);
 						} else {
-							Log.notice("Peer " + p.peer + " has " + p.bitmask.getPosessed() + " new chunks.");
+							Log.notice("Peer " + p.peer + " has "
+									+ p.bitmask.getPosessed() + " new chunks.");
 							p.toCheck = 0;
 							seeders.add(p);
 						}
@@ -318,7 +323,7 @@ public class Supervisor extends Thread {
 			if (response == null) {
 				// Returned garbage - we forget about this guy
 			} else {
-				
+
 				List<Address> peers = response.getPeers();
 				int returned = 0;
 				for (Address a : peers) {
@@ -328,10 +333,8 @@ public class Supervisor extends Thread {
 					}
 				}
 				if (response.isInterested()) {
-					if (returned > 0) {
-						Catalogue.addPeer(hash, peer, Catalogue.DEF_TIMEOUT, true);
-						interested.add(peer);
-					}
+					Catalogue.addPeer(hash, peer, Catalogue.DEF_TIMEOUT, true);
+					interested.add(peer);
 				}
 			}
 		} else if (!checked.isEmpty()) {
@@ -343,7 +346,7 @@ public class Supervisor extends Thread {
 		}
 	}
 
-	public void seedHash(){
+	public void seedHash() {
 		try {
 			System.out.println("seeding");
 			sleep(1000);
@@ -352,35 +355,33 @@ public class Supervisor extends Thread {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void run() {
 		initialise();
 		Address peer;
-		while(currentState != State.ERROR && currentState != State.HALT){
-			if(file != null){
+		while (currentState != State.ERROR && currentState != State.HALT) {
+			if (file != null) {
 				BitMask b = file.getBitMask();
-				if(b.isComplete()){
+				if (b.isComplete()) {
 					currentState = State.COMPLETE;
 				}
 			}
-			Application.getUI().showEntry(getHash(), getFileName(), getSize(), getPosessed(), 0, 0, 0);
+			Application.getUI().showEntry(getHash(), getFileName(), getSize(),
+					getPosessed(), 0, 0, 0);
 			while (true) {
 				peer = listener.getNext();
 				if (peer == null)
 					break;
 				else {
-					System.out.println("Listener returned a potential peer: " + peer);
 					noteworthy.add(peer);
 				}
 			}
 			if (currentState == State.LOOKING_FOR_DESCRIPTOR) {
 				lookForDescriptor();
-			} else 
-			if(currentState == State.CHASING_CHUNKS){
+			} else if (currentState == State.CHASING_CHUNKS) {
 				lookForChunks();
-			} else 
-			if(currentState == State.COMPLETE){
+			} else if (currentState == State.COMPLETE) {
 				seedHash();
 			}
 		}
@@ -391,19 +392,19 @@ public class Supervisor extends Thread {
 		currentState = State.HALT;
 		Application.getUI().dropEntry(getHash());
 	}
-	
-	public int getChunkSize(){
-		if(file != null){
+
+	public int getChunkSize() {
+		if (file != null) {
 			return file.getDescriptor().getChunkSize();
-		}else{
+		} else {
 			return -1;
 		}
 	}
-	
-	public int getChunkCount(){
-		if(file != null){
+
+	public int getChunkCount() {
+		if (file != null) {
 			return file.getDescriptor().getChunkCount();
-		}else{
+		} else {
 			return -1;
 		}
 	}

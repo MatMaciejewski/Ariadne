@@ -82,7 +82,6 @@ public class Catalogue {
 	}
 
 	public static void addPeer(Hash hash, Address peer, long timeout, boolean ignoreEvents) {
-		System.out.println("--> Adding " + peer);
 		tasks.add(new Task(hash, peer, timeout, ignoreEvents));
 	}
 

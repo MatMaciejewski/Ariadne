@@ -5,6 +5,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
+import ariadne.utils.Log;
+
 public class Address {
 	public final static int BYTESIZE = Port.BYTESIZE + 4;
 	private Inet4Address userIp;
@@ -33,6 +35,7 @@ public class Address {
 	}
 
 	public static Address fromByteBuffer(ByteBuffer b, int offset) {
+		
 		byte[] ip = new byte[4];
 
 		b.position(offset);
@@ -46,7 +49,7 @@ public class Address {
 			throw new IllegalArgumentException();
 		}
 
-		Port pt = new Port(b, 4);
+		Port pt = new Port(b, offset+4);
 
 		return new Address(addr, pt);
 	}
