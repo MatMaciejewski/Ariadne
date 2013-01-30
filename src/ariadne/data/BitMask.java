@@ -101,6 +101,10 @@ public class BitMask {
 	public int getPosessed(){
 		return posessed;
 	}
+	
+	public boolean isComplete(){
+		return getSize() == getPosessed();
+	}
 
 	public int getByteCount() {
 		return mask.capacity();

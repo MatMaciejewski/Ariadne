@@ -19,7 +19,7 @@ public interface TaskManager {
 	
 	
 	public void insertTask(Hash hash, String path, String name);
-	public void insertTask(File file);
+	public void insertSeedTask(String path, String name, int chunkSize);
 	public void removeTask(Hash hash);
 	
 	

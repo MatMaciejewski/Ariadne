@@ -19,13 +19,8 @@ import ariadne.protocol.ResponseDescr;
 import ariadne.utils.Log;
 
 public class Supervisor extends Thread {
-	private File file;
-	private String name;
-	private String path;
-	private Hash hash;
-
 	public enum State {
-		LOOKING_FOR_DESCRIPTOR, CHASING_CHUNKS, COMPLETE, ERROR
+		LOOKING_FOR_DESCRIPTOR, CHASING_CHUNKS, COMPLETE, ERROR, HALT
 	}
 
 	public class Pair {
@@ -35,27 +30,75 @@ public class Supervisor extends Thread {
 	}
 
 	private State currentState;
+	private Catalogue.Listener listener;
+	private String name;
+	private String path;
+	private Hash hash;
+	private File file;
+
 	private Queue<Address> noteworthy; // peers worth asking about other peers
 	private Queue<Address> interested; // peers that also chase this hash
 	private Queue<Address> checked; // peers having a subset of our chunks
 	private Queue<Pair> seeders; // peers having something we do not have
-	private Catalogue.Listener listener;
 
-	public Supervisor(File file) {
-		this.file = file;
-		this.name = file.getFileName();
-		this.path = file.getFilePath();
-		this.hash = file.getDescriptor().getHash();
-		currentState = State.CHASING_CHUNKS;
-		listener = Catalogue.getListener(getHash());
+	private Supervisor() {
 	}
 
-	public Supervisor(Hash hash, String path, String name) {
-		this.name = name;
-		this.path = path;
-		this.hash = hash;
-		currentState = State.LOOKING_FOR_DESCRIPTOR;
-		listener = Catalogue.getListener(getHash());
+	public static Supervisor forCompleteFile(File completeFile) {
+		Supervisor s = new Supervisor();
+		if (completeFile.getBitMask().isComplete()) {
+			s.file = completeFile;
+			s.currentState = State.COMPLETE;
+			s.name = s.file.getFileName();
+			s.path = s.file.getFilePath();
+			s.hash = s.file.getDescriptor().getHash();
+			s.listener = Catalogue.getListener(s.getHash());
+			return s;
+		} else {
+			return null;
+		}
+	}
+
+	public static Supervisor forPartialFile(Hash hash, String path, String name) {
+		Supervisor s = new Supervisor();
+		s.currentState = State.LOOKING_FOR_DESCRIPTOR;
+		s.name = name;
+		s.path = path;
+		s.hash = hash;
+		s.listener = Catalogue.getListener(s.getHash());
+
+		s.file = Database.getFile(hash);
+		if (s.file != null) {
+			s.currentState = State.CHASING_CHUNKS;
+			// cool, we have everything
+			return s;
+		}
+
+		Descriptor d = Descriptor.fromFile(Descriptor.getDefaultFileName(path,
+				name));
+		if (d != null) {
+			BitMask b = BitMask.fromFile(
+					BitMask.getDefaultFileName(path, name), d.getChunkCount());
+
+			boolean completed;
+			if (b != null) {
+				// We have everything, just start looking for chunks
+				completed = s.continueFile(d, b);
+			} else {
+				// We have only the descriptor
+				completed = s.prepareNewFile(d);
+			}
+			if (!completed) {
+				s.currentState = State.ERROR;
+				s.file = null;
+			}
+			Database.insertFile(s.file);
+		} else {
+			// We have no descriptor. Therefore:
+			s.file = null;
+			s.currentState = State.LOOKING_FOR_DESCRIPTOR;
+		}
+		return s;
 	}
 
 	private void initialise() {
@@ -68,23 +111,61 @@ public class Supervisor extends Thread {
 	}
 
 	private void finalise() {
-		if(file != null){
-			file.getDescriptor().saveToFile(Descriptor.getDefaultFileName(path, name));
-			file.getBitMask().saveToFile(BitMask.getDefaultFileName(path, name));
+		if (file != null) {
+			file.getDescriptor().saveToFile(
+					Descriptor.getDefaultFileName(path, name));
+			file.getBitMask()
+					.saveToFile(BitMask.getDefaultFileName(path, name));
 		}
 	}
 
+	/**
+	 * We have a raw descriptor, we handle it
+	 * 
+	 * @param d
+	 * @return
+	 */
 	private boolean prepareNewFile(Descriptor d) {
-		boolean success = Database.insertFile(d, d.getEmptyBitmask(), path,
-				name, true);
-		if (success) {
-			file = Database.getFile(getHash());
-		}
-		return success;
+		BitMask b = d.getEmptyBitmask();
 
+		this.file = new File(d, b, path, name);
+
+		if (this.file.reallocate()) {
+			currentState = State.CHASING_CHUNKS;
+			return true;
+		} else {
+			this.file = null;
+			return false;
+		}
 	}
-	
-	private void slowDown(){
+
+	/**
+	 * We continue downloading a file.
+	 * 
+	 * @param d
+	 *            Descriptor
+	 * @param b
+	 *            Bitmask
+	 * @return true on success
+	 */
+	private boolean continueFile(Descriptor d, BitMask b) {
+		this.file = new File(d, b, path, name);
+
+		if (!this.file.isAllocated()) {
+			if (this.file.reallocate()) {
+				currentState = State.CHASING_CHUNKS;
+				return true;
+			} else {
+				this.file = null;
+				return false;
+			}
+		} else {
+			currentState = State.CHASING_CHUNKS;
+			return true;
+		}
+	}
+
+	private void slowDown() {
 		try {
 			sleep(100);
 		} catch (InterruptedException e) {
@@ -168,38 +249,43 @@ public class Supervisor extends Thread {
 			Pair p = seeders.peek();
 			ResponseChunk r;
 			Chunk c;
-			
-			while(p.toCheck < p.bitmask.getSize()){
-				
-				if(p.bitmask.isSet(p.toCheck)){
-					r = Application.getClient().sendChunkQuery(p.peer, hash, p.toCheck, file.getDescriptor().getChunkSize(), 2000);
-					
-					if(r != null){
+
+			while (p.toCheck < p.bitmask.getSize()) {
+
+				if (p.bitmask.isSet(p.toCheck)) {
+					r = Application.getClient().sendChunkQuery(p.peer, hash,
+							p.toCheck, file.getDescriptor().getChunkSize(),
+							2000);
+
+					if (r != null) {
 						c = r.getChunk();
-						if(c != null){
-							if(file.setChunk(c, p.toCheck)){
+						if (c != null) {
+							if (file.setChunk(c, p.toCheck)) {
 								p.toCheck++;
 								break;
 							}
 						}
 					}
-					//he returned garbage, let's assume this session is over and we put him into the 'noteworthy' queue
+					// he returned garbage, let's assume this session is over
+					// and we put him into the 'noteworthy' queue
 					p.toCheck = p.bitmask.getSize();
 					noteworthy.add(p.peer);
 					seeders.poll();
 					break;
-				}else{
-					Log.notice("Chunk "+ p.toCheck + "not available or already posessed");
+				} else {
+					Log.notice("Chunk " + p.toCheck
+							+ "not available or already posessed");
 					p.toCheck++;
 				}
 			}
-			if(p.toCheck >= p.bitmask.getSize()){
+			if (p.toCheck >= p.bitmask.getSize()) {
 				seeders.poll();
 				interested.add(p.peer);
 			}
 		} else if (!interested.isEmpty()) {
 			peer = interested.poll();
-			ResponseBmask r = Application.getClient().sendBmaskQuery(peer, hash, file.getBitMask().getSize(), 2000);
+			ResponseBmask r = Application.getClient().sendBmaskQuery(peer,
+					hash, file.getBitMask().getSize(), 2000);
 
 			System.out.println("Bmask response analysis:");
 
@@ -228,7 +314,7 @@ public class Supervisor extends Thread {
 						p.bitmask = file.getBitMask().getDiff(b);
 						p.peer = peer;
 						if (p.bitmask.compareToNull()) {
-							
+
 							System.out.println("diff is empty");
 							checked.add(peer);
 						} else {
@@ -271,14 +357,28 @@ public class Supervisor extends Thread {
 		}
 	}
 
+	public void seedHash(){
+		try {
+			System.out.println("seeding");
+			sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public void run() {
 		initialise();
-
 		Address peer;
-		while (currentState != State.COMPLETE && currentState != State.ERROR) {
-			
-
+		while(currentState != State.ERROR && currentState != State.HALT){
+			if(file != null){
+				BitMask b = file.getBitMask();
+				if(b.isComplete()){
+					currentState = State.COMPLETE;
+				}
+			}
+			Application.getUI().showEntry(getHash(), getFileName(), getSize(), getPosessed(), 0, 0, 0);
 			while (true) {
 				peer = listener.getNext();
 				if (peer == null)
@@ -287,29 +387,21 @@ public class Supervisor extends Thread {
 					interested.add(peer);
 				}
 			}
-
 			if (currentState == State.LOOKING_FOR_DESCRIPTOR) {
 				lookForDescriptor();
-			} else {
+			} else 
+			if(currentState == State.CHASING_CHUNKS){
 				lookForChunks();
+			} else 
+			if(currentState == State.COMPLETE){
+				seedHash();
 			}
-			
-			if(file != null){
-				BitMask b = file.getBitMask();
-				if(b.getPosessed() == b.getSize()){
-					currentState = State.COMPLETE;
-				}
-			}
-
-			Application.getUI().showEntry(getHash(), getFileName(), getSize(),
-					getPosessed(), 0, 0, 0);
 		}
-
 		finalise();
 	}
 
 	public void halt() {
-		currentState = State.COMPLETE;
+		currentState = State.HALT;
 		Application.getUI().dropEntry(getHash());
 	}
 

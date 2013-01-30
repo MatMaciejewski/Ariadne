@@ -6,6 +6,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 import ariadne.Application;
+import ariadne.utils.DiskResource;
 import ariadne.utils.Log;
 
 public class File {
@@ -18,6 +19,10 @@ public class File {
 		if (descriptor == null || bitmask == null || path == null
 				|| name == null)
 			throw new IllegalArgumentException();
+
+		if (descriptor.getChunkCount() != bitmask.getSize())
+			throw new IllegalArgumentException();
+
 		this.descriptor = descriptor;
 		this.bitmask = bitmask;
 		this.path = path;
@@ -25,19 +30,36 @@ public class File {
 
 	}
 
+	public String getDefaultFileName() {
+		return path + "/" + name;
+	}
+
+	/**
+	 * Clears the bitmask and reallocates disk memory
+	 */
 	public boolean reallocate() {
-		bitmask = descriptor.getEmptyBitmask();
-		java.io.File f = new java.io.File(path + "/" + name);
-		f.delete();
-		f = new java.io.File(path + "/" + name);
-		try {
-			 RandomAccessFile ff = new RandomAccessFile(path + "/" + name, "rw");
-             ff.setLength(descriptor.getFileSize());
-             ff.close();
-		} catch (IOException e) {
-			return false;
+		DiskResource d = DiskResource.open(getDefaultFileName(), true);
+		if (d != null) {
+			if (d.resize(getDescriptor().getFileSize())) {
+				d.close();
+				this.bitmask = getDescriptor().getEmptyBitmask();
+				return true;
+			}
 		}
-		return true;
+		d.close();
+		return false;
+	}
+
+	public boolean isAllocated() {
+		DiskResource d = DiskResource.open(getDefaultFileName(), true);
+		if (d != null) {
+			if (d.getLength() == getDescriptor().getFileSize()) {
+				d.close();
+				return true;
+			}
+		}
+		d.close();
+		return false;
 	}
 
 	public Descriptor getDescriptor() {
@@ -61,8 +83,8 @@ public class File {
 				} else
 					return false;
 
-			} else{
-				Log.error("Chunk's hash != descriptor's hash!");	
+			} else {
+				Log.error("Chunk's hash != descriptor's hash!");
 			}
 		}
 		return false;
@@ -71,8 +93,8 @@ public class File {
 	public String getFileName() {
 		return name;
 	}
-	
-	public String getFilePath(){
+
+	public String getFilePath() {
 		return path;
 	}
 
@@ -108,18 +130,20 @@ public class File {
 		}
 		return null;
 	}
-	
-	private boolean saveChunkToDisk(Chunk c, int id){
-		
+
+	private boolean saveChunkToDisk(Chunk c, int id) {
+
 		try {
 			int toWrite = descriptor.getChunkSize();
-			if(id + 1 == descriptor.getChunkCount()){
-				toWrite -= (descriptor.getChunkCount()*descriptor.getChunkSize() - descriptor.getFileSize());
+			if (id + 1 == descriptor.getChunkCount()) {
+				toWrite -= (descriptor.getChunkCount()
+						* descriptor.getChunkSize() - descriptor.getFileSize());
 			}
 			byte[] bytes = new byte[toWrite];
 			ByteBuffer b = c.getByteBuffer();
 			b.get(bytes);
-			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(path + "/" + name), "rws");
+			RandomAccessFile byteFile = new RandomAccessFile(new java.io.File(
+					path + "/" + name), "rws");
 			int pos = id * descriptor.getChunkSize();
 			byteFile.seek(pos);
 			byteFile.write(bytes);
@@ -132,13 +156,17 @@ public class File {
 			return false;
 		}
 	}
+	
+	public static File prepareExistingOne(String path, String name, int chunkSize){
+		
+		return null;
+	}
 
-	// ///////////////CREATE A FILE//////////////////
 	public File(String path, String name, int chunkSize) {
 		java.io.File fil = new java.io.File(path + "/" + name);
 		this.path = path;
 		this.name = name;
-		System.out.println(path+"/"+name);
+		System.out.println(path + "/" + name);
 		if (fil != null) {
 			ByteBuffer b;
 			int fileLength = (int) fil.length() / chunkSize;
@@ -161,30 +189,10 @@ public class File {
 				bit.set(i);
 			bitmask = bit;
 			bit.saveToFile(BitMask.getDefaultFileName(path, name));
-			d.saveToFile( Descriptor.getDefaultFileName(path, name) );
-			Database.insertFile(d, bit, path, name, false);
+			d.saveToFile(Descriptor.getDefaultFileName(path, name));
+			
+			File f = new File(d, bit, path, name);
+			Database.insertFile(f);
 		}
 	}
-
-	// ///////////////LOAD A FILE//////////////////
-
-	public static void loadReadyFile(String path, String name) {
-		java.io.File testFile = new java.io.File(path + "/" + name);
-		if (testFile != null) {
-			Descriptor desc = Descriptor.fromFile(path + "/" + name);
-			BitMask bit = BitMask.fromFile(path + "/" + name, desc.getChunkCount());
-			if (desc != null && bit != null) {
-				Database.insertFile(desc, bit, path, name, false);
-			} else
-				Log.error("File Descriptor\bitmask not found : " + path + "/"
-						+ name);
-		}
-
-	}
-	
-	////////////////////LOAD FROM HASH/////////////
-	public static void loadFromHash(Hash hash, String path, String name){
-		Application.getManager().insertTask(hash, path, name);
-	}
-	
 }

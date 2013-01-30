@@ -28,6 +28,7 @@ public class Application {
 	private static UI ui;
 	private static TaskManager manager;
 	private static Librarian librarian;
+	private static final int CHUNKSIZE = 8192;
 
 	private static void initialise() {
 		ui = new GraphicUI();
@@ -35,7 +36,8 @@ public class Application {
 		server = new Server(innerPort);
 		client = new Client(new Address("127.0.0.1", outerPort));
 
-		Settings.initlialise();
+		Settings.init();
+		Settings.load();
 		Database.initialize();
 		Catalogue.initialize();
 		librarian = new Librarian();
@@ -43,24 +45,11 @@ public class Application {
 		prepareUI();
 		server.start(1);
 
-		List<Hash> files = Settings.getAllHash();
+		List<Hash> files = Settings.getKeys();
 		for (Hash h : files) {
-			String path = Settings.getPathForHash(h);
-			String name = Settings.getNameForHash(h);
-			
-			System.out.print("FILE " + path + "/" + name + ":");
-			try {
-				Descriptor d = Descriptor.fromFile(Descriptor.getDefaultFileName(path, name));
-				BitMask b = BitMask.fromFile(BitMask.getDefaultFileName(path, name), d.getChunkCount());
-				if(d.getChunkCount() != b.getSize()){
-					System.out.println(" found");
-					throw new Exception("BitMask does not fit to a descriptor");
-				}
-				manager.insertTask(new File(d, b, path, name));
-			} catch (Exception e) {
-				System.out.println(" not found");
-				manager.insertTask(h, path, name);
-			}
+			String path = Settings.getFilePath(h);
+			String name = Settings.getFileName(h);
+			addHash(h, path, name);
 		}
 	}
 
@@ -68,7 +57,7 @@ public class Application {
 		librarian.halt();
 		server.stop();
 		manager.closeAllTasks();
-		Settings.updateSettingsFile();
+		Settings.save();
 	}
 
 	public static void run(int in, int out) {
@@ -101,6 +90,13 @@ public class Application {
 	public static UI getUI() {
 		return ui;
 	}
+	
+	public static void addHash(Hash hash, String path, String name){
+		manager.insertTask(hash, path, name);
+	}
+	public static void addSeedHash(String path, String name, int chunkSize){
+		manager.insertSeedTask(path, name, chunkSize);
+	}
 
 	private static void prepareUI() {
 
@@ -129,8 +125,7 @@ public class Application {
 						String path = System.getProperty("user.dir");
 
 						
-						Settings.updateSettings(hash, name, path);
-						manager.insertTask(hash, path, name);
+						addHash(hash, name, path);
 					}
 
 				} catch (Exception ex) {
@@ -143,8 +138,7 @@ public class Application {
 			@Override
 			public void trigger(Event e) {
 				FileAddedEvent f = (FileAddedEvent) e;
-				File file = new File(f.path, f.name, 8192);
-				manager.insertTask(file);
+				addSeedHash(f.path, f.name, CHUNKSIZE);
 			}
 
 		});

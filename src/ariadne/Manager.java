@@ -7,6 +7,7 @@ import java.util.Set;
 
 import ariadne.data.File;
 import ariadne.data.Hash;
+import ariadne.data.Settings;
 import ariadne.utils.Log;
 
 public class Manager implements TaskManager {
@@ -50,19 +51,14 @@ public class Manager implements TaskManager {
 	@Override
 	public void insertTask(Hash hash, String path, String name) {
 		if (threads.get(hash) == null) {
-			Supervisor s = new Supervisor(hash, path, name);
-			threads.put(hash, s);
-			s.start();
-		}
-	}
-	
-	@Override
-	public void insertTask(File file) {
-		Hash h = file.getDescriptor().getHash();
-		if (threads.get(h) == null) {
-			Supervisor s = new Supervisor(file);
-			threads.put(h, s);
-			s.start();
+			Supervisor s = Supervisor.forPartialFile(hash, path, name);
+			if(s != null){
+				threads.put(hash, s);
+				Settings.add(hash, name, path);
+				s.start();
+			}else{
+				Log.notice("Could not insert a task for hash="+hash.toString());
+			}
 		}
 	}
 
@@ -72,6 +68,25 @@ public class Manager implements TaskManager {
 		if (s == null)
 			throw new IllegalArgumentException();
 		s.halt();
+	}
+
+	@Override
+	public void insertSeedTask(String path, String name, int chunkSize) {
+		
+		//TODO: fix this
+		File f = new File(path, name, chunkSize);
+		Hash hash = f.getDescriptor().getHash();
+		
+		if (threads.get(hash) == null) {
+			Supervisor s = Supervisor.forCompleteFile(f);
+			if(s != null){
+				threads.put(hash, s);
+				Settings.add(hash, name, path);
+				s.start();
+			}else{
+				Log.notice("Could not insert a task for hash="+hash.toString());
+			}
+		}
 	}
 
 }

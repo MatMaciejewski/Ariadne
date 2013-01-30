@@ -1,5 +1,6 @@
 package ariadne.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -17,17 +18,28 @@ public class DiskResource {
 	 *            File name
 	 * @return a DiskResource or null
 	 */
-	public static DiskResource open(String fileName) {
+	public static DiskResource open(String fileName, boolean createIfNotExists) {
 		DiskResource r = new DiskResource();
 		try {
-			r.file = new RandomAccessFile(new java.io.File(fileName), "rw");
+			File f = new File(fileName);
+			
+			if(!f.exists()){
+				if(createIfNotExists){
+					if(!f.createNewFile()){
+						return null;
+					}
+				}else{
+					throw new IOException();
+				}
+			}
+			r.file = new RandomAccessFile(f, "rw");
 			return r;
-		} catch (Exception e) {
+		}catch (Exception e) {
 			return null;
 		}
 	}
-	
-	public boolean close(){
+
+	public boolean close() {
 		try {
 			file.close();
 			return true;
@@ -48,13 +60,15 @@ public class DiskResource {
 			return -1;
 		}
 	}
-	
+
 	/**
-	 * Resizes the file. If it is smaller than the given argument, it is expanded. If the value is lower, the file is truncated.
+	 * Resizes the file. If it is smaller than the given argument, it is
+	 * expanded. If the value is lower, the file is truncated.
+	 * 
 	 * @param size
 	 * @return
 	 */
-	public boolean resize(long size){
+	public boolean resize(long size) {
 		try {
 			file.setLength(size);
 			return true;
@@ -114,24 +128,60 @@ public class DiskResource {
 			return false;
 		}
 	}
-	
-	public static ByteBuffer getFileContents(String fileName){
+
+	public boolean write(byte[] src, int srcOffset, int fileOffset, int length) {
+		try {
+			file.seek(fileOffset);
+			file.write(src, srcOffset, length);
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
+	public static ByteBuffer getFileContents(String fileName) {
 		ByteBuffer b = null;
-		DiskResource r = DiskResource.open(fileName);
-		if(r != null){
+		DiskResource r = DiskResource.open(fileName, false);
+		if (r != null) {
 			b = r.readAll();
-			if(b != null){
+			if (b != null) {
 				b.flip();
 			}
 			r.close();
 		}
 		return b;
 	}
-	
-	public static void putFileContents(ByteBuffer b, String fileName){
-		DiskResource r = DiskResource.open(fileName);
-		r.resize(b.remaining());
-		r.write(b, 0);
-		r.close();
+
+	public static boolean putFileContents(ByteBuffer b, String fileName) {
+		DiskResource r = DiskResource.open(fileName, true);
+
+		if (r != null) {
+			if (!r.resize(b.remaining()))
+				return false;
+			if (!r.write(b, 0))
+				return false;
+			if (!r.close())
+				return false;
+
+			return true;
+		} else
+			return false;
+	}
+
+	public static boolean putFileContents(byte[] src, int offset, int length, String fileName) {
+		DiskResource r = DiskResource.open(fileName, true);
+		
+		if (r != null) {
+			if (!r.resize(length))
+				return false;
+			if (!r.write(src, offset, 0, length))
+				return false;
+			if (!r.close())
+				return false;
+
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

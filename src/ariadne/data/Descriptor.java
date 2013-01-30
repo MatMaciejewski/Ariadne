@@ -98,7 +98,7 @@ public class Descriptor {
 
 	public static Descriptor fromFile(String fileName){
 		Descriptor d = null;
-		DiskResource r = DiskResource.open(fileName);
+		DiskResource r = DiskResource.open(fileName, false);
 		if(r != null){
 			ByteBuffer b = r.readAll();
 			if(b != null){
@@ -110,7 +110,7 @@ public class Descriptor {
 	}
 	
 	public void saveToFile(String fileName){
-		DiskResource r = DiskResource.open(fileName);
+		DiskResource r = DiskResource.open(fileName, true);
 		ByteBuffer b = getByteBuffer();
 		r.resize(b.remaining());
 		r.write(b, 0);
