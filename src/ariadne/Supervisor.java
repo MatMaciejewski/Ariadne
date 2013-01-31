@@ -347,7 +347,6 @@ public class Supervisor extends Thread {
 	}
 
 	public void seedHash() {
-		System.out.println("seeding");
 		Address peer;
 		if (!noteworthy.isEmpty()) {
 			peer = noteworthy.poll();
@@ -355,8 +354,8 @@ public class Supervisor extends Thread {
 			if (response == null) {
 				// Returned garbage - we forget about this guy
 			} else {
+				Log.notice("Chase sent to " + peer);
 				List<Address> peers = response.getPeers();
-				System.out.println("returned peer list: " + peers.size());
 				int returned = 0;
 				for (Address a : peers) {
 					if (a != peer && a != Application.getClient().getAddress()) {
@@ -376,6 +375,10 @@ public class Supervisor extends Thread {
 			checked.clear();
 		} else {
 			noteworthy.addAll(Catalogue.getRandomPeers(32));
+			
+			if(noteworthy.size() == 0){
+				Log.notice("No peers known");
+			}
 			slowDown();
 		}
 		try {

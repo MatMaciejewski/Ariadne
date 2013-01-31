@@ -30,10 +30,7 @@ public class ActuallyNotTimedMultiMap<K, V> implements TimedMultiMap<K, V> {
 	public void add(K key, V value, long timeout) {
 		Set<V> vals = getVals(key);
 		if (vals.add(value)){
-			System.out.println("Added!");
 			size++;
-		}else{
-			System.out.println("Not added");
 		}
 	}
 

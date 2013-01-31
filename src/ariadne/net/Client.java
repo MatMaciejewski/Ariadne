@@ -83,7 +83,7 @@ public class Client {
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private Response sendQuery(Query q, Response r, Address addr, int timeout) {
-		System.out.println("Sending a query " + q.getCode() + " to " + addr);
+		Log.notice("Sending a query " + q.getCode() + " to " + addr);
 		if (timeout < 0)
 			throw new IllegalArgumentException();
 		// Timeouts ignored for now

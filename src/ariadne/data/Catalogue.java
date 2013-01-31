@@ -80,7 +80,6 @@ public class Catalogue {
 
 	public static void addPeer(Hash hash, Address peer, long timeout, boolean ignoreEvents) {
 		w.lock();
-		System.out.println("adding "+peer);
 		Listener l = listeners.get(hash);
 		peers.add(hash, peer, timeout);
 		w.unlock();
@@ -88,7 +87,6 @@ public class Catalogue {
 			l.add(peer);
 		}
 	}
-
 	public static void update() {
 		w.lock();
 		long time = new Date().getTime();
