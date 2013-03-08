@@ -9,7 +9,7 @@ public class Address extends ByteSource{
 	private Address(){}
 	
 	public static Address fromByteBuffer(ByteBuffer b){
-		if(b.remaining() != LENGTH) throw new IllegalArgumentException();
+		if(b.remaining() != LENGTH) return null;
 		Address a = new Address();
 		a.init(b, true);
 		return a;
@@ -33,7 +33,7 @@ public class Address extends ByteSource{
 			a.buf = b;
 			return a;
 		} catch (UnknownHostException e) {
-			return null;
+			throw new IllegalArgumentException();
 		}
 	}
 	

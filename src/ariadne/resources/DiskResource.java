@@ -14,29 +14,25 @@ public class DiskResource {
 	/**
 	 * Creates a diskResource object or returns null if something goes wrong.
 	 * 
-	 * @param fileName
+	 * @param filepath
 	 *            File name
 	 * @return a DiskResource or null
+	 * @throws IOException 
 	 */
-	public static DiskResource open(String fileName, boolean createIfNotExists) {
+	public static DiskResource open(String filepath, boolean createIfNotExists) throws IOException {
 		DiskResource r = new DiskResource();
-		try {
-			File f = new File(fileName);
-			
-			if(!f.exists()){
-				if(createIfNotExists){
-					if(!f.createNewFile()){
-						return null;
-					}
-				}else{
-					throw new IOException();
-				}
+		
+		File f = new File(filepath);
+		
+		if(!f.exists()){
+			if(createIfNotExists){
+				f.createNewFile();
+			}else{
+				throw new IOException("Tried to open a file that does not exist");
 			}
-			r.file = new RandomAccessFile(f, "rw");
-			return r;
-		}catch (Exception e) {
-			return null;
 		}
+		r.file = new RandomAccessFile(f, "rw");
+		return r;
 	}
 
 	public boolean close() {
@@ -67,14 +63,10 @@ public class DiskResource {
 	 * 
 	 * @param size
 	 * @return
+	 * @throws IOException 
 	 */
-	public boolean resize(long size) {
-		try {
-			file.setLength(size);
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
+	public void resize(long size) throws IOException {
+		file.setLength(size);
 	}
 
 	/**
@@ -86,15 +78,12 @@ public class DiskResource {
 	 * @param length
 	 *            bytes to read
 	 * @return a ByteBuffer or null
+	 * @throws IOException 
 	 */
-	public ByteBuffer read(int offset, int length) {
-		try {
-			ByteBuffer b = ByteBuffer.allocate(length);
-			file.getChannel().read(b, offset);
-			return b;
-		} catch (IOException e) {
-			return null;
-		}
+	public ByteBuffer read(int offset, int length) throws IOException {
+		ByteBuffer b = ByteBuffer.allocate(length);
+		file.getChannel().read(b, offset);
+		return b;
 	}
 
 	/**
@@ -102,8 +91,9 @@ public class DiskResource {
 	 * large.
 	 * 
 	 * @return ByteBuffer or null
+	 * @throws IOException 
 	 */
-	public ByteBuffer readAll() {
+	public ByteBuffer readAll() throws IOException {
 		if (getLength() > Integer.MAX_VALUE)
 			return null;
 		else
@@ -119,29 +109,20 @@ public class DiskResource {
 	 * @param offset
 	 *            where to start writing
 	 * @return true if success, false otherwise
+	 * @throws IOException 
 	 */
-	public boolean write(ByteBuffer b, int offset) {
-		try {
-			file.getChannel().write(b, offset);
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
+	public void write(ByteBuffer b, int offset) throws IOException {
+		file.getChannel().write(b, offset);
 	}
 
-	public boolean write(byte[] src, int srcOffset, int fileOffset, int length) {
-		try {
-			file.seek(fileOffset);
-			file.write(src, srcOffset, length);
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
+	public void write(byte[] src, int srcOffset, int fileOffset, int length) throws IOException {
+		file.seek(fileOffset);
+		file.write(src, srcOffset, length);
 	}
 
-	public static ByteBuffer getFileContents(String fileName) {
+	public static ByteBuffer getFileContents(String filepath) throws IOException {
 		ByteBuffer b = null;
-		DiskResource r = DiskResource.open(fileName, false);
+		DiskResource r = DiskResource.open(filepath, false);
 		if (r != null) {
 			b = r.readAll();
 			if (b != null) {
@@ -152,35 +133,24 @@ public class DiskResource {
 		return b;
 	}
 
-	public static boolean putFileContents(ByteBuffer b, String fileName) {
-		DiskResource r = DiskResource.open(fileName, true);
-		if (r != null) {
-			if (!r.resize(b.remaining()))
-				return false;
-			if (!r.write(b, 0))
-				return false;
-			if (!r.close())
-				return false;
-
-			return true;
-		} else
-			return false;
+	public static void putFileContents(String filepath, ByteBuffer b) throws IOException {
+		DiskResource r = DiskResource.open(filepath, true);
+		r.resize(b.remaining());
+		r.write(b, 0);
+		r.close();
 	}
 
-	public static boolean putFileContents(byte[] src, int offset, int length, String fileName) {
-		DiskResource r = DiskResource.open(fileName, true);
+	public static void putFileContents(String filepath, int offset, int length, byte[] src) throws IOException {
+		DiskResource r = DiskResource.open(filepath, true);
 		
-		if (r != null) {
-			if (!r.resize(length))
-				return false;
-			if (!r.write(src, offset, 0, length))
-				return false;
-			if (!r.close())
-				return false;
-
-			return true;
-		} else {
-			return false;
+		r.resize(length);
+		r.write(src, offset, 0, length);
+		r.close();
+	}
+	
+	public static void remove(String filepath) throws IOException{
+		if(! new File(filepath).delete()){
+			throw new IOException();
 		}
 	}
 }

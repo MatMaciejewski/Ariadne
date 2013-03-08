@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import javax.xml.bind.DatatypeConverter;
+
 public class Hash extends ByteSource{
 	public static final int LENGTH = 32;
 	private Hash(){}
@@ -17,6 +19,13 @@ public class Hash extends ByteSource{
 		if(src.remaining() != LENGTH) throw new IllegalArgumentException();
 		Hash h = new Hash();
 		h.init(src, true);
+		return h;
+	}
+	
+	public static Hash fromString(String s){
+		if(s.length() != LENGTH*2) throw new IllegalArgumentException();
+		Hash h = new Hash();
+		h.init(DatatypeConverter.parseHexBinary(s), false);
 		return h;
 	}
 
@@ -56,5 +65,14 @@ public class Hash extends ByteSource{
 		assert(data.length == LENGTH);
 		h.init(data, false);
 		return h;
+	}
+	
+	public String toString(){
+		ByteBuffer b = getBuffer();
+	    StringBuilder sb = new StringBuilder();
+	    for(int i=0;i<b.capacity();++i){
+	    	sb.append(String.format("%02X", b.get(i)));
+	    }
+	    return sb.toString();
 	}
 }

@@ -2,7 +2,23 @@ package ariadne;
 
 import java.nio.ByteBuffer;
 
+import ariadne.data.ByteSource;
+
 public class Debug {
+	
+	public static void printBinary(ByteSource b){
+		printBinary(b.getBuffer());
+	}
+	public static void printSigned(ByteSource b){
+		printSigned(b.getBuffer());
+	}
+	public static void printUnsigned(ByteSource b){
+		printUnsigned(b.getBuffer());
+	}
+	public static void printHex(ByteSource b){
+		printHex(b.getBuffer());
+	}
+	
 	public static void printBinary(ByteBuffer b){
 		System.out.println("ByteBuffer: "+b);
 		for(int i=0;i<b.capacity();++i){
@@ -63,5 +79,9 @@ public class Debug {
 			}
 		}
 		return s;
+	}
+	
+	public static void makeSure(boolean condition){
+		if(!condition) throw new IllegalStateException();
 	}
 }

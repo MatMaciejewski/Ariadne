@@ -2,43 +2,34 @@ package ariadne.data;
 
 import java.nio.ByteBuffer;
 
-public class Descriptor extends ByteSource {
-	private Descriptor() {
+public abstract class Descriptor extends ByteSource {
+	private Integer hashCode;
+	
+	public Hash getHash(){
+		return Hash.calculatedFromByteBuffer(buf);
 	}
 	
 	public static Descriptor fromByteBuffer(ByteBuffer b){
-		if(b.remaining() < 16+Hash.LENGTH)
-			throw new IllegalArgumentException();
+		if(b.remaining() < 4) 
+			return null;
 		
-		Descriptor d = new Descriptor();
-		d.init(b, false);
+		int v = b.getInt(0);
+		if(v == 0) 
+			return FolderDescriptor.fromByteBuffer(b);
 		
-		int c = d.getChunkCount();
-		int s = d.getChunkSize();
-		long l = d.getFileSize();
-		
-		if(c*s < l) throw new IllegalArgumentException();
-		if((c-1)*s >= l) throw new IllegalArgumentException();
-		if(d.size() != 16+Hash.LENGTH*c) throw new IllegalArgumentException();
-		
-		d.init(b, true);
-		return d;
+		if(v > 0)
+			return FileDescriptor.fromByteBuffer(b);
+		else
+			return null;
 	}
-
-	public int getChunkCount() {
-		return buf.getInt(0);
+	
+	public int hashCode(){
+		if(hashCode == null){
+			hashCode = getBuffer().hashCode();
+		}
+		return hashCode;
 	}
-
-	public int getChunkSize() {
-		return buf.getInt(4);
-	}
-
-	public long getFileSize() {
-		return buf.getLong(8);
-	}
-
-	public Hash getChunkHash(int i) {
-		return Hash.fromByteBuffer(
-				getBufferPart(16 + i * Hash.LENGTH,Hash.LENGTH));
+	public void invalidateHashCode(){
+		hashCode = null;
 	}
 }

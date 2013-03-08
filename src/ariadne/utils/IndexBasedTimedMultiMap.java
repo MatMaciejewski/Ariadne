@@ -7,7 +7,6 @@ import java.util.Set;
 
 public class IndexBasedTimedMultiMap<K, V> implements TimedMultiMap<K, V>{
 	private class Pair{
-		//TODO: decide if id is needed
 		public K k;
 		public V v;
 		@Override
