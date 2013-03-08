@@ -84,4 +84,8 @@ public class Debug {
 	public static void makeSure(boolean condition){
 		if(!condition) throw new IllegalStateException();
 	}
+	
+	public static void warn(String s){
+		System.out.println("WARNING: "+s);
+	}
 }

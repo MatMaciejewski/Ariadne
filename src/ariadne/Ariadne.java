@@ -2,6 +2,7 @@ package ariadne;
 
 import java.util.ArrayList;
 
+import ariadne.data.BitMask;
 import ariadne.data.FileDescriptor;
 import ariadne.data.Hash;
 import ariadne.db.ConcreteDatabase;
@@ -19,6 +20,8 @@ public class Ariadne {
 		
 		FileDescriptor desc = FileDescriptor.fromData(8192, 24000, hashes);
 		
-		Debug.printHex(desc);
+		Hash h = desc.getHash();
+		BitMask b = d.getBitMask(h);
+		Debug.printHex(b);
 	}
 }

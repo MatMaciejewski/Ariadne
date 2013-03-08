@@ -17,7 +17,7 @@ public interface ResourceManager {
 	public Descriptor getDescriptor(String filepath);
 	public boolean saveDescriptor(String filepath, Descriptor d);
 	
-	public BitMask getBitMask(String filepath, int chunks);
+	public BitMask getBitMask(String filepath);
 	public boolean saveBitMask(String filepath, BitMask b);
 	
 	public Chunk getChunk(String filepath, int offset, int length);

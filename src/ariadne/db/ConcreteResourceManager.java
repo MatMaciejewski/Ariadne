@@ -32,10 +32,10 @@ public class ConcreteResourceManager implements ResourceManager{
 	}
 
 	@Override
-	public BitMask getBitMask(String filepath, int chunks) {
+	public BitMask getBitMask(String filepath) {
 		try{
 			ByteBuffer b = DiskResource.getFileContents(filepath);
-			BitMask m = BitMask.fromByteBuffer(b, chunks);
+			BitMask m = BitMask.fromByteBuffer(b);
 			return m;
 		}catch(IOException e){
 			return null;

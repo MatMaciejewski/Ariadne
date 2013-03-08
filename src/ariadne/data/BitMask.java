@@ -4,22 +4,16 @@ import java.nio.ByteBuffer;
 
 public class BitMask extends ByteSource{
 	private BitMask(){}
-	private int chunks;
 	
 	public static BitMask emptyBitMask(int chunks){
 		BitMask d = new BitMask();
 		d.buf = ByteBuffer.allocate(bytesNeededForChunkCount(chunks));
-		d.chunks = chunks;
 		return d;
 	}
 	
-	public static BitMask fromByteBuffer(ByteBuffer b, int chunks){
-		if(b.remaining() != bytesNeededForChunkCount(chunks))
-			throw new IllegalArgumentException();
-		
+	public static BitMask fromByteBuffer(ByteBuffer b){
 		BitMask d = new BitMask();
 		d.init(b, true);
-		d.chunks = chunks;
 		return d;
 	}
 	
@@ -30,12 +24,8 @@ public class BitMask extends ByteSource{
 		return s;
 	}
 	
-	public int getChunkCount(){
-		return chunks;
-	}
-	
 	public boolean get(int i){
-		if(i >= chunks) throw new IllegalArgumentException();
+		if(i >= buf.capacity()) throw new IllegalArgumentException();
 		byte b = buf.get(i/8);
 		byte m = (byte) (1 << (i%8));
 		return ((b&m) != 0);
